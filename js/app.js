@@ -242,11 +242,6 @@ function paintTrail() {
     };
     wrap.append(crumb);
   }
-  if (state.lab.trail.length) {
-    const clear = el(`<button class="trail-clear">✕ CLEAR</button>`);
-    clear.onclick = () => { state.lab.trail = []; paintTrail(); };
-    wrap.append(clear);
-  }
 }
 
 
