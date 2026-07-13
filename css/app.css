@@ -64,7 +64,7 @@ button { font: inherit; color: inherit; background: none; border: none; cursor: 
 .icon-btn {
   width: 32px; height: 32px;
   display: grid; place-items: center;
-  font-size: 14px; font-weight: 850; line-height: 1;
+  font-size: 15px; font-weight: 850; line-height: 1;
   border: 2px solid var(--ink); border-radius: var(--r-pill);
 }
 .icon-btn span { transform: translateY(-0.5px); }
@@ -100,7 +100,7 @@ button { font: inherit; color: inherit; background: none; border: none; cursor: 
 }
 .slot .idx {
   position: absolute; top: 3px; left: 6px;
-  font-size: 9px; font-weight: 800; color: var(--muted);
+  font-size: 10px; font-weight: 800; color: var(--muted);
 }
 .slot.filled { background: var(--ink); color: var(--bg); border-color: var(--ink); }
 .slot.filled .idx { color: var(--bg); opacity: 0.5; }
@@ -111,7 +111,7 @@ button { font: inherit; color: inherit; background: none; border: none; cursor: 
 .slots-tools { display: flex; align-items: center; justify-content: space-between; }
 /* joined stepper — one bordered group, internal dividers (mockup 08 edges) */
 .stepper { display: flex; border: 2px solid var(--ink); border-radius: var(--r); overflow: hidden; }
-.stepper button { width: 42px; height: 34px; font-size: 17px; font-weight: 850; }
+.stepper button { width: 42px; height: 34px; font-size: 16px; font-weight: 850; }
 .stepper .len {
   width: 42px; height: 34px; display: grid; place-items: center;
   font-size: 13px; font-weight: 850;
@@ -136,7 +136,7 @@ button { font: inherit; color: inherit; background: none; border: none; cursor: 
 /* the required star sits at the letter's shoulder without moving it:
    anchored to the key's center, where the letter always is */
 .bkey.must::after {
-  content: "✱"; font-size: 9px; line-height: 1;
+  content: "✱"; font-size: 10px; line-height: 1;
   position: absolute; left: 50%; top: 50%;
   transform: translate(5px, -14px);
 }
@@ -178,19 +178,14 @@ button { font: inherit; color: inherit; background: none; border: none; cursor: 
 }
 .lab-input { flex: 0 0 auto; width: 100%; }
 .pat-input:focus, .lab-input:focus { border-color: var(--accent); }
-.pat-input::placeholder, .lab-input::placeholder { color: var(--muted); opacity: 0.55; letter-spacing: 0.1em; font-size: 18px; font-weight: 800; }
+.pat-input::placeholder, .lab-input::placeholder { color: var(--muted); opacity: 0.55; letter-spacing: 0.1em; font-size: 16px; font-weight: 800; }
 
-.help-btn {
-  flex: 0 0 34px; height: 34px;
-  font-size: 15px; font-weight: 850; color: var(--muted);
-  border: 2px solid var(--line); border-radius: var(--r);
-}
 
 /* length filter chips */
 .lenchips { display: flex; gap: 6px; flex-wrap: wrap; }
 .lchip {
   height: 32px; min-width: 40px; padding: 0 11px;
-  font-size: 12px; font-weight: 850;
+  font-size: 11px; font-weight: 850;
   border: 2px solid var(--line); border-radius: var(--r);
   color: var(--muted); font-variant-numeric: tabular-nums;
 }
@@ -269,7 +264,7 @@ button { font: inherit; color: inherit; background: none; border: none; cursor: 
 .sheet-flags { display: flex; gap: 6px; }
 .flag {
   height: 26px; padding: 0 10px; display: inline-flex; align-items: center;
-  font-size: 10px; font-weight: 850; letter-spacing: 0.07em;
+  font-size: 11px; font-weight: 850; letter-spacing: 0.07em;
   border-radius: var(--r); border: 2px solid var(--line); color: var(--muted);
 }
 .flag.yes { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); }
