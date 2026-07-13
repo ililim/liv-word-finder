@@ -1,0 +1,184 @@
+<!-- 08 · Stanza — Liv Word Finder v4.
+     Concrete poetry: the words ARE the layout and the constraint is made visible as shape. SLOTS
+     results stack into a letter-grid where the fixed letters (S·A·E) form solid vertical rails
+     down the page and only the variable letters carry ink-red; PATTERN results sort into a
+     widening staircase (length is the shape); LADDER is a typographic hourglass — −1 words shrink
+     above the seed, +1 words grow below it. One accent ink only (poems are printed in one color),
+     so this deliberately drops the mode-color convention; controls are lines of the poem, the
+     keyboard is bare set type with no key caps at all. Light + dark. -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<title>08 · Stanza — Liv Word Finder v4</title>
+<style>
+  :root {
+    --bg: #faf7f0; --ink: #1c1a13; --muted: #82796a; --faint: #c4bcab;
+    --rail: rgba(28, 26, 19, 0.07); --acc: #c9331b;
+    color-scheme: light dark;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #16140f; --ink: #efeadd; --muted: #968c78; --faint: #4d483c;
+      --rail: rgba(239, 234, 221, 0.09); --acc: #ff7a5c;
+    }
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  body {
+    font-family: ui-monospace, "SF Mono", Menlo, monospace;
+    background: var(--bg); color: var(--ink);
+    display: flex; flex-direction: column; align-items: center; padding-bottom: 90px;
+  }
+  .topbar {
+    width: 100%; max-width: 430px; display: flex; justify-content: space-between; align-items: center;
+    padding: 10px 16px; font-size: 11px; font-weight: 700; color: var(--muted);
+  }
+  .topbar a { color: var(--muted); text-decoration: none; }
+  .phone { width: 100%; max-width: 430px; padding: 0 20px; }
+
+  .brand { display: flex; justify-content: space-between; align-items: baseline; margin: 4px 0 30px; }
+  .brand .t { font-size: 13px; font-weight: 700; letter-spacing: 0.22em; }
+  .brand .btns { font-size: 12px; color: var(--muted); letter-spacing: 0.4em; }
+
+  /* mode switcher = a line of the poem */
+  .modeline { display: flex; align-items: baseline; gap: 12px; margin: 0 0 26px; flex-wrap: wrap; }
+  .modeline .m { font-size: 12px; color: var(--muted); letter-spacing: 0.06em; }
+  .modeline .m.on { font-size: 30px; font-weight: 800; color: var(--ink); letter-spacing: 0.02em; }
+  .modeline .sl { color: var(--faint); font-size: 18px; }
+
+  .marg { font-size: 10px; color: var(--muted); letter-spacing: 0.1em; }
+  .marg b { color: var(--acc); font-weight: 800; }
+
+  .stanza-break { margin: 56px 0 26px; text-align: center; color: var(--faint); font-size: 16px; letter-spacing: 0.8em; }
+
+  /* SLOTS — letter grid with rails through the fixed columns */
+  .lattice { display: grid; grid-template-columns: repeat(5, 46px); justify-content: center; margin-bottom: 6px; }
+  .lattice span { display: grid; place-items: center; height: 44px; font-size: 26px; font-weight: 800; }
+  .lattice .fix { background: var(--rail); }
+  .lattice .var { color: var(--acc); }
+  .lattice .q { height: 58px; font-size: 32px; }
+  .lattice .q.gap { color: var(--faint); font-size: 20px; }
+  .lattice .rulecell { height: 14px; border-bottom: 2px solid var(--ink); }
+  .lattice .rulecell.off { border-bottom: 2px solid transparent; }
+  .gridnote { text-align: center; margin: 10px 0 26px; }
+
+  /* keyboard = bare set type, no caps (QWERTY-ordered) */
+  .typecase { text-align: center; line-height: 2.1; font-size: 17px; letter-spacing: 0.55em; margin-bottom: 4px; }
+  .typecase .d { color: var(--faint); }
+  .typecase .may { font-weight: 800; }
+  .typecase .must { font-weight: 800; color: var(--acc); }
+  .typecase .must sup { font-size: 9px; }
+  .caselegend { text-align: center; margin-bottom: 30px; }
+
+  .lenline { text-align: center; font-size: 13px; color: var(--muted); margin-bottom: 26px; letter-spacing: 0.2em; }
+  .lenline b { font-size: 18px; color: var(--ink); }
+
+  /* PATTERN — staircase */
+  .qline { text-align: left; font-size: 30px; font-weight: 800; letter-spacing: 0.24em; margin-bottom: 4px; }
+  .qline .wild { color: var(--faint); }
+  .anchorline { font-size: 11px; color: var(--muted); letter-spacing: 0.08em; margin-bottom: 30px; }
+  .anchorline b { color: var(--ink); }
+  .stair { display: flex; flex-direction: column; gap: 2px; }
+  .stair .row { display: flex; align-items: baseline; gap: 14px; }
+  .stair .w { font-size: 27px; font-weight: 800; letter-spacing: 0.14em; }
+  .stair .w i { font-style: normal; color: var(--acc); }
+  .stair .len { font-size: 10px; color: var(--muted); }
+  .lenpick { font-size: 12px; color: var(--muted); letter-spacing: 0.14em; margin: 26px 0 0; }
+  .lenpick b { color: var(--ink); border-bottom: 2px solid var(--acc); padding-bottom: 1px; }
+
+  /* LADDER — hourglass */
+  .glass { text-align: center; }
+  .glass .minus .w { font-size: 20px; font-weight: 800; letter-spacing: 0.18em; line-height: 1.7; }
+  .glass .minus .w s { color: var(--acc); text-decoration-thickness: 2px; }
+  .glass .seed { font-size: 42px; font-weight: 800; letter-spacing: 0.2em; margin: 18px 0; }
+  .glass .plus .w { font-size: 27px; font-weight: 800; letter-spacing: 0.18em; line-height: 1.75; }
+  .glass .plus .w i { font-style: normal; color: var(--acc); border-bottom: 3px solid var(--acc); }
+  .glass .w { position: relative; display: block; }
+  .glass .lex { font-size: 9px; color: var(--muted); letter-spacing: 0.1em; margin-left: 10px; vertical-align: middle; }
+  .glass .shuf { font-style: italic; }
+  .glass .shuf::before { content: "⇄ "; font-style: normal; color: var(--muted); font-size: 14px; }
+  .glassmarg { display: flex; justify-content: space-between; margin: 4px 0; }
+  .trailline { text-align: center; font-size: 12px; color: var(--muted); letter-spacing: 0.14em; margin-bottom: 20px; }
+  .trailline b { color: var(--ink); }
+  .togline { text-align: center; font-size: 11px; color: var(--muted); letter-spacing: 0.12em; margin-top: 26px; }
+  .togline b { color: var(--ink); }
+</style>
+</head>
+<body>
+<div class="topbar"><a href="./index.html">‹ Gallery</a><span>08 · STANZA</span></div>
+<div class="phone">
+
+  <div class="brand"><span class="t">LIV·WORDS</span><span class="btns">? ⚙</span></div>
+
+  <!-- ==================== SLOTS ==================== -->
+  <div class="modeline"><span class="m on">slots</span><span class="sl">/</span><span class="m">pattern</span><span class="sl">/</span><span class="m">ladder</span></div>
+
+  <div class="lenline">length&ensp;−&ensp;<b>5</b>&ensp;+</div>
+
+  <div class="lattice">
+    <span class="q fix">S</span><span class="q gap">·</span><span class="q fix">A</span><span class="q gap">·</span><span class="q fix">E</span>
+    <span class="rulecell"></span><span class="rulecell off"></span><span class="rulecell"></span><span class="rulecell off"></span><span class="rulecell"></span>
+    <span class="fix">S</span><span class="var">H</span><span class="fix">A</span><span class="var">D</span><span class="fix">E</span>
+    <span class="fix">S</span><span class="var">H</span><span class="fix">A</span><span class="var">K</span><span class="fix">E</span>
+    <span class="fix">S</span><span class="var">H</span><span class="fix">A</span><span class="var">L</span><span class="fix">E</span>
+    <span class="fix">S</span><span class="var">H</span><span class="fix">A</span><span class="var">M</span><span class="fix">E</span>
+    <span class="fix">S</span><span class="var">H</span><span class="fix">A</span><span class="var">P</span><span class="fix">E</span>
+    <span class="fix">S</span><span class="var">H</span><span class="fix">A</span><span class="var">R</span><span class="fix">E</span>
+    <span class="fix">S</span><span class="var">H</span><span class="fix">A</span><span class="var">V</span><span class="fix">E</span>
+  </div>
+  <div class="gridnote marg">×7 — the rails are yours, <b>the red is the find</b></div>
+
+  <div class="typecase">
+    <span class="d">Q</span><span class="d">W</span><span class="d">E</span><span class="may">R</span><span class="may">T</span><span class="d">Y</span><span class="d">U</span><span class="d">I</span><span class="d">O</span><span class="may">P</span><br>
+    <span class="d">A</span><span class="d">S</span><span class="may">D</span><span class="d">F</span><span class="d">G</span><span class="must">H<sup>✱</sup></span><span class="d">J</span><span class="may">K</span><span class="may">L</span><br>
+    <span class="d">Z</span><span class="d">X</span><span class="d">C</span><span class="may">V</span><span class="d">B</span><span class="d">N</span><span class="may">M</span>
+  </div>
+  <div class="caselegend marg">faint = closed · ink = may · <b>red✱ = must</b></div>
+
+  <!-- ==================== PATTERN ==================== -->
+  <div class="stanza-break">· · ·</div>
+  <div class="modeline"><span class="m">slots</span><span class="sl">/</span><span class="m on">pattern</span><span class="sl">/</span><span class="m">ladder</span></div>
+
+  <div class="qline">B<span class="wild">_</span>TT<span class="wild">*</span>Y</div>
+  <div class="anchorline">[<b>×</b>] starts with&emsp;[&thinsp;&thinsp;] ends with&emsp;·&emsp;_ any one · * any run</div>
+
+  <div class="stair">
+    <div class="row"><span class="w">B<i>A</i>TT<i>ER</i>Y</span><span class="len">7 · NWL</span></div>
+    <div class="row"><span class="w">B<i>U</i>TT<i>ER</i>Y</span><span class="len">7 · NWL</span></div>
+    <div class="row"><span class="w">B<i>I</i>TT<i>ERL</i>Y</span><span class="len">8 · NWL</span></div>
+    <div class="row"><span class="w">B<i>U</i>TT<i>ERFL</i>Y</span><span class="len">9 · NWL</span></div>
+  </div>
+  <div class="lenpick">length&ensp;<b>all</b>&ensp;5&ensp;6&ensp;7&ensp;8&ensp;9&ensp;10+&emsp;·&emsp;×4</div>
+
+  <!-- ==================== LADDER ==================== -->
+  <div class="stanza-break">· · ·</div>
+  <div class="modeline"><span class="m">slots</span><span class="sl">/</span><span class="m">pattern</span><span class="sl">/</span><span class="m on">ladder</span></div>
+
+  <div class="trailline">flour → <b>lour</b>&emsp;✕ clear</div>
+
+  <div class="glass">
+    <div class="glassmarg"><span class="marg">−1 ×2</span><span class="marg">drop a letter</span></div>
+    <div class="minus">
+      <span class="w"><s>L</s>OUR<span class="lex">NWL</span></span>
+      <span class="w">LO<s>U</s>R<span class="lex">CSW</span></span>
+    </div>
+
+    <div class="seed">LOUR</div>
+
+    <div class="glassmarg"><span class="marg">+1 ×5</span><span class="marg">add a letter</span></div>
+    <div class="plus">
+      <span class="w"><i>C</i>LOUR<span class="lex">CSW</span></span>
+      <span class="w"><i>F</i>LOUR<span class="lex">NWL</span></span>
+      <span class="w">LOUR<i>E</i><span class="lex">CSW</span></span>
+      <span class="w">LOUR<i>S</i><span class="lex">NWL</span></span>
+      <span class="w shuf">FLUOR<span class="lex">NWL · shuffled</span></span>
+    </div>
+  </div>
+
+  <div class="togline"><b>anagram ✓</b> · unique · +s&emsp;—&emsp;tap a word to walk to it</div>
+
+</div>
+</body>
+</html>

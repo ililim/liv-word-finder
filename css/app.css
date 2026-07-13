@@ -68,6 +68,7 @@ button { font: inherit; color: inherit; background: none; border: none; cursor: 
   border: 2px solid var(--ink); border-radius: var(--r-pill);
 }
 .icon-btn span { transform: translateY(-0.5px); }
+.icon-btn.on { background: var(--ink); color: var(--bg); }
 
 /* app switcher — bordered pill, white active segment (mockup 14) */
 .seg {
@@ -81,6 +82,35 @@ button { font: inherit; color: inherit; background: none; border: none; cursor: 
   color: var(--muted); border-radius: var(--r-pill);
 }
 .seg button.active { background: var(--accent); color: var(--accent-ink); }
+
+/* rack — drawer slides from under the header; strip shows the active rack */
+.rack-drawer {
+  display: none; gap: 8px; margin-top: 12px;
+}
+.rack-drawer.open { display: flex; }
+.rack-input {
+  flex: 1; min-width: 0; height: 48px; padding: 0 12px;
+  font-size: 16px; font-weight: 850; letter-spacing: 0.3em; text-transform: uppercase;
+  background: var(--surface); color: var(--ink);
+  border: 2px solid var(--line); border-radius: var(--r);
+  outline: none; text-align: center;
+}
+.rack-input:focus { border-color: var(--ink); }
+.rack-input::placeholder { font-size: 11px; letter-spacing: 0.1em; font-weight: 800; opacity: 0.55; }
+.rack-drawer .tchip { height: 48px; }
+.rack-strip {
+  display: none; gap: 5px; align-items: center; justify-content: center;
+  margin-top: 10px; min-height: 30px;
+}
+.rack-strip.on { display: flex; flex-wrap: wrap; }
+.rack-strip .rt {
+  width: 24px; height: 28px; display: inline-grid; place-items: center;
+  font-size: 12px; font-weight: 850; text-transform: uppercase;
+  background: var(--ink); color: var(--bg);
+}
+.rack-strip .rt.blank { background: var(--surface); color: var(--muted); border: 2px solid var(--line); }
+.word.all-rack::after { content: "✱"; font-size: 10px; margin-left: 5px; color: var(--accent-text); }
+.bkey.norack { opacity: 0.35; }
 
 /* views */
 .view { flex: 1; display: none; flex-direction: column; gap: 14px; margin-top: 16px; min-height: 0; }

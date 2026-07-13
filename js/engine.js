@@ -98,7 +98,7 @@ export function queryPlusMinus(dict, word, { shuffle, noDoubles, hideSPlurals, r
   const out = { plus: { inPlace: [], shuffled: [] }, minus: { inPlace: [], shuffled: [] } };
   if (!/^[a-z]{2,}$/.test(w)) return out;
 
-  const keep = c => c !== w && !(noDoubles && hasDouble(c)) && fitsRack(c, rack);
+  const keep = c => c !== w && !(noDoubles && hasDouble(c)) && fitsRack(c, rack, w);
 
   const plusSeen = new Set();
   for (let i = 0; i <= w.length; i++)
@@ -129,6 +129,18 @@ export function queryPlusMinus(dict, word, { shuffle, noDoubles, hideSPlurals, r
   if (hideSPlurals) {
     out.plus.inPlace = out.plus.inPlace.filter(c => c !== w + "s");
     out.minus.inPlace = out.minus.inPlace.filter(c => w !== c + "s");
+  }
+  return out;
+}
+
+
+// Everything the rack can build, any length — the empty-query rack solve.
+export function queryRack(dict, rack, filters = {}) {
+  const out = [];
+  const size = rack.counts.reduce((a, b) => a + b, 0) + rack.blanks;
+  for (const [len, bucket] of [...dict.byLen].sort((a, b) => a[0] - b[0])) {
+    if (len > size) continue;
+    out.push(...applyFilters(bucket, { ...filters, rack }));
   }
   return out;
 }
@@ -166,11 +178,39 @@ export function hasDouble(word) {
   return false;
 }
 
-// rack: counts array (or null = unrestricted). Global drawer, milestone 2.
-export function fitsRack(word, rack) {
+// rack: { counts, blanks } or null. The query's own letters are free —
+// the rack only pays for what `given` didn't already put on the board.
+export function fitsRack(word, rack, given = "") {
   if (!rack) return true;
-  const c = counts(word);
-  return rack.every((n, i) => c[i] <= n);
+  const need = counts(word);
+  const free = counts(given);
+  let owed = 0;
+  for (let i = 0; i < 26; i++) {
+    const short = need[i] - free[i] - rack.counts[i];
+    if (short > 0) owed += short;
+  }
+  return owed <= rack.blanks;
+}
+
+// "AEINRT?" -> { counts, blanks }; null when empty
+export function parseRack(str) {
+  const clean = str.toLowerCase().replace(/[^a-z?]/g, "");
+  if (!clean) return null;
+  const rack = { counts: new Array(26).fill(0), blanks: 0 };
+  for (const ch of clean) ch === "?" ? rack.blanks++ : rack.counts[ch.charCodeAt(0) - A]++;
+  return rack;
+}
+
+// does the word consume every rack letter? (bingo / pangram marker)
+export function usesAllRack(word, rack, given = "") {
+  if (!rack) return false;
+  const size = rack.counts.reduce((a, b) => a + b, 0) + rack.blanks;
+  if (size < 2) return false;
+  const need = counts(word);
+  const free = counts(given);
+  let fromRack = 0;
+  for (let i = 0; i < 26; i++) fromRack += Math.max(0, need[i] - free[i]);
+  return fromRack === size;
 }
 
 // bigger counts contain smaller with exactly one letter to spare
@@ -184,13 +224,13 @@ function offByOne(bigger, smaller) {
   return extra === 1;
 }
 
-function applyFilters(list, { include, exclude, only, noDoubles, rack }) {
+function applyFilters(list, { include, exclude, only, noDoubles, rack, given }) {
   return list.filter(w =>
     !(noDoubles && hasDouble(w)) &&
     !(exclude && [...exclude].some(ch => w.includes(ch))) &&
     !(include && [...include].some(ch => !w.includes(ch))) &&
     !(only && [...w].some(ch => !only.has(ch))) &&
-    fitsRack(w, rack)
+    fitsRack(w, rack, given)
   );
 }
 

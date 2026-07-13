@@ -1,0 +1,271 @@
+<!-- 07 · Interchange — Liv Word Finder v4.
+     The app as a transit network. Each mode is a LINE (red / chartreuse / amber line bars replace
+     the pill switcher), results are STATIONS on a vertical route line, and the ladder trail is the
+     line you actually rode — +1 is the northbound branch, −1 the southbound, shuffled words sit on
+     a dashed out-of-network spur. Board keys are station-wall tiles; signage tradition throughout
+     (heavy grotesque caps, white roundels, no decoration that isn't wayfinding). Light + dark. -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<title>07 · Interchange — Liv Word Finder v4</title>
+<style>
+  :root {
+    --bg: #f2f1ec; --tile: #ffffff; --ink: #17160f; --muted: #6d6a5e;
+    --grout: rgba(23, 22, 15, 0.16);
+    --red: #c8231f;   --red-ink: #ffffff;
+    --grn: #7ea800;   --grn-ink: #17160f;
+    --amb: #e08900;   --amb-ink: #17160f;
+    color-scheme: light dark;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #141410; --tile: #201f19; --ink: #f0efe7; --muted: #94917f;
+      --grout: rgba(240, 239, 231, 0.18);
+      --red: #ff6a5c; --red-ink: #141410;
+      --grn: #b7dc37; --grn-ink: #141410;
+      --amb: #ffb03a; --amb-ink: #141410;
+    }
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  body {
+    font-family: -apple-system, "Helvetica Neue", BlinkMacSystemFont, sans-serif;
+    background: var(--bg); color: var(--ink);
+    display: flex; flex-direction: column; align-items: center; padding-bottom: 80px;
+  }
+  .topbar {
+    width: 100%; max-width: 430px; display: flex; justify-content: space-between; align-items: center;
+    padding: 10px 16px; font-size: 12px; font-weight: 700; color: var(--muted);
+  }
+  .topbar a { color: var(--muted); text-decoration: none; }
+  .phone { width: 100%; max-width: 430px; padding: 0 16px; }
+
+  /* station name sign */
+  .signhead {
+    display: flex; align-items: center; justify-content: space-between;
+    background: var(--ink); color: var(--bg); padding: 10px 14px; margin-bottom: 14px;
+  }
+  .signhead .name { font-size: 18px; font-weight: 850; letter-spacing: 0.2em; }
+  .signhead .btns { display: flex; gap: 8px; }
+  .signhead .btns span {
+    width: 26px; height: 26px; border-radius: 999px; background: var(--bg); color: var(--ink);
+    display: grid; place-items: center; font-size: 12px; font-weight: 850;
+  }
+
+  /* mode switcher = three line bars (no pill) */
+  .lines { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; margin-bottom: 20px; }
+  .lbar { display: flex; flex-direction: column; gap: 4px; }
+  .lbar .lname { font-size: 10px; font-weight: 850; letter-spacing: 0.12em; color: var(--muted); }
+  .lbar .bar { height: 8px; }
+  .lbar.red .bar { background: var(--red); } .lbar.grn .bar { background: var(--grn); } .lbar.amb .bar { background: var(--amb); }
+  .lbar.on .bar { height: 34px; display: grid; place-items: center; font-size: 12px; font-weight: 850; letter-spacing: 0.14em; }
+  .lbar.on .lname { visibility: hidden; }
+  .lbar.on.red .bar { color: var(--red-ink); } .lbar.on.grn .bar { color: var(--grn-ink); } .lbar.on.amb .bar { color: var(--amb-ink); }
+
+  .mode-break { margin: 44px 0 14px; border-top: 4px solid var(--ink); padding-top: 6px;
+    font-size: 10px; font-weight: 850; letter-spacing: 0.24em; color: var(--muted); }
+  .hint { font-size: 11px; font-weight: 700; letter-spacing: 0.05em; color: var(--muted); }
+  .hint b { color: var(--ink); }
+
+  /* slots + board = station wall tiles */
+  .slots { display: flex; gap: 6px; justify-content: center; margin-bottom: 12px; }
+  .slot {
+    width: 56px; height: 62px; display: grid; place-items: center;
+    font-size: 28px; font-weight: 850; background: var(--tile);
+    border: 2px solid var(--grout); box-shadow: inset 0 -3px 0 var(--grout);
+  }
+  .slot.filled { background: var(--ink); color: var(--bg); border-color: var(--ink); box-shadow: none; }
+  .slot.cursor { border-color: var(--red); box-shadow: inset 0 -3px 0 var(--red); }
+  .rowline { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+  .stepper { display: flex; border: 2px solid var(--ink); }
+  .stepper b { width: 38px; height: 30px; display: grid; place-items: center; font-size: 15px; font-weight: 850; }
+  .stepper .len { border-inline: 2px solid var(--ink); font-size: 13px; }
+  .board { display: flex; flex-direction: column; gap: 5px; margin-bottom: 8px; }
+  .brow { display: flex; gap: 5px; justify-content: center; }
+  .bkey {
+    flex: 0 0 34px; height: 40px; display: grid; place-items: center;
+    font-size: 14px; font-weight: 800; background: var(--tile);
+    border: 1.5px solid var(--grout); box-shadow: inset 0 -2px 0 var(--grout); position: relative;
+  }
+  .bkey.dim { background: none; box-shadow: none; opacity: 0.3; }
+  .bkey.may { background: var(--ink); color: var(--bg); border-color: var(--ink); box-shadow: none; }
+  .bkey.must { background: var(--red); color: var(--red-ink); border-color: var(--red); box-shadow: none; }
+  .bkey.must::after { content: "✱"; position: absolute; top: 1px; right: 3px; font-size: 8px; }
+  .legend { margin-bottom: 16px; }
+
+  /* results = a route line with stations */
+  .route-h { display: flex; justify-content: space-between; align-items: baseline;
+    margin-bottom: 6px; font-size: 11px; font-weight: 850; letter-spacing: 0.14em; color: var(--muted); }
+  .route-h .n { font-size: 22px; font-weight: 850; letter-spacing: 0; }
+  .route { position: relative; padding-left: 30px; }
+  .route::before { content: ""; position: absolute; left: 8px; top: 8px; bottom: 8px; width: 6px; }
+  .route.red::before { background: var(--red); } .route.grn::before { background: var(--grn); } .route.amb::before { background: var(--amb); }
+  .route.dashed::before { background: none; border-left: 6px dashed var(--amb); width: 0; }
+  .stn { position: relative; display: flex; justify-content: space-between; align-items: baseline; padding: 9px 2px 9px 4px; }
+  .stn::before {
+    content: ""; position: absolute; left: -27px; top: 50%; margin-top: -7px;
+    width: 14px; height: 14px; border-radius: 999px; background: var(--bg); border: 3.5px solid var(--ink);
+  }
+  .stn .w { font-size: 18px; font-weight: 850; letter-spacing: 0.14em; }
+  .stn .note { font-size: 10px; font-weight: 700; letter-spacing: 0.08em; color: var(--muted); }
+  .stn.hollow::before { border-style: dashed; border-width: 2.5px; margin-top: -6px; }
+  .stn .w em { font-style: normal; }
+  .route.amb .stn .w em.add { color: var(--amb); border-bottom: 3px solid var(--amb); }
+  .stn .w em.del { color: var(--red); text-decoration: line-through; text-decoration-thickness: 2.5px; }
+
+  /* pattern */
+  .pat-row { display: flex; gap: 8px; align-items: stretch; margin-bottom: 10px; }
+  .term { flex: 0 0 62px; display: grid; place-items: center; text-align: center;
+    font-size: 9px; font-weight: 850; line-height: 1.5; letter-spacing: 0.06em;
+    border: 2px solid var(--grout); color: var(--muted); }
+  .term.on { background: var(--grn); color: var(--grn-ink); border-color: var(--grn); }
+  .pat-input { flex: 1; height: 54px; display: grid; place-items: center;
+    font-size: 24px; font-weight: 850; letter-spacing: 0.16em;
+    background: var(--tile); border: 2px solid var(--grout); border-bottom: 6px solid var(--grn); }
+  .zones { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; margin-bottom: 16px; }
+  .zones .zl { font-size: 10px; font-weight: 850; letter-spacing: 0.12em; color: var(--muted); margin-right: 2px; }
+  .zone { width: 34px; height: 34px; border-radius: 999px; display: grid; place-items: center;
+    font-size: 12px; font-weight: 850; border: 2px solid var(--grout); color: var(--muted); }
+  .zone.on { background: var(--ink); color: var(--bg); border-color: var(--ink); }
+  .zone.all { width: auto; padding: 0 12px; }
+
+  /* ladder */
+  .lab-input { width: 100%; height: 54px; display: grid; place-items: center;
+    font-size: 24px; font-weight: 850; letter-spacing: 0.16em;
+    background: var(--tile); border: 2px solid var(--grout); border-bottom: 6px solid var(--amb); margin-bottom: 10px; }
+  .ridden { display: flex; align-items: center; gap: 0; margin-bottom: 18px; }
+  .ridden .stop { font-size: 11px; font-weight: 850; letter-spacing: 0.06em; padding: 5px 8px; border: 2px solid var(--grout); color: var(--muted); }
+  .ridden .seglink { width: 22px; height: 6px; background: var(--amb); }
+  .ridden .here { border-color: var(--amb); color: var(--ink); border-width: 2.5px; }
+  .ridden .clear { margin-left: auto; font-size: 11px; font-weight: 850; color: var(--muted); border: 2px solid var(--grout); padding: 5px 8px; }
+  .branch-h { display: flex; align-items: center; gap: 10px; margin: 20px 0 4px; }
+  .branch-h .roundel {
+    width: 30px; height: 30px; border-radius: 999px; display: grid; place-items: center;
+    font-size: 12px; font-weight: 850; background: var(--amb); color: var(--amb-ink);
+  }
+  .branch-h .roundel.neg { background: var(--bg); color: var(--ink); border: 3px solid var(--amb); }
+  .branch-h .t { font-size: 11px; font-weight: 850; letter-spacing: 0.14em; color: var(--muted); }
+  .branch-h .n { margin-left: auto; font-size: 20px; font-weight: 850; color: var(--amb); }
+  .spur-h { display: flex; align-items: baseline; gap: 8px; margin: 10px 0 2px 30px;
+    font-size: 10px; font-weight: 850; letter-spacing: 0.14em; color: var(--muted); }
+  .toggles { display: flex; gap: 8px; margin-bottom: 6px; }
+  .tog { font-size: 10px; font-weight: 850; letter-spacing: 0.08em; padding: 6px 10px; border: 2px solid var(--grout); color: var(--muted); }
+  .tog.on { border-color: var(--ink); color: var(--ink); }
+</style>
+</head>
+<body>
+<div class="topbar"><a href="./index.html">‹ Gallery</a><span>07 · INTERCHANGE</span></div>
+<div class="phone">
+
+  <div class="signhead"><span class="name">LIV WORDS</span><span class="btns"><span>?</span><span>⚙</span></span></div>
+
+  <!-- ==================== SLOTS ==================== -->
+  <div class="lines">
+    <div class="lbar red on"><span class="lname">SLOTS</span><div class="bar">SLOTS</div></div>
+    <div class="lbar grn"><span class="lname">PATTERN</span><div class="bar"></div></div>
+    <div class="lbar amb"><span class="lname">LADDER</span><div class="bar"></div></div>
+  </div>
+
+  <div class="slots">
+    <div class="slot filled">S</div><div class="slot cursor"></div><div class="slot filled">A</div>
+    <div class="slot"></div><div class="slot filled">E</div>
+  </div>
+  <div class="rowline">
+    <span class="hint">WORD LENGTH</span>
+    <div class="stepper"><b>−</b><b class="len">5</b><b>+</b></div>
+  </div>
+  <div class="board">
+    <div class="brow">
+      <div class="bkey dim">Q</div><div class="bkey dim">W</div><div class="bkey dim">E</div>
+      <div class="bkey may">R</div><div class="bkey may">T</div><div class="bkey dim">Y</div>
+      <div class="bkey dim">U</div><div class="bkey dim">I</div><div class="bkey dim">O</div><div class="bkey may">P</div>
+    </div>
+    <div class="brow">
+      <div class="bkey dim">A</div><div class="bkey dim">S</div><div class="bkey may">D</div>
+      <div class="bkey dim">F</div><div class="bkey dim">G</div><div class="bkey must">H</div>
+      <div class="bkey dim">J</div><div class="bkey may">K</div><div class="bkey may">L</div>
+    </div>
+    <div class="brow">
+      <div class="bkey dim">Z</div><div class="bkey dim">X</div><div class="bkey dim">C</div>
+      <div class="bkey may">V</div><div class="bkey dim">B</div><div class="bkey dim">N</div><div class="bkey may">M</div>
+    </div>
+  </div>
+  <div class="hint legend">TAP ONCE <b>MAY</b> · TWICE <b>MUST ✱</b> · REST CLOSED</div>
+
+  <div class="route-h"><span>7 STATIONS</span><span class="n" style="color:var(--red)">7</span></div>
+  <div class="route red">
+    <div class="stn"><span class="w">SHADE</span><span class="note">NWL</span></div>
+    <div class="stn"><span class="w">SHAKE</span><span class="note">NWL</span></div>
+    <div class="stn"><span class="w">SHALE</span><span class="note">NWL</span></div>
+    <div class="stn"><span class="w">SHAME</span><span class="note">NWL</span></div>
+    <div class="stn"><span class="w">SHAPE</span><span class="note">NWL</span></div>
+    <div class="stn"><span class="w">SHARE</span><span class="note">NWL</span></div>
+    <div class="stn"><span class="w">SHAVE</span><span class="note">NWL</span></div>
+  </div>
+
+  <!-- ==================== PATTERN ==================== -->
+  <div class="mode-break">LINE · PATTERN</div>
+  <div class="lines">
+    <div class="lbar red"><span class="lname">SLOTS</span><div class="bar"></div></div>
+    <div class="lbar grn on"><span class="lname">PATTERN</span><div class="bar">PATTERN</div></div>
+    <div class="lbar amb"><span class="lname">LADDER</span><div class="bar"></div></div>
+  </div>
+
+  <div class="pat-row">
+    <div class="term on">START<br>TERMINUS</div>
+    <div class="pat-input">B_TT*Y</div>
+    <div class="term">END<br>TERMINUS</div>
+  </div>
+  <div class="zones">
+    <span class="zl">ZONE</span>
+    <span class="zone all on">ALL</span><span class="zone">5</span><span class="zone">6</span>
+    <span class="zone">7</span><span class="zone">8</span><span class="zone">9</span><span class="zone all">10+</span>
+  </div>
+
+  <div class="route-h"><span>4 STATIONS</span><span class="n" style="color:var(--grn)">4</span></div>
+  <div class="route grn">
+    <div class="stn"><span class="w">BATTERY</span><span class="note">7 · NWL</span></div>
+    <div class="stn"><span class="w">BITTERLY</span><span class="note">8 · NWL</span></div>
+    <div class="stn"><span class="w">BUTTERFLY</span><span class="note">9 · NWL</span></div>
+    <div class="stn"><span class="w">BUTTERY</span><span class="note">7 · NWL</span></div>
+  </div>
+
+  <!-- ==================== LADDER ==================== -->
+  <div class="mode-break">LINE · LADDER</div>
+  <div class="lines">
+    <div class="lbar red"><span class="lname">SLOTS</span><div class="bar"></div></div>
+    <div class="lbar grn"><span class="lname">PATTERN</span><div class="bar"></div></div>
+    <div class="lbar amb on"><span class="lname">LADDER</span><div class="bar">LADDER</div></div>
+  </div>
+
+  <div class="lab-input">LOUR</div>
+  <div class="ridden">
+    <span class="stop">FLOUR</span><span class="seglink"></span><span class="stop here">LOUR</span>
+    <span class="clear">✕ CLEAR</span>
+  </div>
+  <div class="toggles"><span class="tog on">ANAGRAM</span><span class="tog">UNIQUE</span><span class="tog">+S</span></div>
+
+  <div class="branch-h"><span class="roundel">+1</span><span class="t">NORTHBOUND · ADD A LETTER</span><span class="n">5</span></div>
+  <div class="route amb">
+    <div class="stn"><span class="w"><em class="add">C</em>LOUR</span><span class="note">CSW</span></div>
+    <div class="stn"><span class="w"><em class="add">F</em>LOUR</span><span class="note">NWL</span></div>
+    <div class="stn"><span class="w">LOUR<em class="add">E</em></span><span class="note">CSW</span></div>
+    <div class="stn"><span class="w">LOUR<em class="add">S</em></span><span class="note">NWL</span></div>
+  </div>
+  <div class="spur-h"><span>⇄ SHUFFLED SPUR</span><span>1</span></div>
+  <div class="route amb dashed">
+    <div class="stn hollow"><span class="w">FLUOR</span><span class="note">NWL</span></div>
+  </div>
+
+  <div class="branch-h"><span class="roundel neg">−1</span><span class="t">SOUTHBOUND · DROP A LETTER</span><span class="n">2</span></div>
+  <div class="route amb">
+    <div class="stn"><span class="w"><em class="del">L</em>OUR</span><span class="note">NWL</span></div>
+    <div class="stn"><span class="w">LO<em class="del">U</em>R</span><span class="note">CSW</span></div>
+  </div>
+  <div class="spur-h"><span>⇄ SHUFFLED SPUR</span><span>0 — NONE</span></div>
+
+</div>
+</body>
+</html>

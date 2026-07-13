@@ -1,12 +1,15 @@
 /// Liv Word Finder — UI. Three apps over one engine: Slots, Pattern, ±1.
 /// Design: assist, don't solve. No points anywhere.
 
-import { DICTS, loadDict, lookupDef, querySlots, querySlotsLoose, queryPattern, queryPlusMinus, groupByLength } from "./engine.js";
+import { DICTS, loadDict, lookupDef, querySlots, querySlotsLoose, queryPattern, queryPlusMinus, queryRack, parseRack, usesAllRack, groupByLength } from "./engine.js";
 
 const $ = id => document.getElementById(id);
 const plural = n => (n === 1 ? "WORD" : "WORDS");
 const PAGE = 150;         // words shown per group before "+n more"
 const WRAP_AT = 12;       // slots per row — beyond this they take a second line
+
+// set per paint: does this word spend the whole rack?
+let rackMark = () => false;
 
 const state = {
   app: "slots",
@@ -161,10 +164,14 @@ function cycleConstraint(ch) {
 
 function paintBoard() {
   const { may, must } = state.slots;
+  const rack = state.rack;
   $("board").classList.toggle("active", may.size + must.size > 0);
   for (const key of document.querySelectorAll(".bkey")) {
+    if (!key.dataset.ch) continue;
     key.classList.toggle("may", may.has(key.dataset.ch));
     key.classList.toggle("must", must.has(key.dataset.ch));
+    key.classList.toggle("norack",
+      !!rack && !rack.blanks && rack.counts[key.dataset.ch.charCodeAt(0) - 97] === 0);
   }
 }
 
@@ -275,24 +282,37 @@ function paintSlotsResults() {
   const slots = Array.from({ length: s.len }, (_, i) => s.letters[i] ?? null);
   const restricted = s.may.size + s.must.size > 0;
   const touched = slots.some(Boolean) || restricted;
+  const given = slots.filter(Boolean).join(""); // board letters: the rack doesn't pay for these
 
-  // Tapped letters are the whole alphabet she's allowing; slot letters ride along.
   const only = restricted ? new Set([...s.may, ...s.must, ...slots.filter(Boolean)]) : null;
-  const filters = { include: s.must, only, noDoubles: s.noDoubles, rack: state.rack };
-  const words = querySlots(state.dict, slots, filters);
+  const filters = { include: s.must, only, noDoubles: s.noDoubles, rack: state.rack, given };
+  rackMark = w => usesAllRack(w, state.rack, given);
   const wrap = $("slots-results");
+
+  if (!touched && state.rack) { // rack alone: everything she can build
+    paintGroups(wrap, queryRack(state.dict, state.rack, { noDoubles: s.noDoubles }), false);
+    return;
+  }
+  const words = querySlots(state.dict, slots, filters);
   paintGroups(wrap, touched ? words : [], !touched);
   if (touched) appendOtherLengths(wrap, querySlotsLoose(state.dict, slots, filters));
 }
 
 function paintPatternResults() {
   const p = state.pattern;
-  const words = p.str ? queryPattern(state.dict, p.str, { ...p, rack: state.rack }) : [];
+  const given = p.str.replace(/[^a-z]/g, ""); // typed literals sit on the board
+  rackMark = w => usesAllRack(w, state.rack, given);
   const wrap = $("pattern-results");
+
+  if (!p.str && state.rack) {
+    paintGroups(wrap, queryRack(state.dict, state.rack, { noDoubles: p.noDoubles }), false);
+    return;
+  }
+  const words = p.str ? queryPattern(state.dict, p.str, { ...p, rack: state.rack, given }) : [];
   paintGroups(wrap, words, !p.str);
   if (p.str && p.lengths.size) {
     const seen = new Set(words);
-    const loose = queryPattern(state.dict, p.str, { ...p, lengths: null, rack: state.rack }).filter(w => !seen.has(w));
+    const loose = queryPattern(state.dict, p.str, { ...p, lengths: null, rack: state.rack, given }).filter(w => !seen.has(w));
     appendOtherLengths(wrap, loose);
   }
 }
@@ -304,6 +324,7 @@ function paintLabResults() {
     wrap.innerHTML = "";
     return;
   }
+  rackMark = w => usesAllRack(w, state.rack, lab.word);
   const { plus, minus } = queryPlusMinus(state.dict, lab.word, { ...lab, rack: state.rack });
 
   wrap.innerHTML = "";
@@ -366,7 +387,7 @@ function wordRow(words, walkable) {
 
 // Tap: definition — except in ±1 where tap walks and hold gives the meaning.
 function wordChip(word, walkable) {
-  const chip = el(`<button class="word">${word}</button>`);
+  const chip = el(`<button class="word${rackMark(word) ? " all-rack" : ""}">${word}</button>`);
   if (walkable) {
     chip.onclick = () => { if (!chip.dataset.held) walkTo(word); delete chip.dataset.held; };
     onHold(chip, () => { chip.dataset.held = 1; openDef(word); });
@@ -446,9 +467,46 @@ function buildDictRadios() {
 
 // — Events ————————————————————————————————————————————————————————————————————
 
+function setRack(str) {
+  state.rack = parseRack(str);
+  $("rack-btn").classList.toggle("on", !!state.rack);
+  paintRackStrip();
+  paintBoard();
+  render();
+}
+
+function paintRackStrip() {
+  const strip = $("rack-strip");
+  const raw = $("rack-input").value.toLowerCase().replace(/[^a-z?]/g, "");
+  strip.classList.toggle("on", !!state.rack);
+  strip.innerHTML = [...raw]
+    .map(ch => `<span class="rt${ch === "?" ? " blank" : ""}">${ch === "?" ? "?" : ch}</span>`)
+    .join("");
+}
+
 function wireEvents() {
   $("seg").onclick = e => e.target.dataset.app && switchApp(e.target.dataset.app);
   $("help-btn").onclick = () => openSheet("help-sheet");
+  $("rack-btn").onclick = () => {
+    const open = $("rack-drawer").classList.toggle("open");
+    if (open) $("rack-input").focus({ preventScroll: true });
+  };
+  $("rack-strip").onclick = () => {
+    $("rack-drawer").classList.add("open");
+    $("rack-input").focus({ preventScroll: true });
+  };
+  $("rack-input").addEventListener("input", e => {
+    e.target.value = e.target.value.toUpperCase().replace(/[^A-Z?]/g, "");
+    setRack(e.target.value);
+  });
+  $("rack-input").addEventListener("keydown", e => {
+    if (e.key === "Enter") { $("rack-input").blur(); $("rack-drawer").classList.remove("open"); }
+  });
+  $("rack-clear").onclick = () => {
+    $("rack-input").value = "";
+    $("rack-drawer").classList.remove("open");
+    setRack("");
+  };
   $("settings-btn").onclick = () => openSheet("set-sheet");
   $("scrim").onclick = closeSheets;
 

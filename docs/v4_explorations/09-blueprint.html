@@ -1,0 +1,263 @@
+<!-- 09 · Blueprint — Liv Word Finder v4.
+     An architectural working drawing: sheet border with a real title block, each mode drawn as a
+     numbered DETAIL, slots as a dimensioned elevation (extension lines, "5 UNITS — TYP."), the
+     QWERTY board as a hatched KEY SCHEDULE, results as a ruled SCHEDULE OF MATCHES table, and the
+     ladder trail as the drawing's REVISION HISTORY. COMMITTED SINGLE MODE: Prussian-blue ground
+     with white line work is the whole point of a blueprint, so there is no light variant — color
+     jobs are white = drawing, amber = additions (+1), revision red = deletions (−1) and MUST. -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<title>09 · Blueprint — Liv Word Finder v4</title>
+<style>
+  :root {
+    --bg: #17395c; --ink: #f2f6fa; --muted: rgba(242, 246, 250, 0.66);
+    --line: rgba(242, 246, 250, 0.38); --hair: rgba(242, 246, 250, 0.22);
+    --red: #ff9e86; --amb: #ffd166;
+    color-scheme: dark;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  body {
+    font-family: ui-monospace, "SF Mono", Menlo, monospace;
+    background: var(--bg); color: var(--ink);
+    display: flex; flex-direction: column; align-items: center; padding-bottom: 40px;
+    text-transform: uppercase; letter-spacing: 0.06em;
+  }
+  .topbar {
+    width: 100%; max-width: 430px; display: flex; justify-content: space-between; align-items: center;
+    padding: 10px 16px; font-size: 11px; font-weight: 700; color: var(--muted);
+  }
+  .topbar a { color: var(--muted); text-decoration: none; }
+
+  /* the sheet */
+  .sheet {
+    width: calc(100% - 20px); max-width: 420px; margin: 0 10px;
+    border: 1.5px solid var(--ink); outline: 1px solid var(--line); outline-offset: 3px;
+    padding: 14px 12px 0; position: relative;
+  }
+  .sheethead { display: flex; justify-content: space-between; align-items: baseline;
+    border-bottom: 1.5px solid var(--ink); padding-bottom: 8px; margin-bottom: 10px; }
+  .sheethead .t { font-size: 13px; font-weight: 700; letter-spacing: 0.18em; }
+  .sheethead .btns { font-size: 11px; color: var(--muted); letter-spacing: 0.3em; }
+
+  /* drawing index = mode nav */
+  .dwgindex { border: 1px solid var(--line); margin-bottom: 20px; font-size: 10px; }
+  .dwgindex .r { display: flex; gap: 10px; padding: 6px 8px; color: var(--muted); border-bottom: 1px solid var(--hair); }
+  .dwgindex .r:last-child { border-bottom: 0; }
+  .dwgindex .r.on { color: var(--ink); font-weight: 700; }
+  .dwgindex .r.on::after { content: "◀ THIS VIEW"; margin-left: auto; color: var(--amb); }
+
+  .detail-h { display: flex; align-items: baseline; gap: 10px; margin: 26px 0 12px;
+    border-bottom: 1.5px solid var(--ink); padding-bottom: 5px; }
+  .detail-h .no { font-size: 15px; font-weight: 700; }
+  .detail-h .nm { font-size: 11px; color: var(--muted); }
+  .detail-h .sc { margin-left: auto; font-size: 9px; color: var(--muted); }
+
+  .note { font-size: 9px; color: var(--muted); line-height: 1.7; }
+  .note b { color: var(--ink); font-weight: 700; }
+  .note .r { color: var(--red); } .note .a { color: var(--amb); }
+
+  /* slots elevation + dimension line */
+  .elev { display: flex; justify-content: center; gap: 0; margin: 6px 0 0; }
+  .cell {
+    width: 58px; height: 60px; display: grid; place-items: center;
+    font-size: 25px; font-weight: 700; border: 1.5px solid var(--ink); margin-left: -1.5px; position: relative;
+  }
+  .cell.empty::before { content: ""; position: absolute; inset: 0;
+    background:
+      linear-gradient(var(--hair), var(--hair)) center / 1px 70% no-repeat,
+      linear-gradient(var(--hair), var(--hair)) center / 70% 1px no-repeat; }
+  .cell.cursor { border-color: var(--amb); z-index: 1; }
+  .dim { display: flex; justify-content: center; margin: 0 0 4px; }
+  .dim .span { width: calc(58px * 5 - 6px); position: relative; height: 30px; }
+  .dim .ext { position: absolute; top: 0; width: 1px; height: 12px; background: var(--line); }
+  .dim .arrowline { position: absolute; top: 14px; left: 0; right: 0; height: 1px; background: var(--line); }
+  .dim .arrowline::before, .dim .arrowline::after {
+    content: ""; position: absolute; top: -3px; border-top: 3.5px solid transparent; border-bottom: 3.5px solid transparent; }
+  .dim .arrowline::before { left: 0; border-right: 7px solid var(--ink); }
+  .dim .arrowline::after { right: 0; border-left: 7px solid var(--ink); }
+  .dim .lab { position: absolute; top: 18px; left: 50%; transform: translateX(-50%);
+    background: var(--bg); padding: 0 8px; font-size: 9px; color: var(--ink); }
+
+  /* key schedule (QWERTY board) */
+  .sched-t { font-size: 9px; color: var(--muted); margin: 16px 0 6px; }
+  .board { display: flex; flex-direction: column; gap: 4px; }
+  .brow { display: flex; gap: 4px; justify-content: center; }
+  .bkey { flex: 0 0 34px; height: 38px; display: grid; place-items: center;
+    font-size: 13px; font-weight: 700; border: 1px solid var(--line); position: relative; color: var(--muted); }
+  .bkey.dim { color: transparent; background: repeating-linear-gradient(45deg,
+      transparent 0 4px, var(--hair) 4px 5px); }
+  .bkey.dim::before { content: attr(data-k); position: absolute; color: var(--hair); }
+  .bkey.may { border: 1.5px solid var(--ink); color: var(--ink); }
+  .bkey.must { border: 1.5px solid var(--red); color: var(--red); }
+  .bkey.must::after { content: "✱"; position: absolute; top: 0; right: 2px; font-size: 8px; color: var(--red); }
+
+  /* schedule table (results) */
+  .table { border: 1.5px solid var(--ink); margin-top: 8px; }
+  .table .tr { display: grid; grid-template-columns: 44px 1fr 64px 44px; border-bottom: 1px solid var(--hair); }
+  .table .tr:last-child { border-bottom: 0; }
+  .table .tr > span { padding: 7px 8px; border-right: 1px solid var(--hair); }
+  .table .tr > span:last-child { border-right: 0; }
+  .table .th { background: rgba(242, 246, 250, 0.08); font-size: 9px; color: var(--muted); }
+  .table .tr .w { font-size: 15px; font-weight: 700; letter-spacing: 0.14em; }
+  .table .tr .c { font-size: 10px; color: var(--muted); align-self: center; }
+  .table .w i { font-style: normal; color: var(--amb); border-bottom: 2px solid var(--amb); }
+  .table .w s { color: var(--red); text-decoration-thickness: 2px; }
+  .qty { text-align: right; font-size: 10px; color: var(--muted); margin: 5px 2px 0; }
+  .qty b { color: var(--ink); font-size: 13px; }
+
+  /* pattern strip */
+  .strip { display: flex; align-items: stretch; gap: 6px; margin-top: 4px; }
+  .flag { flex: 0 0 58px; display: grid; place-items: center; text-align: center;
+    font-size: 8px; line-height: 1.6; border: 1px solid var(--line); color: var(--muted); }
+  .flag.on { border: 1.5px solid var(--amb); color: var(--amb); }
+  .patq { flex: 1; height: 52px; display: grid; place-items: center;
+    font-size: 22px; font-weight: 700; letter-spacing: 0.2em; border: 1.5px solid var(--ink); }
+  .callouts { display: flex; gap: 18px; margin: 8px 2px 4px; }
+  .lenrow { display: flex; gap: 10px; flex-wrap: wrap; font-size: 10px; color: var(--muted); margin: 12px 2px 4px; }
+  .lenrow .lc b { color: var(--ink); }
+
+  /* ladder: rev history + addendum/deletions */
+  .rev { border: 1px solid var(--line); margin: 4px 0 14px; font-size: 10px; }
+  .rev .r { display: flex; gap: 12px; padding: 6px 8px; border-bottom: 1px solid var(--hair); color: var(--muted); }
+  .rev .r:last-child { border-bottom: 0; }
+  .rev .r b { color: var(--ink); letter-spacing: 0.14em; }
+  .rev .r .x { margin-left: auto; }
+  .bandh { display: flex; align-items: baseline; gap: 10px; margin: 18px 0 0; padding: 5px 0;
+    font-size: 10px; }
+  .bandh.add { border-top: 3px solid var(--amb); color: var(--amb); }
+  .bandh.del { border-top: 3px solid var(--red); color: var(--red); }
+  .bandh .n { margin-left: auto; font-size: 15px; font-weight: 700; }
+  .subnote { font-size: 9px; color: var(--muted); margin: 8px 2px 2px; border-top: 1px dashed var(--hair); padding-top: 6px; }
+  .togrow { display: flex; gap: 8px; margin: 10px 0 2px; }
+  .tog { font-size: 9px; padding: 5px 8px; border: 1px solid var(--line); color: var(--muted); }
+  .tog.on { border-color: var(--ink); color: var(--ink); font-weight: 700; }
+
+  /* title block */
+  .titleblock { margin: 30px -12px 0; border-top: 1.5px solid var(--ink);
+    display: grid; grid-template-columns: 1fr 1fr 1fr; font-size: 8px; }
+  .titleblock > div { padding: 6px 8px 8px; border-right: 1px solid var(--hair); }
+  .titleblock > div:last-child { border-right: 0; }
+  .titleblock .k { color: var(--muted); display: block; margin-bottom: 2px; }
+  .titleblock .v { font-size: 10px; font-weight: 700; }
+</style>
+</head>
+<body>
+<div class="topbar"><a href="./index.html">‹ GALLERY</a><span>09 · BLUEPRINT</span></div>
+
+<div class="sheet">
+  <div class="sheethead"><span class="t">LIV·WORDS — WORKING DRAWING</span><span class="btns">? ⚙</span></div>
+
+  <div class="dwgindex">
+    <div class="r on"><span>DETAIL 1</span><span>SLOTS — POSITIONAL SEARCH</span></div>
+    <div class="r"><span>DETAIL 2</span><span>PATTERN — WILDCARD STRIP</span></div>
+    <div class="r"><span>DETAIL 3</span><span>LADDER — ±1 SECTION</span></div>
+  </div>
+
+  <!-- ==================== DETAIL 1 · SLOTS ==================== -->
+  <div class="detail-h"><span class="no">DETAIL 1</span><span class="nm">SLOTS · ELEVATION A-A</span><span class="sc">SCALE NTS</span></div>
+
+  <div class="elev">
+    <div class="cell">S</div><div class="cell empty cursor"></div><div class="cell">A</div>
+    <div class="cell empty"></div><div class="cell">E</div>
+  </div>
+  <div class="dim"><div class="span">
+    <span class="ext" style="left:0"></span><span class="ext" style="right:0"></span>
+    <span class="arrowline"></span><span class="lab">5 UNITS — TYP.</span>
+  </div></div>
+
+  <div class="sched-t">KEY SCHEDULE (QWERTY) — HATCH = EXCLUDED · OUTLINE = MAY · <span style="color:var(--red)">RED✱ = REQ'D</span></div>
+  <div class="board">
+    <div class="brow">
+      <div class="bkey dim" data-k="Q"></div><div class="bkey dim" data-k="W"></div><div class="bkey dim" data-k="E"></div>
+      <div class="bkey may">R</div><div class="bkey may">T</div><div class="bkey dim" data-k="Y"></div>
+      <div class="bkey dim" data-k="U"></div><div class="bkey dim" data-k="I"></div><div class="bkey dim" data-k="O"></div><div class="bkey may">P</div>
+    </div>
+    <div class="brow">
+      <div class="bkey dim" data-k="A"></div><div class="bkey dim" data-k="S"></div><div class="bkey may">D</div>
+      <div class="bkey dim" data-k="F"></div><div class="bkey dim" data-k="G"></div><div class="bkey must">H</div>
+      <div class="bkey dim" data-k="J"></div><div class="bkey may">K</div><div class="bkey may">L</div>
+    </div>
+    <div class="brow">
+      <div class="bkey dim" data-k="Z"></div><div class="bkey dim" data-k="X"></div><div class="bkey dim" data-k="C"></div>
+      <div class="bkey may">V</div><div class="bkey dim" data-k="B"></div><div class="bkey dim" data-k="N"></div><div class="bkey may">M</div>
+    </div>
+  </div>
+
+  <div class="sched-t" style="margin-top:18px">SCHEDULE OF MATCHES</div>
+  <div class="table">
+    <div class="tr th"><span>NO.</span><span>WORD</span><span>LEX</span><span>LEN</span></div>
+    <div class="tr"><span class="c">01</span><span class="w">SHADE</span><span class="c">NWL</span><span class="c">5</span></div>
+    <div class="tr"><span class="c">02</span><span class="w">SHAKE</span><span class="c">NWL</span><span class="c">5</span></div>
+    <div class="tr"><span class="c">03</span><span class="w">SHALE</span><span class="c">NWL</span><span class="c">5</span></div>
+    <div class="tr"><span class="c">04</span><span class="w">SHAME</span><span class="c">NWL</span><span class="c">5</span></div>
+    <div class="tr"><span class="c">05</span><span class="w">SHAPE</span><span class="c">NWL</span><span class="c">5</span></div>
+    <div class="tr"><span class="c">06</span><span class="w">SHARE</span><span class="c">NWL</span><span class="c">5</span></div>
+    <div class="tr"><span class="c">07</span><span class="w">SHAVE</span><span class="c">NWL</span><span class="c">5</span></div>
+  </div>
+  <div class="qty">QTY: <b>7</b></div>
+
+  <!-- ==================== DETAIL 2 · PATTERN ==================== -->
+  <div class="detail-h"><span class="no">DETAIL 2</span><span class="nm">PATTERN · PLAN VIEW</span><span class="sc">SCALE NTS</span></div>
+
+  <div class="strip">
+    <div class="flag on">START<br>ANCHOR<br>▣</div>
+    <div class="patq">B_TT*Y</div>
+    <div class="flag">END<br>ANCHOR<br>▢</div>
+  </div>
+  <div class="callouts">
+    <span class="note"><b>_</b> = ANY, ONE UNIT</span>
+    <span class="note"><b>*</b> = ANY RUN — SEE NOTE 2</span>
+  </div>
+  <div class="lenrow">
+    <span class="lc"><b>▣ ALL</b></span><span class="lc">▢ 5</span><span class="lc">▢ 6</span>
+    <span class="lc">▢ 7</span><span class="lc">▢ 8</span><span class="lc">▢ 9</span><span class="lc">▢ 10+</span>
+  </div>
+
+  <div class="table">
+    <div class="tr th"><span>NO.</span><span>WORD</span><span>LEX</span><span>LEN</span></div>
+    <div class="tr"><span class="c">01</span><span class="w">BATTERY</span><span class="c">NWL</span><span class="c">7</span></div>
+    <div class="tr"><span class="c">02</span><span class="w">BITTERLY</span><span class="c">NWL</span><span class="c">8</span></div>
+    <div class="tr"><span class="c">03</span><span class="w">BUTTERFLY</span><span class="c">NWL</span><span class="c">9</span></div>
+    <div class="tr"><span class="c">04</span><span class="w">BUTTERY</span><span class="c">NWL</span><span class="c">7</span></div>
+  </div>
+  <div class="qty">QTY: <b>4</b></div>
+
+  <!-- ==================== DETAIL 3 · LADDER ==================== -->
+  <div class="detail-h"><span class="no">DETAIL 3</span><span class="nm">LADDER · SECTION ±1</span><span class="sc">SCALE NTS</span></div>
+
+  <div class="sched-t">REVISION HISTORY (TRAIL) — TAP A ROW TO REVERT · ✕ CLEAR</div>
+  <div class="rev">
+    <div class="r"><span>REV A</span><b>FLOUR</b><span class="x">SUPERSEDED</span></div>
+    <div class="r"><span>REV B</span><b>LOUR</b><span class="x" style="color:var(--amb)">CURRENT</span></div>
+  </div>
+  <div class="togrow"><span class="tog on">ANAGRAM</span><span class="tog">UNIQUE</span><span class="tog">+S</span></div>
+
+  <div class="bandh add"><span>ADDENDUM (+1) — ADD ONE LETTER</span><span class="n">5</span></div>
+  <div class="table">
+    <div class="tr"><span class="c">A1</span><span class="w"><i>C</i>LOUR</span><span class="c">CSW</span><span class="c">5</span></div>
+    <div class="tr"><span class="c">A2</span><span class="w"><i>F</i>LOUR</span><span class="c">NWL</span><span class="c">5</span></div>
+    <div class="tr"><span class="c">A3</span><span class="w">LOUR<i>E</i></span><span class="c">CSW</span><span class="c">5</span></div>
+    <div class="tr"><span class="c">A4</span><span class="w">LOUR<i>S</i></span><span class="c">NWL</span><span class="c">5</span></div>
+    <div class="tr"><span class="c">A5</span><span class="w">FLUOR ⇄</span><span class="c">NWL</span><span class="c">5</span></div>
+  </div>
+  <div class="subnote">NOTE 3 — ITEM A5 TRANSPOSED (LETTERS REARRANGED); SHOWN FOR COORDINATION.</div>
+
+  <div class="bandh del"><span>DELETIONS (−1) — SEE REV CLOUD</span><span class="n">2</span></div>
+  <div class="table">
+    <div class="tr"><span class="c">D1</span><span class="w"><s>L</s>OUR</span><span class="c">NWL</span><span class="c">3</span></div>
+    <div class="tr"><span class="c">D2</span><span class="w">LO<s>U</s>R</span><span class="c">CSW</span><span class="c">3</span></div>
+  </div>
+  <div class="subnote">TRANSPOSED: NONE.</div>
+
+  <div class="titleblock">
+    <div><span class="k">PROJECT</span><span class="v">LIV WORD FINDER</span></div>
+    <div><span class="k">DWG NO / SHEET</span><span class="v">V4-09 · 1 OF 1</span></div>
+    <div><span class="k">DATE / DRAWN</span><span class="v">2026-07-13 · C.</span></div>
+  </div>
+</div>
+</body>
+</html>
