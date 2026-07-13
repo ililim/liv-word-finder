@@ -108,7 +108,7 @@ button { font: inherit; color: inherit; background: none; border: none; cursor: 
 .slot.small { height: 50px; font-size: 18px; }
 .slot.small .idx { display: none; }
 
-.slots-tools { display: flex; align-items: center; justify-content: space-between; }
+.slots-tools { display: flex; align-items: center; justify-content: flex-end; }
 /* joined stepper — one bordered group, internal dividers (mockup 08 edges) */
 .stepper { display: flex; border: 2px solid var(--ink); border-radius: var(--r); overflow: hidden; }
 .stepper button { width: 42px; height: 34px; font-size: 16px; font-weight: 850; }
