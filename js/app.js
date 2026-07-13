@@ -243,6 +243,7 @@ function paintTrail() {
     wrap.append(crumb);
   }
   if (state.lab.trail.length) wrap.append(el(`<span class="t-arrow">›</span>`));
+  wrap.scrollLeft = wrap.scrollWidth; // newest step stays in view
 }
 
 
