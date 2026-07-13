@@ -46,9 +46,10 @@
   /* drawing index = mode nav */
   .dwgindex { border: 1px solid var(--line); margin-bottom: 20px; font-size: 10px; }
   .dwgindex .r { display: flex; gap: 10px; padding: 6px 8px; color: var(--muted); border-bottom: 1px solid var(--hair); }
+  .dwgindex .r > span { white-space: nowrap; }
   .dwgindex .r:last-child { border-bottom: 0; }
   .dwgindex .r.on { color: var(--ink); font-weight: 700; }
-  .dwgindex .r.on::after { content: "◀ THIS VIEW"; margin-left: auto; color: var(--amb); }
+  .dwgindex .r.on::after { content: "◀ HERE"; margin-left: auto; color: var(--amb); }
 
   .detail-h { display: flex; align-items: baseline; gap: 10px; margin: 26px 0 12px;
     border-bottom: 1.5px solid var(--ink); padding-bottom: 5px; }
@@ -84,9 +85,9 @@
 
   /* key schedule (QWERTY board) */
   .sched-t { font-size: 9px; color: var(--muted); margin: 16px 0 6px; }
-  .board { display: flex; flex-direction: column; gap: 4px; }
-  .brow { display: flex; gap: 4px; justify-content: center; }
-  .bkey { flex: 0 0 34px; height: 38px; display: grid; place-items: center;
+  .board { display: flex; flex-direction: column; gap: 3px; }
+  .brow { display: flex; gap: 3px; justify-content: center; }
+  .bkey { flex: 0 0 30px; height: 36px; display: grid; place-items: center;
     font-size: 13px; font-weight: 700; border: 1px solid var(--line); position: relative; color: var(--muted); }
   .bkey.dim { color: transparent; background: repeating-linear-gradient(45deg,
       transparent 0 4px, var(--hair) 4px 5px); }

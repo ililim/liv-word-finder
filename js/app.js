@@ -477,10 +477,9 @@ function setRack(str) {
 }
 
 function paintRackStrip() {
-  const strip = $("rack-strip");
   const raw = $("rack-input").value.toLowerCase().replace(/[^a-z?]/g, "");
-  strip.classList.toggle("on", !!state.rack);
-  strip.innerHTML = [...raw]
+  $("rack-strip").classList.toggle("on", !!state.rack);
+  $("rack-tiles").innerHTML = [...raw]
     .map(ch => `<span class="rt${ch === "?" ? " blank" : ""}">${ch === "?" ? "?" : ch}</span>`)
     .join("");
 }
@@ -492,9 +491,13 @@ function wireEvents() {
     const open = $("rack-drawer").classList.toggle("open");
     if (open) $("rack-input").focus({ preventScroll: true });
   };
-  $("rack-strip").onclick = () => {
+  $("rack-tiles").onclick = () => {
     $("rack-drawer").classList.add("open");
     $("rack-input").focus({ preventScroll: true });
+  };
+  $("rack-dismiss").onclick = () => {
+    $("rack-input").value = "";
+    setRack("");
   };
   $("rack-input").addEventListener("input", e => {
     e.target.value = e.target.value.toUpperCase().replace(/[^A-Z?]/g, "");

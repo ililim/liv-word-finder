@@ -99,10 +99,12 @@ button { font: inherit; color: inherit; background: none; border: none; cursor: 
 .rack-input:focus { border-color: var(--ink); }
 .rack-input::placeholder { font-size: 11px; letter-spacing: 0.1em; font-weight: 800; opacity: 0.55; }
 .rack-strip {
-  display: none; gap: 5px; align-items: center; justify-content: center;
+  display: none; gap: 2px; align-items: center; justify-content: center;
   margin-top: 10px; min-height: 30px;
 }
-.rack-strip.on { display: flex; flex-wrap: wrap; }
+.rack-strip.on { display: flex; }
+.rack-tiles { display: inline-flex; gap: 5px; flex-wrap: wrap; justify-content: center; }
+.rack-dismiss { font-size: 14px; font-weight: 850; color: var(--muted); padding: 4px 8px; }
 .rack-strip .rt {
   width: 24px; height: 28px; display: inline-grid; place-items: center;
   font-size: 12px; font-weight: 850; text-transform: uppercase;
