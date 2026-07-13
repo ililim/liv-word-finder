@@ -31,12 +31,12 @@
 #app[data-app="slots"]   { --accent: #d93334; --accent-ink: #ffffff; --accent-text: #c22a2b; }
 #app[data-app="pattern"] { --accent: #ffb000; --accent-ink: #101010; --accent-text: #9a6b00; }
 #app[data-app="lab"]     { --accent: #37b24d; --accent-ink: #101010; --accent-text: #2b8a3e; }
-#app { --minus: #d93334; --minus-ink: #ffffff; }
+#app { --minus: #d93334; --minus-ink: #ffffff; --minus-text: #c22a2b; }
 @media (prefers-color-scheme: dark) {
   #app[data-app="slots"]   { --accent: #e5484d; --accent-ink: #ffffff; --accent-text: #e5484d; }
   #app[data-app="pattern"] { --accent: #ffb000; --accent-ink: #101010; --accent-text: #ffb000; }
   #app[data-app="lab"]     { --accent: #51cf66; --accent-ink: #101010; --accent-text: #51cf66; }
-  #app { --minus: #e5484d; --minus-ink: #ffffff; }
+  #app { --minus: #e5484d; --minus-ink: #ffffff; --minus-text: #e5484d; }
 }
 
 * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
@@ -254,6 +254,7 @@ button { font: inherit; color: inherit; background: none; border: none; cursor: 
 .lab-h { border-top: 4px solid var(--accent); align-items: center; }
 .lab-h.minus { border-top-color: var(--minus); }
 .lab-h.minus .sign { background: var(--minus); color: var(--minus-ink); }
+.lab-h.minus b { color: var(--minus-text); }
 .lab-h .sign {
   display: inline-flex; align-items: center;
   height: 24px; padding: 0 10px; margin-right: 8px;
