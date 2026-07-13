@@ -330,13 +330,13 @@ function paintLabResults() {
 
   wrap.innerHTML = "";
   wrap.scrollTop = 0;
-  wrap.append(labSection("+1", "ONE LETTER MORE", plus));
-  wrap.append(labSection("−1", "ONE LETTER LESS", minus));
+  wrap.append(labSection("+1", "ONE LETTER MORE", plus, ""));
+  wrap.append(labSection("−1", "ONE LETTER LESS", minus, "minus"));
 }
 
-function labSection(sign, title, { inPlace, shuffled }) {
+function labSection(sign, title, { inPlace, shuffled }, cls) {
   const total = inPlace.length + shuffled.length;
-  const section = el(`<div class="lab-section"><div class="lab-h"><span><span class="sign">${sign}</span>${title}</span><span><b>${total}</b> ${plural(total)}</span></div></div>`);
+  const section = el(`<div class="lab-section"><div class="lab-h ${cls}"><span><span class="sign">${sign}</span>${title}</span><span><b>${total}</b> ${plural(total)}</span></div></div>`);
   if (!total) section.append(el(`<div class="idle">none</div>`));
   if (inPlace.length) section.append(wordRow(inPlace, true));
   if (shuffled.length) {

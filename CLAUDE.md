@@ -116,8 +116,10 @@ count-only hints) · 10 Live Pro (16 evolved). Gallery: `docs/v2_explorations/in
 ## The app (v0.1, 2026-07-13)
 
 Three tools behind a top pill switcher. **Each mode owns a color** (owner direction):
-SLOTS red · PATTERN chartreuse · LADDER amber — the active nav segment, counters, and
-accent states wear the mode's color. **Hard corners everywhere** (`--r: 0`); rounded
+SLOTS red (strict) · PATTERN amber (flexible) · LADDER green (grow) — the active nav
+segment, counters, and accent states wear the mode's color. Inside LADDER, −1 sections
+borrow red (diff convention: green adds, red removes); signs always on badges so color
+is never the only signal. **Hard corners everywhere** (`--r: 0`); rounded
 shapes survive only in the nav (seg pill + header ?/⚙ buttons). Header: brand left,
 "?" (combined help sheet) and "⚙" (dictionary) right.
 - **SLOTS** — exact-length positional search. Native keyboard types through an invisible
