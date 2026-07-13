@@ -85,7 +85,7 @@ button { font: inherit; color: inherit; background: none; border: none; cursor: 
 
 /* rack — drawer slides from under the header; strip shows the active rack */
 .rack-drawer {
-  display: none; gap: 8px; margin-top: 12px;
+  display: none; gap: 8px; margin-top: 12px; align-items: center;
 }
 .rack-drawer.open { display: flex; }
 .rack-input {
@@ -97,7 +97,6 @@ button { font: inherit; color: inherit; background: none; border: none; cursor: 
 }
 .rack-input:focus { border-color: var(--ink); }
 .rack-input::placeholder { font-size: 11px; letter-spacing: 0.1em; font-weight: 800; opacity: 0.55; }
-.rack-drawer .tchip { height: 48px; }
 .rack-strip {
   display: none; gap: 5px; align-items: center; justify-content: center;
   margin-top: 10px; min-height: 30px;
