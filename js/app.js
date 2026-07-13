@@ -37,7 +37,6 @@ async function boot() {
 async function switchDict(key) {
   state.dictKey = key;
   localStorage.setItem("dict", key);
-  resultsEl().innerHTML = `<div class="idle">loading ${DICTS[key].label}…</div>`;
   state.dict = await loadDict(key);
   buildDictRadios();
   render();
