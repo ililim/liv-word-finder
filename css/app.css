@@ -144,10 +144,10 @@ button { font: inherit; color: inherit; background: none; border: none; cursor: 
 .bkey.fn { flex: 0 0 48px; font-size: 11px; font-weight: 850; color: var(--muted); }
 
 /* toggle chips */
-.chips { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+.chips { display: flex; gap: 6px; flex-wrap: wrap; align-items: center; }
 .chips .grow { flex: 1; }
 .tchip {
-  height: 34px; padding: 0 13px;
+  height: 34px; padding: 0 10px;
   display: inline-flex; align-items: center; gap: 6px;
   font-size: 11px; font-weight: 850; letter-spacing: 0.07em;
   border: 2px solid var(--line); border-radius: var(--r);
@@ -155,7 +155,7 @@ button { font: inherit; color: inherit; background: none; border: none; cursor: 
 }
 .tchip .ic { font-size: 13px; }
 .tchip.on { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); }
-.tchip.reset { padding: 0 11px; font-size: 15px; }
+.tchip.reset { padding: 0 10px; font-size: 15px; }
 
 
 /* ---- PATTERN ---- */
