@@ -1,0 +1,236 @@
+<!-- 06 · Five-Pack — Liv Word Finder v4.
+     COLOR LOGIC — a pencil case of five highlighters, each with one job, and color appears ONLY
+     as a swipe behind black ink (never as colored text) — highlighter discipline keeps contrast
+     ink-first. PINK = SLOTS (flag the exact thing: the must-letter is swiped pink inside every
+     result). YELLOW = PATTERN (the classic look-it-up marker: your literal letters get the yellow
+     swipe). BLUE = LADDER (the walking marker: trail + shuffled squiggle). Then the owner's
+     ladder idea gets the two remaining pens: GREEN = +1 sections (something added — the new
+     letter is swiped green) and ORANGE = −1 sections (something taken out — the dropped letter is
+     struck in pencil). SHUFFLED sub-groups swap fill for outline: an outlined band + ⇄ and a wavy
+     blue underline on the words. Results are running marked-up text, not chips. -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<title>06 · Five-Pack — Liv Word Finder v4</title>
+<style>
+  :root {
+    --bg: #fbfaf6; --surface: #ffffff; --ink: #1c1a17; --muted: #7d786e;
+    --line: rgba(28, 26, 23, 0.2);
+    --pink: #ffb3cf; --yellow: #ffe95c; --blue: #a8d8ff; --green: #a9eb9e; --orange: #ffc37a;
+    --swipe-ink: #1c1a17;
+    color-scheme: light dark;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #161513; --surface: #201f1c; --ink: #ece9e2; --muted: #97917f;
+      --line: rgba(236, 233, 226, 0.2);
+      --pink: #ef7fb2; --yellow: #f2d648; --blue: #6fb8f2; --green: #7ed879; --orange: #f5a94f;
+      --swipe-ink: #161310;
+    }
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    background: var(--bg); color: var(--ink);
+    display: flex; flex-direction: column; align-items: center;
+    padding-bottom: 80px;
+  }
+  .topbar { width: 100%; max-width: 430px; display: flex; justify-content: space-between; padding: 10px 16px; font-size: 12px; font-weight: 700; color: var(--muted); }
+  .topbar a { color: var(--muted); text-decoration: none; }
+  .phone { width: 100%; max-width: 430px; padding: 4px 16px 0; }
+
+  mark { color: var(--swipe-ink); padding: 2px 3px; -webkit-box-decoration-break: clone; box-decoration-break: clone; }
+  mark.p { background: var(--pink); } mark.y { background: var(--yellow); }
+  mark.bl { background: var(--blue); } mark.g { background: var(--green); } mark.o { background: var(--orange); }
+
+  .brand-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
+  .brand { font-size: 15px; font-weight: 850; letter-spacing: 0.16em; }
+  .icon-btns { display: flex; gap: 8px; }
+  .icon-btn { width: 32px; height: 32px; display: grid; place-items: center; font-size: 13px; font-weight: 850; border: 2px solid var(--ink); border-radius: 999px; }
+
+  .seg {
+    display: grid; grid-template-columns: 1fr 1fr 1fr;
+    height: 44px; padding: 4px; gap: 2px;
+    border: 2px solid var(--ink); border-radius: 999px; background: var(--bg);
+    margin: 10px 0 16px;
+  }
+  .seg span { display: grid; place-items: center; border-radius: 999px; font-size: 12px; font-weight: 850; letter-spacing: 0.08em; color: var(--muted); }
+  .seg .on.slots   { background: var(--pink);   color: var(--swipe-ink); }
+  .seg .on.pattern { background: var(--yellow); color: var(--swipe-ink); }
+  .seg .on.ladder  { background: var(--blue);   color: var(--swipe-ink); }
+
+  .mode-break { margin-top: 46px; border-top: 3px solid var(--ink); padding-top: 10px; font-size: 11px; font-weight: 850; letter-spacing: 0.2em; }
+  .mode-break mark { font-size: 11px; letter-spacing: 0.2em; }
+
+  .hint { font-size: 11px; font-weight: 700; letter-spacing: 0.04em; color: var(--muted); }
+  .hint b { color: var(--ink); font-weight: 850; }
+
+  /* ---- SLOTS — letters on a ruled line ---- */
+  .slots { display: flex; gap: 10px; justify-content: center; align-items: flex-end; padding: 8px 0 2px; }
+  .slot {
+    width: 46px; height: 54px; display: grid; place-items: center;
+    font-size: 30px; font-weight: 850;
+    border-bottom: 3px solid var(--ink);
+  }
+  .slot.empty { border-bottom-color: var(--line); color: var(--muted); }
+  .slot.cursor { background: var(--pink); color: var(--swipe-ink); border-bottom-color: var(--ink); }
+  .slots-tools { display: flex; align-items: center; justify-content: space-between; margin: 14px 0; }
+  .stepper { display: flex; border: 2px solid var(--ink); }
+  .stepper b { width: 40px; height: 32px; display: grid; place-items: center; font-size: 16px; font-weight: 850; }
+  .stepper .len { border-inline: 2px solid var(--ink); font-size: 13px; font-variant-numeric: tabular-nums; }
+
+  /* board — bare letters on paper: MAY = pen underline, MUST = pink swipe ✱, out = pencil strike */
+  .board { display: flex; flex-direction: column; gap: 4px; margin-bottom: 12px; }
+  .brow { display: flex; gap: 4px; justify-content: center; }
+  .bkey {
+    flex: 0 0 36px; height: 44px; display: grid; place-items: center;
+    font-size: 17px; font-weight: 800; position: relative;
+  }
+  .bkey.dim { color: var(--muted); opacity: 0.4; text-decoration: line-through; text-decoration-thickness: 2px; }
+  .bkey.may { text-decoration: underline; text-decoration-thickness: 3px; text-underline-offset: 5px; }
+  .bkey.must { background: var(--pink); color: var(--swipe-ink); font-weight: 850; }
+  .bkey.must::after { content: "✱"; position: absolute; top: 0; right: 2px; font-size: 9px; }
+  .chips { display: flex; gap: 8px; align-items: center; margin-bottom: 18px; flex-wrap: wrap; }
+  .chips .grow { flex: 1; }
+  .tchip { height: 32px; padding: 0 12px; display: inline-flex; align-items: center; gap: 6px; font-size: 11px; font-weight: 850; letter-spacing: 0.06em; border: 2px solid var(--line); color: var(--muted); }
+  .tchip.on { border-color: var(--ink); color: var(--ink); }
+
+  /* results — running marked-up text; counter is a swiped number */
+  .res-h { display: flex; justify-content: space-between; align-items: baseline; border-top: 2.5px solid var(--ink); padding-top: 8px; margin-bottom: 6px; font-size: 11px; font-weight: 850; letter-spacing: 0.14em; color: var(--muted); }
+  .res-h mark { font-size: 15px; font-weight: 850; font-variant-numeric: tabular-nums; }
+  .flow { font-size: 18px; font-weight: 800; letter-spacing: 0.05em; line-height: 2.2; word-spacing: 2px; }
+  .flow .sep { color: var(--line); font-weight: 700; padding: 0 3px; }
+  .flow .cut { color: var(--muted); text-decoration: line-through; text-decoration-thickness: 2px; }
+  .flow .shuf { text-decoration: underline wavy var(--blue) 2px; text-underline-offset: 5px; }
+
+  /* ---- PATTERN ---- */
+  .pat-row { display: flex; gap: 8px; align-items: stretch; margin-bottom: 12px; }
+  .anchor { flex: 0 0 60px; display: grid; place-items: center; text-align: center; font-size: 10px; font-weight: 850; line-height: 1.4; border: 2px solid var(--line); color: var(--muted); }
+  .anchor.on { background: var(--ink); color: var(--bg); border-color: var(--ink); }
+  .pat-input { flex: 1; height: 54px; display: grid; place-items: center; font-size: 25px; font-weight: 850; letter-spacing: 0.16em; border-bottom: 3px solid var(--ink); }
+  .pat-input mark { padding: 2px 6px; }
+  .lenchips { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 18px; }
+  .lchip { height: 30px; min-width: 38px; padding: 0 10px; display: grid; place-items: center; font-size: 12px; font-weight: 850; border: 2px solid var(--line); color: var(--muted); font-variant-numeric: tabular-nums; }
+  .lchip.on { background: var(--ink); color: var(--bg); border-color: var(--ink); }
+
+  /* ---- LADDER ---- */
+  .lab-input { width: 100%; height: 54px; display: grid; place-items: center; font-size: 25px; font-weight: 850; letter-spacing: 0.16em; border-bottom: 3px solid var(--ink); margin-bottom: 12px; }
+  .trail { display: flex; gap: 8px; align-items: center; margin-bottom: 14px; font-size: 13px; font-weight: 850; letter-spacing: 0.05em; }
+  .crumb { color: var(--muted); }
+  .crumb::after { content: " ›"; color: var(--line); }
+  .trail .clear { margin-left: auto; height: 28px; padding: 0 10px; display: inline-flex; align-items: center; font-size: 11px; font-weight: 850; color: var(--muted); border: 2px solid var(--line); }
+
+  /* +1 = GREEN band · −1 = ORANGE band — two more pens from the pack; shuffled = outlined band + ⇄ */
+  .lad-h { display: flex; align-items: center; gap: 10px; height: 36px; padding: 0 12px; margin: 20px 0 8px; font-size: 11px; font-weight: 850; letter-spacing: 0.12em; color: var(--swipe-ink); }
+  .lad-h.add { background: var(--green); }
+  .lad-h.del { background: var(--orange); }
+  .lad-h .n { margin-left: auto; font-size: 16px; font-variant-numeric: tabular-nums; }
+  .sub-h { display: flex; align-items: center; gap: 10px; height: 32px; padding: 0 12px; margin: 14px 0 6px; font-size: 10px; font-weight: 850; letter-spacing: 0.12em; color: var(--ink); }
+  .sub-h.add { border: 2px solid var(--green); }
+  .sub-h.del { border: 2px solid var(--orange); }
+  .sub-h .n { margin-left: auto; font-size: 12px; }
+  .zero { font-size: 12px; font-weight: 700; color: var(--muted); font-style: italic; padding: 4px 0; }
+</style>
+</head>
+<body>
+<div class="topbar"><a href="./index.html">‹ Gallery</a><span>06 · FIVE-PACK</span></div>
+<div class="phone">
+
+  <div class="brand-row">
+    <div class="brand">LIV·WORDS</div>
+    <div class="icon-btns"><span class="icon-btn">?</span><span class="icon-btn">⚙</span></div>
+  </div>
+
+  <!-- ==================== SLOTS ==================== -->
+  <nav class="seg"><span class="on slots">SLOTS</span><span>PATTERN</span><span>LADDER</span></nav>
+
+  <div class="slots">
+    <div class="slot">S</div>
+    <div class="slot cursor">_</div>
+    <div class="slot">A</div>
+    <div class="slot empty">_</div>
+    <div class="slot">E</div>
+  </div>
+  <div class="slots-tools">
+    <div class="hint">WORD LENGTH</div>
+    <div class="stepper"><b>−</b><b class="len">5</b><b>+</b></div>
+  </div>
+  <div class="board">
+    <div class="brow">
+      <div class="bkey dim">Q</div><div class="bkey dim">W</div><div class="bkey dim">E</div>
+      <div class="bkey may">R</div><div class="bkey may">T</div><div class="bkey dim">Y</div>
+      <div class="bkey dim">U</div><div class="bkey dim">I</div><div class="bkey dim">O</div><div class="bkey may">P</div>
+    </div>
+    <div class="brow">
+      <div class="bkey dim">A</div><div class="bkey dim">S</div><div class="bkey may">D</div>
+      <div class="bkey dim">F</div><div class="bkey dim">G</div><div class="bkey must">H</div>
+      <div class="bkey dim">J</div><div class="bkey may">K</div><div class="bkey may">L</div>
+    </div>
+    <div class="brow">
+      <div class="bkey dim">Z</div><div class="bkey dim">X</div><div class="bkey dim">C</div>
+      <div class="bkey may">V</div><div class="bkey dim">B</div><div class="bkey dim">N</div><div class="bkey may">M</div>
+    </div>
+  </div>
+  <div class="chips">
+    <div class="hint">UNDERLINED <b>MAY</b> · SWIPED <b>MUST ✱</b> · STRUCK OUT</div>
+    <div class="grow"></div>
+    <span class="tchip">◇ NO DOUBLES</span>
+  </div>
+
+  <div class="res-h"><span>MATCHES — MUST-LETTER SWIPED</span><mark class="p">7</mark></div>
+  <p class="flow">
+    S<mark class="p">H</mark>ADE<span class="sep">·</span>S<mark class="p">H</mark>AKE<span class="sep">·</span>S<mark class="p">H</mark>ALE<span class="sep">·</span>S<mark class="p">H</mark>AME<span class="sep">·</span>S<mark class="p">H</mark>APE<span class="sep">·</span>S<mark class="p">H</mark>ARE<span class="sep">·</span>S<mark class="p">H</mark>AVE
+  </p>
+
+  <!-- ==================== PATTERN ==================== -->
+  <div class="mode-break"><mark class="y">MODE · PATTERN</mark></div>
+  <nav class="seg"><span>SLOTS</span><span class="on pattern">PATTERN</span><span>LADDER</span></nav>
+
+  <div class="pat-row">
+    <div class="anchor on">START<br>WITH</div>
+    <div class="pat-input"><span><mark class="y">B_TT*Y</mark></span></div>
+    <div class="anchor">END<br>WITH</div>
+  </div>
+  <div class="lenchips">
+    <span class="lchip on">ALL</span><span class="lchip">5</span><span class="lchip">6</span>
+    <span class="lchip">7</span><span class="lchip">8</span><span class="lchip">9</span><span class="lchip">10+</span>
+  </div>
+
+  <div class="res-h"><span>MATCHES — YOUR LETTERS SWIPED</span><mark class="y">4</mark></div>
+  <p class="flow">
+    <mark class="y">B</mark>A<mark class="y">TT</mark>ER<mark class="y">Y</mark><span class="sep">·</span>
+    <mark class="y">B</mark>I<mark class="y">TT</mark>ERL<mark class="y">Y</mark><span class="sep">·</span>
+    <mark class="y">B</mark>U<mark class="y">TT</mark>ERFL<mark class="y">Y</mark><span class="sep">·</span>
+    <mark class="y">B</mark>U<mark class="y">TT</mark>ER<mark class="y">Y</mark>
+  </p>
+
+  <!-- ==================== LADDER ==================== -->
+  <div class="mode-break"><mark class="bl">MODE · LADDER</mark></div>
+  <nav class="seg"><span>SLOTS</span><span>PATTERN</span><span class="on ladder">LADDER</span></nav>
+
+  <div class="lab-input"><span><mark class="bl">LOUR</mark></span></div>
+  <div class="trail"><span class="crumb">FLOUR</span><span class="clear">✕ CLEAR</span></div>
+  <div class="chips">
+    <span class="tchip on">⇄ SHUFFLE</span><span class="tchip">◇ NO DOUBLES</span><span class="tchip">S̶ HIDE +S</span>
+  </div>
+
+  <div class="lad-h add"><span>+1 · ADD A LETTER</span><span class="n">5</span></div>
+  <p class="flow">
+    <mark class="g">C</mark>LOUR<span class="sep">·</span><mark class="g">F</mark>LOUR<span class="sep">·</span>LOUR<mark class="g">E</mark><span class="sep">·</span>LOUR<mark class="g">S</mark>
+  </p>
+  <div class="sub-h add"><span>⇄ SHUFFLED</span><span class="n">1</span></div>
+  <p class="flow"><span class="shuf">FLUOR</span></p>
+
+  <div class="lad-h del"><span>−1 · TAKE ONE OUT</span><span class="n">2</span></div>
+  <p class="flow">
+    <span class="cut">L</span>OUR<span class="sep">·</span>LO<span class="cut">U</span>R
+  </p>
+  <div class="sub-h del"><span>⇄ SHUFFLED</span><span class="n">0</span></div>
+  <p class="zero">nothing to swipe here</p>
+
+</div>
+</body>
+</html>

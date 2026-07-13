@@ -157,7 +157,7 @@ button { font: inherit; color: inherit; background: none; border: none; cursor: 
 
 /* clear lives inside the input, iOS-style; appears only with text */
 .input-wrap { position: relative; flex: 1; min-width: 0; display: flex; }
-.input-wrap.block { width: 100%; }
+.input-wrap.block { flex: 0 0 auto; width: 100%; }
 .input-wrap input { width: 100%; }
 .input-clear {
   position: absolute; right: 8px; top: 50%; transform: translateY(-50%);
