@@ -113,7 +113,11 @@ count-only hints) · 10 Live Pro (16 evolved). Gallery: `docs/v2_explorations/in
 
 ## The app (v0.1, 2026-07-13)
 
-Three tools behind a top pill switcher (14's visual DNA, compact controls):
+Three tools behind a top pill switcher. **Each mode owns a color** (owner direction):
+SLOTS red · PATTERN chartreuse · LADDER amber — the active nav segment, counters, and
+accent states wear the mode's color. **Hard corners everywhere** (`--r: 0`); rounded
+shapes survive only in the nav (seg pill + header ?/⚙ buttons). Header: brand left,
+"?" (combined help sheet) and "⚙" (dictionary) right.
 - **SLOTS** — exact-length positional search. Native keyboard types through an invisible
   "ghost" input (no custom typing keyboard); space = any; slots shrink to fit up to 12
   per row (smaller font when narrow), then wrap — never overflow. Below: a QWERTY
@@ -124,9 +128,12 @@ Three tools behind a top pill switcher (14's visual DNA, compact controls):
   buttons flank the input (both off = contains); length chips with ALL (= no filter,
   on by default; tapping it clears the others); "?" opens a help sheet (placeholder
   example: B_TT*Y → BATTERY · BUTTERY · BITTERLY).
-- **±1** — one letter more/less; tap a word to walk to it (trail crumbs grow; **typing
-  directly resets the trail**); hold a word for its definition. Toggles: shuffle (on by
-  default), no-doubles, hide +S plurals.
+- **LADDER** (±1, internal id "lab") — one letter more/less; tap a word to walk to it
+  (trail crumbs grow, ✕ CLEAR button at trail end; **typing directly resets the trail**);
+  hold a word for its definition. Toggles: shuffle (on by default), no-doubles, hide +S
+  plurals. +1/−1 sections split on a thick accent rule with signed badges. No "word not
+  in dictionary" notices (owner cut it).
+- Constraint board MUST keys show a ✱ top-right (required-field convention).
 - Everywhere else: tap a word → definition sheet (word, NWL/CSW/ENABLE flags, definition).
 - Dictionary picker in header: NWL2023 (default) / CSW21 / ENABLE / ALL (union).
 - Global rack drawer is milestone 2 — `state.rack` + engine `fitsRack` already wired.
@@ -173,6 +180,8 @@ all future visual work on this project:**
   slop (02 serviceable, 03 almost-but-unreadable); triggered the anti-slop research above
 - [x] Round 3b: skins 11–15, hand-designed to the anti-slop principles (Gridline/Swiss,
   Departures/split-flap, Riso/zine, Marker/highlighter, Ledger/readable-brutalism)
-- [ ] Owner picks round-2 concept winners + round-3 skin winner
-- [ ] Build the real app (likely: Mode Board as main screen + bottom nav)
-- [ ] Publish (likely GitHub Pages) + Add-to-Home-Screen polish (icons, manifest)
+- [x] v0.1 app built and browser-verified (2026-07-13); local git repo initialized
+- [ ] Publish: create `ililim/liv-word-finder` on GitHub + Pages (gh CLI is authed as
+  ililim) — **approved in principle, but owner said "don't push yet"; wait for go-ahead**
+- [ ] Milestone 2: global rack drawer (engine already wired via `state.rack`/`fitsRack`)
+- [ ] PWA/offline (service worker) + Add-to-Home-Screen polish (icons, manifest)

@@ -1,7 +1,7 @@
 /// Liv Word Finder — UI. Three apps over one engine: Slots, Pattern, ±1.
 /// Design: assist, don't solve. No points anywhere.
 
-import { DICTS, loadDict, lookupDef, querySlots, queryPattern, queryPlusMinus, groupByLength } from "./engine.js";
+import { DICTS, loadDict, lookupDef, querySlots, querySlotsLoose, queryPattern, queryPlusMinus, groupByLength } from "./engine.js";
 
 const $ = id => document.getElementById(id);
 const plural = n => (n === 1 ? "WORD" : "WORDS");
@@ -112,6 +112,7 @@ function buildBoard() {
   for (const row of ["qwertyuiop", "asdfghjkl", "zxcvbnm"]) {
     const div = document.createElement("div");
     div.className = "board-row";
+    if (row[0] === "z") div.append(fnKey("ALL", toggleAll));
     for (const ch of row) {
       const key = document.createElement("button");
       key.className = "bkey";
@@ -120,8 +121,32 @@ function buildBoard() {
       key.onclick = () => cycleConstraint(ch);
       div.append(key);
     }
+    if (row[0] === "z") div.append(fnKey("✕", clearBoard));
     $("board").append(div);
   }
+}
+
+function fnKey(label, fn) {
+  const key = el(`<button class="bkey fn">${label}</button>`);
+  key.onclick = fn;
+  return key;
+}
+
+// ALL is a toggle: everything to MAY (musts stay), or back to a clean board.
+function toggleAll() {
+  const { may, must } = state.slots;
+  const everyOn = "abcdefghijklmnopqrstuvwxyz".split("").every(ch => may.has(ch) || must.has(ch));
+  if (everyOn) return clearBoard();
+  for (const ch of "abcdefghijklmnopqrstuvwxyz") if (!must.has(ch)) may.add(ch);
+  paintBoard();
+  render();
+}
+
+function clearBoard() {
+  state.slots.may.clear();
+  state.slots.must.clear();
+  paintBoard();
+  render();
 }
 
 // blank → may → must → blank. Once anything is tapped, untapped letters are out.
@@ -247,14 +272,23 @@ function paintSlotsResults() {
 
   // Tapped letters are the whole alphabet she's allowing; slot letters ride along.
   const only = restricted ? new Set([...s.may, ...s.must, ...slots.filter(Boolean)]) : null;
-  const words = querySlots(state.dict, slots, { include: s.must, only, noDoubles: s.noDoubles, rack: state.rack });
-  paintGroups($("slots-results"), touched ? words : [], touched ? null : "fill a slot or tap a letter below");
+  const filters = { include: s.must, only, noDoubles: s.noDoubles, rack: state.rack };
+  const words = querySlots(state.dict, slots, filters);
+  const wrap = $("slots-results");
+  paintGroups(wrap, touched ? words : [], touched ? null : "fill a slot or tap a letter below");
+  if (touched) appendOtherLengths(wrap, querySlotsLoose(state.dict, slots, filters));
 }
 
 function paintPatternResults() {
   const p = state.pattern;
   const words = p.str ? queryPattern(state.dict, p.str, { ...p, rack: state.rack }) : [];
-  paintGroups($("pattern-results"), words, p.str ? null : "type a pattern — try B_TT*Y");
+  const wrap = $("pattern-results");
+  paintGroups(wrap, words, p.str ? null : "type a pattern — try B_TT*Y");
+  if (p.str && p.lengths.size) {
+    const seen = new Set(words);
+    const loose = queryPattern(state.dict, p.str, { ...p, lengths: null, rack: state.rack }).filter(w => !seen.has(w));
+    appendOtherLengths(wrap, loose);
+  }
 }
 
 function paintLabResults() {
@@ -287,7 +321,10 @@ function paintGroups(wrap, words, idleText) {
   wrap.innerHTML = "";
   if (idleText) return wrap.append(el(`<div class="idle">${idleText}</div>`));
   if (!words.length) return wrap.append(el(`<div class="idle">no words — loosen something</div>`));
+  appendGroups(wrap, words);
+}
 
+function appendGroups(wrap, words) {
   const groups = groupByLength(words);
   const single = groups.length <= 1;
   for (const [len, group] of groups) {
@@ -296,6 +333,12 @@ function paintGroups(wrap, words, idleText) {
     wrap.append(el(`<div class="res-h">${label}</div>`));
     wrap.append(wordRow(group, false));
   }
+}
+
+function appendOtherLengths(wrap, words) {
+  if (!words.length) return;
+  wrap.append(el(`<div class="res-h other"><span>OTHER LENGTHS</span><span><b>${words.length}</b> ${plural(words.length)}</span></div>`));
+  appendGroups(wrap, words);
 }
 
 function wordRow(words, walkable) {

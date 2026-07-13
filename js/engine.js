@@ -52,6 +52,19 @@ export function querySlots(dict, slots, filters = {}) {
   return applyFilters(list, filters);
 }
 
+// Same fixed positions, every other length that can still hold them —
+// the "what if the word is longer/shorter" tail under the main results.
+export function querySlotsLoose(dict, slots, filters = {}) {
+  const fixed = slots.flatMap((ch, i) => (ch ? [[i, ch]] : []));
+  const minLen = fixed.length ? fixed[fixed.length - 1][0] + 1 : 2;
+  const out = [];
+  for (const [len, bucket] of [...dict.byLen].sort((a, b) => a[0] - b[0])) {
+    if (len === slots.length || len < minLen) continue;
+    out.push(...applyFilters(bucket.filter(w => fixed.every(([i, ch]) => w[i] === ch)), filters));
+  }
+  return out;
+}
+
 // Free-typed pattern: "_" (or space) = any one letter, "*" = any run.
 // Unanchored ends are open — anchors turn "contains" into starts/ends/exact.
 export function queryPattern(dict, str, { anchorStart, anchorEnd, lengths, ...filters } = {}) {
