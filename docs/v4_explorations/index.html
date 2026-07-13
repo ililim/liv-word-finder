@@ -1,6 +1,8 @@
-<!-- Gallery index for the 6 v4 explorations of Liv Word Finder.
-     Round 4: color palettes & semantics per mode, ladder +1/−1 section coding,
-     and varied results/divider/board formats — all three modes stacked per mockup. -->
+<!-- Gallery index for the 12 v4 explorations of Liv Word Finder.
+     Round 4a (01–06): color palettes & semantics per mode, ladder +1/−1 section coding,
+     and varied results/divider/board formats — all three modes stacked per mockup.
+     Round 4b (07–12): structural risks — transit map, concrete poetry, blueprint, teletext,
+     Bauhaus poster, telegraph tape. Same three-modes-stacked format, conventions broken. -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -83,10 +85,11 @@
 <div class="wrap">
   <header>
     <h1>Liv Word Finder <span class="v">· v4 explorations</span></h1>
-    <p class="sub">Six palette-and-format studies, each showing all three modes stacked
-    (SLOTS · PATTERN · LADDER). Every color has a job drawn from the app's world — pens,
-    tiles, ribbons, puzzle pages, highlighters — and each design tries a different take on
-    the ladder's +1 / −1 / shuffled section coding and on how results are laid out.</p>
+    <p class="sub">Twelve studies, each showing all three modes stacked
+    (SLOTS · PATTERN · LADDER). 01–06 are palette-and-format studies — every color has a
+    job drawn from the app's world. 07–12 take structural risks: the pill switcher, chip
+    results, and key-cap board are all up for grabs — results become transit stations,
+    stanzas of a poem, drawing schedules, teletext pages, poster type, and punched tape.</p>
     <a class="backlink" href="../v3_explorations/index.html">← round 3 (15 skins)</a>
     <a class="backlink" href="../v2_explorations/index.html">← round 2 (10 concepts)</a>
     <a class="backlink" href="../v1_explorations/index.html">← round 1 (20 mockups)</a>
@@ -104,7 +107,13 @@
     ["03-coldset.html", "03", "Coldset", "Fully cool editorial: depth = strictness. Press navy slots, editor teal pattern, pencil-steel ladder with ice fills. Ice band = +1, ink band = −1. Dense newspaper-column results, big cold counters."],
     ["04-ribbon.html", "04", "Two-Tone Ribbon", "Typewriter black-and-red ribbon + carbon paper: red register = slots, plain black ink = pattern, carbon blue = ladder. −1 rules typed in the red; shuffled words are the blue carbon copy. Monospace report."],
     ["05-puzzle-page.html", "05", "Puzzle Page", "The colors of her actual games: Wordle green slots (board keys speak Wordle — green must, yellow may, gray out), Spelling Bee gold pattern, Letter Boxed coral ladder with filled vs hollow +1/−1 bars."],
-    ["06-five-pack.html", "06", "Five-Pack", "Five highlighters, one job each: pink = slots, yellow = pattern, blue = ladder — then green swipes every +1 and orange every −1. Color only ever behind ink. Results as running marked-up text."]
+    ["06-five-pack.html", "06", "Five-Pack", "Five highlighters, one job each: pink = slots, yellow = pattern, blue = ladder — then green swipes every +1 and orange every −1. Color only ever behind ink. Results as running marked-up text."],
+    ["07-interchange.html", "07", "Interchange", "The app as a transit network: modes are colored LINE bars (no pill), results are stations on a vertical route line, the ladder trail is the line you rode — +1 northbound, −1 southbound, shuffled on a dashed spur. Board keys are station-wall tiles."],
+    ["08-stanza.html", "08", "Stanza", "Concrete poetry — the words ARE the layout. SLOTS results stack so the fixed letters form solid vertical rails; PATTERN sorts into a widening staircase; LADDER is a typographic hourglass around the seed word. One accent ink, keyboard as bare set type, controls are lines of the poem."],
+    ["09-blueprint.html", "09", "Blueprint", "An architectural working drawing (committed Prussian-blue, no light mode): modes as numbered DETAILS, slots as a dimensioned elevation, board as a hatched KEY SCHEDULE, results as ruled schedule tables, ladder trail as the REVISION HISTORY — amber addenda, red deletions."],
+    ["10-ceefax.html", "10", "Ceefax", "Teletext, committed dark: each mode is a broadcast page (P101–P103) with clock row, blue title band, mosaic blocks, dot-leader listings and a FASTEXT red/green/yellow/cyan row as the mode switcher. Yellow marks the letters that changed; a red band carries −1."],
+    ["11-dreieck.html", "11", "Dreieck", "Bauhaus poster: each mode IS a primary form — red square slots, yellow triangle pattern, blue circle ladder — and the switcher is those shapes. Mode names run vertically up the left edge in giant condensed caps; counts are huge outlined numerals; results are heavy stacked type."],
+    ["12-receiving-office.html", "12", "Receiving Office", "A telegraph office: results arrive as ONE huge line on punched paper tape (feed holes, torn ends, side-scroll) — the ladder gets a blue +1 tape and a red −1 tape, the trail is spliced scrap. Length is a rotary dial; modes are rubber stamps; round typewriter keys."]
   ];
   document.getElementById("grid").innerHTML = items.map(([file, num, name, tag]) => `
     <a class="card" href="${file}">
