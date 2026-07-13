@@ -229,6 +229,7 @@ function paintTrail() {
   const wrap = $("trail");
   wrap.innerHTML = "";
   for (const [i, word] of state.lab.trail.entries()) {
+    if (i) wrap.append(el(`<span class="t-arrow">›</span>`));
     const crumb = document.createElement("button");
     crumb.className = "crumb";
     crumb.textContent = word;
@@ -241,6 +242,7 @@ function paintTrail() {
     };
     wrap.append(crumb);
   }
+  if (state.lab.trail.length) wrap.append(el(`<span class="t-arrow">›</span>`));
 }
 
 
