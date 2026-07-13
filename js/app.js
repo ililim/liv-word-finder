@@ -1,10 +1,11 @@
-/// Liv Word Finder — UI. Three apps over one engine: Slots, Pattern, ±1.
+/// Liv Word Finder — UI. Three modes over one engine: Slots, Pattern, Ladder.
 /// Design: assist, don't solve. No points anywhere.
 
 import { DICTS, loadDict, lookupDef, querySlots, querySlotsLoose, queryPattern, queryPlusMinus, queryRack, parseRack, usesAllRack, groupByLength } from "./engine.js";
 
 const $ = id => document.getElementById(id);
 const plural = n => (n === 1 ? "WORD" : "WORDS");
+const ALPHA = "abcdefghijklmnopqrstuvwxyz";
 const PAGE = 150;         // words shown per group before "+n more"
 const WRAP_AT = 12;       // slots per row — beyond this they take a second line
 
@@ -15,7 +16,7 @@ const state = {
   app: "slots",
   dictKey: localStorage.getItem("dict") ?? "nwl",
   dict: null,
-  rack: null, // global rack drawer — milestone 2, engine already honors it
+  rack: null, // { counts, blanks } — set from the rack strip, filters every mode
   slots:   { len: 5, letters: [], cursor: 0, may: new Set(), must: new Set(), noDoubles: false },
   pattern: { str: "", anchorStart: false, anchorEnd: false, lengths: new Set(), noDoubles: false },
   lab:     { word: "", shuffle: true, noDoubles: false, hideSPlurals: false, trail: [], pos: 0 },
@@ -48,13 +49,14 @@ async function switchDict(key) {
 function switchApp(app) {
   state.app = app;
   $("app").dataset.app = app;
+  $("scroll-top").classList.remove("show"); // the new view starts at its top
   for (const b of $("seg").children) b.classList.toggle("active", b.dataset.app === app);
   for (const v of document.querySelectorAll(".view")) v.classList.toggle("active", v.id === `view-${app}`);
   if (app === "slots") $("ghost").focus({ preventScroll: true });
   render();
 }
 
-const resultsEl = () => $(`${state.app === "lab" ? "lab" : state.app}-results`);
+const resultsEl = () => $(`${state.app}-results`);
 
 
 // — Slots —————————————————————————————————————————————————————————————————————
@@ -72,15 +74,13 @@ function buildSlots() {
 
   for (let i = 0; i < s.len; i++) {
     const ch = s.letters[i];
-    const el = document.createElement("button");
-    el.className = "slot";
-    el.style.width = `${width}px`;
-    el.classList.toggle("small", width < 36);
-    el.classList.toggle("filled", !!ch);
-    el.classList.toggle("cursor", i === s.cursor);
-    el.innerHTML = `<span class="idx">${i + 1}</span>${ch ?? "·"}`;
-    el.onclick = () => { s.cursor = i; $("ghost").focus({ preventScroll: true }); buildSlots(); };
-    wrap.append(el);
+    const cell = el(`<button class="slot"><span class="idx">${i + 1}</span>${ch ?? "·"}</button>`);
+    cell.style.width = `${width}px`;
+    cell.classList.toggle("small", width < 36);
+    cell.classList.toggle("filled", !!ch);
+    cell.classList.toggle("cursor", i === s.cursor);
+    cell.onclick = () => { s.cursor = i; $("ghost").focus({ preventScroll: true }); buildSlots(); };
+    wrap.append(cell);
   }
 }
 
@@ -137,9 +137,8 @@ function fnKey(label, fn) {
 // ALL is a toggle: everything to MAY (musts stay), or back to a clean board.
 function toggleAll() {
   const { may, must } = state.slots;
-  const everyOn = "abcdefghijklmnopqrstuvwxyz".split("").every(ch => may.has(ch) || must.has(ch));
-  if (everyOn) return clearBoard();
-  for (const ch of "abcdefghijklmnopqrstuvwxyz") if (!must.has(ch)) may.add(ch);
+  if ([...ALPHA].every(ch => may.has(ch) || must.has(ch))) return clearBoard();
+  for (const ch of ALPHA) if (!must.has(ch)) may.add(ch);
   paintBoard();
   render();
 }
@@ -170,7 +169,7 @@ function paintBoard() {
     key.classList.toggle("may", may.has(key.dataset.ch));
     key.classList.toggle("must", must.has(key.dataset.ch));
     key.classList.toggle("norack",
-      !!rack && !rack.blanks && rack.counts[key.dataset.ch.charCodeAt(0) - 97] === 0);
+      !!rack && !rack.blanks && rack.counts[ALPHA.indexOf(key.dataset.ch)] === 0);
   }
 }
 
@@ -466,7 +465,7 @@ function buildDictRadios() {
 }
 
 
-// — Events ————————————————————————————————————————————————————————————————————
+// — Rack ——————————————————————————————————————————————————————————————————————
 
 function setRack(str) {
   state.rack = parseRack(str);
@@ -489,17 +488,15 @@ function paintRackStrip() {
     (editing && !raw ? `<span class="hint-tile">YOUR LETTERS · ? = BLANK</span>` : "");
 }
 
-function wireEvents() {
-  $("seg").onclick = e => e.target.dataset.app && switchApp(e.target.dataset.app);
-  $("help-btn").onclick = () => openSheet("help-sheet");
-  const rackFocus = () => {
+function wireRack() {
+  const focus = () => {
     const input = $("rack-input");
     input.focus({ preventScroll: true });
     input.setSelectionRange(input.value.length, input.value.length);
     paintRackStrip();
   };
-  $("rack-btn").onclick = rackFocus;
-  $("rack-tiles").onclick = rackFocus;
+  $("rack-btn").onclick = focus;
+  $("rack-tiles").onclick = focus;
   $("rack-dismiss").onclick = () => {
     $("rack-input").value = "";
     setRack("");
@@ -512,6 +509,15 @@ function wireEvents() {
     if (e.key === "Enter") $("rack-input").blur();
   });
   $("rack-input").addEventListener("blur", paintRackStrip);
+}
+
+
+// — Events ————————————————————————————————————————————————————————————————————
+
+function wireEvents() {
+  wireRack();
+  $("seg").onclick = e => e.target.dataset.app && switchApp(e.target.dataset.app);
+  $("help-btn").onclick = () => openSheet("help-sheet");
   $("settings-btn").onclick = () => openSheet("set-sheet");
   $("scrim").onclick = closeSheets;
 
