@@ -202,7 +202,12 @@ button { font: inherit; color: inherit; background: none; border: none; cursor: 
   border: 2px solid var(--line); border-radius: var(--r); color: var(--muted);
 }
 .crumb.current { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); }
-.t-arrow { flex: 0 0 auto; font-size: 16px; font-weight: 850; color: var(--muted); }
+.t-arrow {
+  flex: 0 0 auto; height: 28px;
+  display: inline-flex; align-items: center;
+  font-size: 20px; line-height: 1; font-weight: 850; color: var(--muted);
+  transform: translateY(-1px); /* › sits low on its box; optical centering */
+}
 .lab-section { display: flex; flex-direction: column; gap: 9px; }
 .sublabel { font-size: 10px; font-weight: 850; letter-spacing: 0.12em; color: var(--muted); margin-top: 2px; }
 
