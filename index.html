@@ -25,9 +25,10 @@
   <div class="rack-strip" id="rack-strip">
     <button class="rack-tiles" id="rack-tiles"></button>
     <button class="rack-dismiss" id="rack-dismiss">✕</button>
-    <input class="ghost-input" id="rack-input" autocomplete="off" autocorrect="off"
-           autocapitalize="characters" spellcheck="false" enterkeyhint="done">
   </div>
+  <!-- outside the strip: a display:none parent would make it unfocusable -->
+  <input class="ghost-input" id="rack-input" autocomplete="off" autocorrect="off"
+         autocapitalize="characters" spellcheck="false" enterkeyhint="done">
 
   <nav class="seg" id="seg">
     <button data-app="slots" class="active">SLOTS</button>
