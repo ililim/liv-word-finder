@@ -124,7 +124,7 @@ button { font: inherit; color: inherit; background: none; border: none; cursor: 
 .board-row { display: flex; gap: 6px; justify-content: center; }
 .bkey {
   flex: 0 0 33px; height: 42px;
-  display: grid; place-items: center;
+  display: flex; align-items: center; justify-content: center;
   font-size: 15px; font-weight: 800; text-transform: uppercase;
   background: var(--surface);
   border: 2px solid var(--line); border-radius: var(--r);
@@ -133,9 +133,10 @@ button { font: inherit; color: inherit; background: none; border: none; cursor: 
 }
 .bkey.may { background: var(--ink); color: var(--bg); border-color: var(--ink); }
 .bkey.must { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); font-weight: 850; }
+/* the required star rides the letter, superscript-style: K✱ */
 .bkey.must::after {
-  content: "✱"; position: absolute; top: 6px; right: 3px;
-  font-size: 9px; line-height: 1;
+  content: "✱"; font-size: 9px; line-height: 1;
+  margin-left: 1px; transform: translateY(-4px);
 }
 .board.active .bkey:not(.may):not(.must):not(.fn) { opacity: 0.3; }
 .bkey.fn { flex: 0 0 48px; font-size: 11px; font-weight: 850; color: var(--muted); }
@@ -294,11 +295,11 @@ button { font: inherit; color: inherit; background: none; border: none; cursor: 
 /* mini replicas of the real components */
 .d-slot { width: 24px; height: 30px; display: inline-grid; place-items: center; font-size: 13px; font-weight: 850; background: var(--ink); color: var(--bg); border: 2px solid var(--ink); }
 .d-slot.empty { background: var(--surface); color: var(--muted); border-color: var(--line); }
-.d-key { width: 24px; height: 30px; display: inline-grid; place-items: center; font-size: 12px; font-weight: 800; background: var(--surface); border: 2px solid var(--line); position: relative; }
+.d-key { width: 24px; height: 30px; display: inline-flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 800; background: var(--surface); border: 2px solid var(--line); }
 .d-key.dim { opacity: 0.3; }
 .d-key.may { background: var(--ink); color: var(--bg); border-color: var(--ink); }
 .d-key.must { background: var(--hc); color: var(--hc-ink); border-color: var(--hc); }
-.d-key.must i { position: absolute; top: 0; right: 1px; font-size: 8px; font-style: normal; }
+.d-key.must i { font-size: 8px; font-style: normal; margin-left: 1px; transform: translateY(-3px); }
 .d-input { height: 30px; padding: 0 8px; display: inline-grid; place-items: center; font-size: 13px; font-weight: 850; letter-spacing: 0.1em; background: var(--surface); border: 2px solid var(--line); }
 .d-word { height: 28px; padding: 0 7px; display: inline-grid; place-items: center; font-size: 11px; font-weight: 800; background: var(--surface); border: 2px solid var(--line); }
 .d-word.hot { background: var(--hc); color: var(--hc-ink); border-color: var(--hc); }
