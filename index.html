@@ -42,7 +42,7 @@
     <div class="chips">
       <button class="tchip reset">↺</button>
       <div class="grow"></div>
-      <button class="tchip" id="slots-nodoubles"><span class="ic">◇</span>UNIQUE</button>
+      <button class="tchip" id="slots-nodoubles"><span class="ic">◇</span>NO REPEATS</button>
     </div>
     <div class="results" id="slots-results"></div>
   </section>
@@ -59,7 +59,7 @@
     <div class="chips">
       <button class="tchip reset">↺</button>
       <div class="grow"></div>
-      <button class="tchip" id="pat-nodoubles"><span class="ic">◇</span>UNIQUE</button>
+      <button class="tchip" id="pat-nodoubles"><span class="ic">◇</span>NO REPEATS</button>
     </div>
     <div class="results" id="pattern-results"></div>
   </section>
@@ -72,8 +72,8 @@
       <button class="tchip reset">↺</button>
       <div class="grow"></div>
       <button class="tchip" id="lab-shuffle"><span class="ic">⇄</span>ANAGRAM</button>
-      <button class="tchip" id="lab-nodoubles"><span class="ic">◇</span>UNIQUE</button>
-      <button class="tchip" id="lab-nos"><span class="ic">S̶</span>+S</button>
+      <button class="tchip" id="lab-nodoubles"><span class="ic">◇</span>NO REPEATS</button>
+      <button class="tchip" id="lab-nos"><span class="ic">S̶</span>NO +S</button>
     </div>
     <div class="trail" id="trail"></div>
     <div class="results" id="lab-results"></div>
@@ -91,6 +91,17 @@
     <div id="dict-radios"></div>
   </div>
   <div class="sheet" id="help-sheet">
+    <div class="help-sec" data-mode="any">
+      <div class="help-h">FILTERS, IN EVERY MODE</div>
+      <div class="help-row">
+        <span class="help-demo"><span class="d-chip">↺</span></span>
+        <span class="help-t">returns the mode to a clean start</span>
+      </div>
+      <div class="help-row">
+        <span class="help-demo"><span class="d-chip on">◇ NO REPEATS</span></span>
+        <span class="help-t">keep only words where<br>no letter appears twice</span>
+      </div>
+    </div>
     <div class="help-sec" data-mode="slots">
       <div class="help-h">SLOTS</div>
       <div class="help-row">
@@ -130,6 +141,10 @@
       <div class="help-row">
         <span class="help-demo"><span class="d-chip on">⇄ ANAGRAM</span></span>
         <span class="help-t">also allow rearranged letters,<br>FLUOR as well as FLOUR</span>
+      </div>
+      <div class="help-row">
+        <span class="help-demo"><span class="d-chip on">S̶ NO +S</span></span>
+        <span class="help-t">hide words that are just<br>your word plus an S</span>
       </div>
       <div class="help-row">
         <span class="help-demo"><span class="d-crumb">LOUR ›</span><span class="d-crumb">CLOUR ›</span></span>
