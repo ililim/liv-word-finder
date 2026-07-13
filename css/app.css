@@ -322,4 +322,16 @@ button { font: inherit; color: inherit; background: none; border: none; cursor: 
 .radio-row .dot { width: 22px; height: 22px; border-radius: var(--r); border: 2px solid var(--line); flex: 0 0 auto; }
 .radio-row.on .dot { border-color: var(--accent); background: var(--accent); }
 
+/* discreet return-to-top for deep result lists */
+.scroll-top {
+  position: absolute; right: 14px; bottom: max(16px, env(safe-area-inset-bottom));
+  width: 38px; height: 38px;
+  display: grid; place-items: center;
+  font-size: 16px; font-weight: 850; color: var(--muted);
+  background: var(--bg); border: 2px solid var(--line);
+  opacity: 0; pointer-events: none; transition: opacity 0.15s;
+  z-index: 5;
+}
+.scroll-top.show { opacity: 0.9; pointer-events: auto; }
+
 .ghost-input { position: absolute; opacity: 0; height: 1px; width: 1px; top: -100px; }

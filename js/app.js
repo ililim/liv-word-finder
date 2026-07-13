@@ -301,6 +301,7 @@ function paintLabResults() {
   const { plus, minus } = queryPlusMinus(state.dict, lab.word, { ...lab, rack: state.rack });
 
   wrap.innerHTML = "";
+  wrap.scrollTop = 0;
   wrap.append(labSection("+1", "ONE LETTER MORE", plus));
   wrap.append(labSection("−1", "ONE LETTER LESS", minus));
 }
@@ -319,6 +320,7 @@ function labSection(sign, title, { inPlace, shuffled }) {
 
 function paintGroups(wrap, words, idleText) {
   wrap.innerHTML = "";
+  wrap.scrollTop = 0;
   if (idleText) return wrap.append(el(`<div class="idle">${idleText}</div>`));
   if (!words.length) return wrap.append(el(`<div class="idle">no words: loosen something</div>`));
   appendGroups(wrap, words);
@@ -457,6 +459,13 @@ function wireEvents() {
   toggle($("lab-nos"), on => { state.lab.hideSPlurals = on; });
 
   window.addEventListener("resize", buildSlots);
+
+  for (const list of document.querySelectorAll(".results"))
+    list.addEventListener("scroll", () => $("scroll-top").classList.toggle("show", list.scrollTop > 400), { passive: true });
+  $("scroll-top").onclick = () => {
+    resultsEl().scrollTo({ top: 0, behavior: "smooth" });
+    $("scroll-top").classList.remove("show");
+  };
 }
 
 function anchor(prop, id) {
