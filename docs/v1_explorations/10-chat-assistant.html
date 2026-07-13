@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<!--
+  10 · Word Chat — a conversational take on Liv Word Finder.
+  Everything is a chat thread: type natural-ish requests ("7 letters: AERSTLN",
+  "is ZA a word?") and the assistant answers with word-chip grids, verdict cards and
+  definitions. Quick-reply suggestion chips sit above an iMessage-style composer.
+-->
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<title>10 · Word Chat — Liv Word Finder</title>
+<style>
+  :root{
+    --bg:#ffffff; --thread:#ffffff; --text:#111; --text2:#8a8a90;
+    --me:#0a7cff; --me-text:#fff; --bot:#e9e9eb; --bot-text:#111;
+    --chipbg:#f2f2f7; --chip-border:#e0e0e5; --accent:#0a7cff;
+    --good:#28a745; --bad:#d63031; --sep:#ececf0; --page-side:#e8e8ee;
+    --card:#fafafc;
+  }
+  @media (prefers-color-scheme: dark){
+    :root{
+      --bg:#000; --thread:#000; --text:#f2f2f7; --text2:#8d8d93;
+      --me:#0a7cff; --me-text:#fff; --bot:#26262a; --bot-text:#f2f2f7;
+      --chipbg:#1c1c1f; --chip-border:#333338; --accent:#409cff;
+      --good:#30d158; --bad:#ff6b6b; --sep:#222226; --page-side:#0b0b0e;
+      --card:#141416;
+    }
+  }
+  *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  html{background:var(--page-side)}
+  body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;color:var(--text);background:var(--page-side)}
+  .phone{max-width:430px;margin:0 auto;background:var(--bg);height:100dvh;
+    display:flex;flex-direction:column;box-shadow:0 0 40px rgba(0,0,0,.14)}
+  .gbar{display:flex;justify-content:space-between;align-items:center;padding:6px 14px;
+    font-size:12px;color:var(--text2);border-bottom:1px solid var(--sep);flex:none}
+  .gbar a{color:var(--accent);text-decoration:none;font-weight:600;padding:6px 0}
+  /* chat header */
+  .chead{flex:none;text-align:center;padding:8px 16px 10px;border-bottom:1px solid var(--sep)}
+  .avatar{width:44px;height:44px;border-radius:50%;margin:0 auto 3px;
+    background:linear-gradient(135deg,#7b5cff,#0a7cff);display:flex;align-items:center;
+    justify-content:center;font-size:22px}
+  .chead .name{font-size:13px;font-weight:600}
+  .chead .status{font-size:11px;color:var(--text2)}
+  /* thread */
+  .thread{flex:1;overflow-y:auto;padding:14px 12px 8px;display:flex;flex-direction:column;gap:3px;
+    background:var(--thread);scroll-behavior:smooth}
+  .stamp{text-align:center;font-size:11px;color:var(--text2);margin:10px 0 8px;font-weight:600}
+  .msg{max-width:78%;padding:9px 13px;border-radius:18px;font-size:16px;line-height:1.35;
+    animation:pop .22s ease}
+  @keyframes pop{from{opacity:0;transform:translateY(8px) scale(.97)}to{opacity:1;transform:none}}
+  .me{align-self:flex-end;background:var(--me);color:var(--me-text);border-bottom-right-radius:5px}
+  .bot{align-self:flex-start;background:var(--bot);color:var(--bot-text);border-bottom-left-radius:5px}
+  .msg + .me, .msg + .bot{margin-top:6px}
+  /* rich replies */
+  .rich{align-self:flex-start;max-width:88%;background:var(--bot);border-radius:18px;
+    border-bottom-left-radius:5px;padding:11px 13px;animation:pop .22s ease}
+  .rich .lead{font-size:15px;margin-bottom:9px;color:var(--bot-text)}
+  .wchips{display:flex;flex-wrap:wrap;gap:6px}
+  .wchip{background:var(--bg);border:1px solid var(--chip-border);border-radius:9px;
+    padding:8px 10px;font-weight:700;font-size:14px;letter-spacing:.05em;display:flex;
+    align-items:center;gap:6px;min-height:36px}
+  .wchip small{font-weight:800;font-size:11px;color:var(--accent)}
+  .more-link{font-size:13px;font-weight:600;color:var(--accent);margin-top:9px;display:inline-block}
+  .verdict{display:flex;align-items:center;gap:10px;background:var(--bg);
+    border:1px solid var(--chip-border);border-radius:12px;padding:10px 12px;margin-bottom:8px}
+  .verdict .mark{width:34px;height:34px;border-radius:50%;display:flex;align-items:center;
+    justify-content:center;color:#fff;font-size:18px;font-weight:900;background:var(--good);flex:none}
+  .verdict .w{font-size:20px;font-weight:800;letter-spacing:.08em}
+  .verdict .meta{font-size:12px;color:var(--text2)}
+  .defn{font-size:14px;color:var(--bot-text);line-height:1.4}
+  .defn i{color:var(--text2)}
+  .typing{align-self:flex-start;background:var(--bot);border-radius:18px;border-bottom-left-radius:5px;
+    padding:14px 15px;display:none;gap:4px}
+  .typing.show{display:flex}
+  .typing s{width:8px;height:8px;border-radius:50%;background:var(--text2);text-decoration:none;
+    animation:blink 1.2s infinite}
+  .typing s:nth-child(2){animation-delay:.2s}.typing s:nth-child(3){animation-delay:.4s}
+  @keyframes blink{0%,60%,100%{opacity:.3}30%{opacity:1}}
+  /* composer */
+  .composer{flex:none;border-top:1px solid var(--sep);padding:8px 10px calc(10px + env(safe-area-inset-bottom));background:var(--bg)}
+  .quick{display:flex;gap:8px;overflow-x:auto;padding:2px 2px 10px;scrollbar-width:none}
+  .quick::-webkit-scrollbar{display:none}
+  .qchip{flex:none;background:var(--chipbg);border:1px solid var(--chip-border);color:var(--text);
+    border-radius:16px;padding:9px 14px;font-size:13px;font-weight:600;cursor:pointer;min-height:36px;
+    font-family:inherit}
+  .qchip:active{background:var(--chip-border)}
+  .inrow{display:flex;gap:8px;align-items:flex-end}
+  .inrow input{flex:1;min-height:44px;border:1px solid var(--chip-border);border-radius:22px;
+    background:var(--bg);color:var(--text);font-size:16px;padding:0 16px;outline:none;font-family:inherit}
+  .send{width:44px;height:44px;border-radius:50%;border:none;background:var(--me);color:#fff;
+    font-size:19px;cursor:pointer;flex:none;display:flex;align-items:center;justify-content:center}
+  .send:active{opacity:.75}
+</style>
+</head>
+<body>
+<div class="phone">
+  <div class="gbar"><a href="./index.html">‹ Gallery</a><span>10 · Word Chat</span></div>
+
+  <div class="chead">
+    <div class="avatar">🔮</div>
+    <div class="name">Wordsworth</div>
+    <div class="status">your word finder · always online</div>
+  </div>
+
+  <div class="thread" id="thread">
+    <div class="stamp">Today 9:41 AM</div>
+
+    <div class="msg me">7 letters: AERSTLN</div>
+
+    <div class="rich">
+      <div class="lead">Ooh, nice rack — <b>4 bingos</b> hiding in there:</div>
+      <div class="wchips">
+        <span class="wchip">ANTLERS <small>57</small></span>
+        <span class="wchip">RENTALS <small>57</small></span>
+        <span class="wchip">SALTERN <small>57</small></span>
+        <span class="wchip">STERNAL <small>57</small></span>
+      </div>
+      <div class="lead" style="margin:10px 0 9px">Best shorter plays:</div>
+      <div class="wchips">
+        <span class="wchip">ANTLER <small>6</small></span>
+        <span class="wchip">RENTAL <small>6</small></span>
+        <span class="wchip">SLATER <small>6</small></span>
+        <span class="wchip">LEARNT <small>6</small></span>
+      </div>
+      <span class="more-link">Show all 62 words ›</span>
+    </div>
+
+    <div class="msg me">is ZA a word?</div>
+
+    <div class="rich">
+      <div class="verdict">
+        <div class="mark">✓</div>
+        <div>
+          <div class="w">ZA</div>
+          <div class="meta">valid · NWL 2023 &amp; CSW 24 · 11 pts</div>
+        </div>
+      </div>
+      <div class="defn"><i>noun, slang.</i> Pizza. ("Let's grab some za.")
+        The only two-letter Z in the book — guard those blanks and save it for a triple. 🍕</div>
+    </div>
+
+    <div class="msg me">5-letter words ending in OUGH</div>
+
+    <div class="rich">
+      <div class="lead">All <b>7</b> of them — English is chaos:</div>
+      <div class="wchips">
+        <span class="wchip">BOUGH</span><span class="wchip">COUGH</span>
+        <span class="wchip">DOUGH</span><span class="wchip">LOUGH</span>
+        <span class="wchip">ROUGH</span><span class="wchip">SOUGH</span>
+        <span class="wchip">TOUGH</span>
+      </div>
+      <div class="defn" style="margin-top:9px"><i>Five different pronunciations in one chip row. You're welcome.</i></div>
+    </div>
+
+    <div class="typing" id="typing"><s></s><s></s><s></s></div>
+  </div>
+
+  <div class="composer">
+    <div class="quick">
+      <button class="qchip" data-q="Highest scoring play?">💎 Highest score?</button>
+      <button class="qchip" data-q="2-letter words with J">J twos</button>
+      <button class="qchip" data-q="Define SALTERN">Define SALTERN</button>
+      <button class="qchip" data-q="Bee pangram for today?">🐝 Today's pangram</button>
+    </div>
+    <div class="inrow">
+      <input id="inp" placeholder="Ask anything… letters, patterns, words" autocomplete="off">
+      <button class="send" id="send" aria-label="Send">↑</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  const thread=document.getElementById('thread'),
+        typing=document.getElementById('typing'),
+        inp=document.getElementById('inp');
+
+  const canned={
+    'highest scoring play?':'<div class="lead">From AERSTLN, the money play is <b>ANTLERS</b> across a double-word for <b>64</b> — or hook the S onto an existing word and bingo out.</div>',
+    '2-letter words with j':'<div class="lead">Just one, and it’s a gem:</div><div class="wchips"><span class="wchip">JO <small>9</small></span></div><div class="defn" style="margin-top:9px"><i>noun, Scots.</i> A sweetheart. Deploy against unsuspecting opponents.</div>',
+    'define saltern':'<div class="defn"><b>SALTERN</b> · <i>noun.</i> A place where salt is made, esp. by evaporating seawater in shallow pools. Also a very sneaky bingo.</div>',
+    'bee pangram for today?':'<div class="lead">Today’s hive is P L A N O I + <b>T</b>. The pangram:</div><div class="wchips"><span class="wchip" style="background:#ffd83d;color:#111;border-color:#e5be00">PLANTATION <small style="color:#7a6200">17</small></span></div>'
+  };
+  const fallback='<div class="lead">Here’s what I’d try with that:</div><div class="wchips"><span class="wchip">TOWNIER <small>10</small></span><span class="wchip">TINWORE <small>—</small></span><span class="wchip">WONTIER <small>—</small></span></div><div class="defn" style="margin-top:9px"><i>(mockup) In v1 I’ll actually parse this and search the dictionary.</i></div>';
+
+  function addUser(text){
+    const m=document.createElement('div');
+    m.className='msg me'; m.textContent=text;
+    thread.insertBefore(m,typing);
+    thread.scrollTop=thread.scrollHeight;
+  }
+  function reply(text){
+    typing.classList.add('show');
+    thread.scrollTop=thread.scrollHeight;
+    setTimeout(()=>{
+      typing.classList.remove('show');
+      const r=document.createElement('div');
+      r.className='rich';
+      r.innerHTML=canned[text.trim().toLowerCase()]||fallback;
+      thread.insertBefore(r,typing);
+      thread.scrollTop=thread.scrollHeight;
+    },900);
+  }
+  function send(text){
+    if(!text.trim())return;
+    addUser(text.trim());
+    reply(text);
+    inp.value='';
+  }
+  document.getElementById('send').addEventListener('click',()=>send(inp.value));
+  inp.addEventListener('keydown',e=>{if(e.key==='Enter')send(inp.value)});
+  document.querySelectorAll('.qchip').forEach(c=>c.addEventListener('click',()=>send(c.dataset.q)));
+  thread.scrollTop=thread.scrollHeight;
+</script>
+</body>
+</html>

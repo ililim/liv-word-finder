@@ -1,0 +1,129 @@
+<!-- Gallery index for the 20 v1 design exploration mockups of Liv Word Finder.
+     Cards show live scaled iframe previews of each mockup; tap a card to open it. -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<title>Liv Word Finder — v1 Design Explorations</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🔤</text></svg>">
+<style>
+  :root {
+    --bg: #f4f2ee;
+    --card: #ffffff;
+    --ink: #1c1b18;
+    --muted: #77726a;
+    --accent: #7c5cff;
+    --line: rgba(0,0,0,.08);
+    color-scheme: light dark;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #141312;
+      --card: #201f1d;
+      --ink: #f0ede8;
+      --muted: #9b958c;
+      --accent: #9d85ff;
+      --line: rgba(255,255,255,.09);
+    }
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    background: var(--bg);
+    color: var(--ink);
+    padding: max(20px, env(safe-area-inset-top)) 16px 48px;
+  }
+  .wrap { max-width: 1200px; margin: 0 auto; }
+  header { margin: 16px 4px 8px; }
+  h1 { font-size: 28px; letter-spacing: -.02em; }
+  h1 .v { color: var(--accent); }
+  .sub { color: var(--muted); margin-top: 6px; font-size: 15px; line-height: 1.45; max-width: 640px; }
+  h2 {
+    font-size: 13px; text-transform: uppercase; letter-spacing: .09em;
+    color: var(--muted); margin: 36px 4px 14px; font-weight: 600;
+  }
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: 16px;
+  }
+  a.card {
+    display: block; text-decoration: none; color: inherit;
+    background: var(--card); border: 1px solid var(--line);
+    border-radius: 18px; overflow: hidden;
+    transition: transform .15s ease, box-shadow .15s ease;
+  }
+  a.card:active { transform: scale(.97); }
+  @media (hover: hover) {
+    a.card:hover { transform: translateY(-3px); box-shadow: 0 10px 30px rgba(0,0,0,.12); }
+  }
+  .preview {
+    height: 300px; overflow: hidden; position: relative;
+    background: var(--bg); border-bottom: 1px solid var(--line);
+  }
+  .preview iframe {
+    width: 390px; height: 700px; border: 0;
+    transform: scale(.72); transform-origin: top center;
+    position: absolute; left: 50%; margin-left: -195px; top: 0;
+    pointer-events: none;
+  }
+  .meta { padding: 12px 14px 14px; }
+  .num {
+    font-size: 11px; font-weight: 700; color: var(--accent);
+    letter-spacing: .06em;
+  }
+  .name { font-size: 17px; font-weight: 650; margin: 2px 0 3px; }
+  .tag { font-size: 13px; color: var(--muted); line-height: 1.4; }
+  footer { margin-top: 48px; color: var(--muted); font-size: 13px; text-align: center; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>Liv Word Finder <span class="v">· v1 explorations</span></h1>
+    <p class="sub">20 mobile-first design ideations for a word-finding companion for Scrabble
+    &amp; NYT games. Each card is a live preview — tap to open the full mockup on your phone.</p>
+  </header>
+
+  <div class="grid" id="grid"></div>
+
+  <footer>Built as v1 ideation · pick favorites and we'll combine them into the real app 💜</footer>
+</div>
+
+<script>
+  const items = [
+    ["01-smart-search.html", "01", "Smart Search", "One universal box that infers the tool from syntax — letters, ? blanks, _ patterns, * wildcards."],
+    ["02-tab-bar.html", "02", "Classic Tabs", "The proven iOS shell: bottom tab bar switching between five tools."],
+    ["03-game-picker.html", "03", "Game Picker Home", "Organized by game, not tool — big cards for Scrabble, Wordle, Bee, Letter Boxed."],
+    ["04-tile-rack.html", "04", "Tile Rack", "Skeuomorphic Scrabble rack with wooden tiles; results ranked by score."],
+    ["05-wordle-assistant.html", "05", "Wordle Assistant", "Faithful Wordle grid; tap tiles to cycle colors, get candidates + best next guess."],
+    ["06-spelling-bee.html", "06", "Bee Buddy", "Honeycomb input with pangram badges, points, and a Genius progress bar."],
+    ["07-letter-boxed.html", "07", "Boxed Solver", "The Letter Boxed square with traced solution paths and 2-word chains."],
+    ["08-pattern-slots.html", "08", "Pattern Slots", "Tap-to-fill letter position slots for crossword & Wordle-style constraints."],
+    ["09-score-maximizer.html", "09", "Score Max", "Score-ranked results with premium-square toggles and point breakdowns."],
+    ["10-chat-assistant.html", "10", "Word Chat", "Conversational: ask in plain language, get word-chip answers in a chat thread."],
+    ["11-swipe-deck.html", "11", "Tool Deck", "Full-screen swipeable poster cards, one vivid tool per card."],
+    ["12-cheat-sheets.html", "12", "Cheat Sheets", "The classic memorization lists: 2-letter words, Q-without-U, vowel dumps."],
+    ["13-filter-stack.html", "13", "Filter Stack", "Stackable filter chips — starts/ends/contains/length/dictionary — with live narrowing."],
+    ["14-thumb-keyboard.html", "14", "Thumb Board", "Giant frequency-ordered keyboard in the thumb zone; results stream live above."],
+    ["15-letter-dials.html", "15", "Letter Dials", "Playful slot-machine dials per letter position — flick, lock, and FIND."],
+    ["16-live-split.html", "16", "Live Split", "Spotlight-style zero-button search: results re-rank on every keystroke."],
+    ["17-minimal-mono.html", "17", "Mono Minimal", "Brutalist monospace: one input line, dense results, zero chrome."],
+    ["18-widget-dashboard.html", "18", "Widgets Home", "iOS-widget dashboard: glanceable cards for each game and quick tools."],
+    ["19-hook-explorer.html", "19", "Hooks & Extensions", "Front/back hooks and extensions branching off a word already on the board."],
+    ["20-word-checker.html", "20", "Word Judge", "One input, one giant verdict: VALID ✓ with definition, or NOT A WORD ✗."]
+  ];
+  document.getElementById("grid").innerHTML = items.map(([file, num, name, tag]) => `
+    <a class="card" href="${file}">
+      <div class="preview"><iframe src="${file}" loading="lazy" tabindex="-1" title="${name} preview"></iframe></div>
+      <div class="meta">
+        <div class="num">MOCKUP ${num}</div>
+        <div class="name">${name}</div>
+        <div class="tag">${tag}</div>
+      </div>
+    </a>`).join("");
+</script>
+</body>
+</html>

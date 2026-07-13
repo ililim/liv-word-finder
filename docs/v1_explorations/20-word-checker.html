@@ -1,0 +1,252 @@
+<!--
+  20 · Word Judge — The adjudication tool: one big input, one giant verdict. VALID floods
+  the screen green with the real NWL2023 definition and per-dictionary flags (NWL/CSW/ENABLE);
+  NOT A WORD floods red with did-you-mean suggestions found by edit distance. Recent rulings
+  collect below as pills. Courtroom-dramatic minimalism with a stamp animation on the verdict.
+-->
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<title>20 · Word Judge — Liv Word Finder</title>
+<style>
+  :root{
+    --bg:#f6f3ea; --ink:#211f1a; --dim:#6d685c; --faint:#a49e8d; --edge:#ddd6c4;
+    --panel:#fffdf6; --green:#0c7a43; --red:#a51c30; --greenwash:#eaf6ee; --redwash:#faeceb;
+    --onflood:#ffffff;
+  }
+  @media (prefers-color-scheme: dark){
+    :root{
+      --bg:#171511; --ink:#ece7da; --dim:#a29b89; --faint:#6b654f; --edge:#353023;
+      --panel:#211e17; --green:#1fa864; --red:#e05263; --greenwash:#12291c; --redwash:#2e1518;
+      --onflood:#ffffff;
+    }
+  }
+  *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  html{background:#e6e1d3}
+  @media (prefers-color-scheme: dark){ html{background:#0d0c09} }
+  body{
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+    background:var(--bg); color:var(--ink); max-width:430px; margin:0 auto; min-height:100vh;
+    box-shadow:0 0 40px rgba(40,30,10,.3); position:relative; overflow-x:hidden;
+  }
+  .topbar{display:flex; justify-content:space-between; align-items:center; padding:8px 14px;
+    font-size:12px; color:var(--dim); border-bottom:1px solid var(--edge); position:relative; z-index:3}
+  .topbar a{color:var(--dim); text-decoration:none; padding:6px 8px 6px 0}
+
+  .floodwrap{position:absolute; inset:0; overflow:hidden; z-index:1; pointer-events:none}
+  .flood{
+    position:absolute; left:50%; top:300px; width:12px; height:12px; border-radius:50%;
+    transform:translate(-50%,-50%) scale(0);
+  }
+  .flood.go-valid{background:var(--green); animation:flood .55s cubic-bezier(.25,.6,.3,1) forwards}
+  .flood.go-invalid{background:var(--red); animation:flood .55s cubic-bezier(.25,.6,.3,1) forwards}
+  @keyframes flood{to{transform:translate(-50%,-50%) scale(250)}}
+
+  main{position:relative; z-index:2; padding:26px 20px 50px; text-align:center}
+  .court{font-family:Georgia,"Times New Roman",serif; font-style:italic; font-size:13px;
+    color:var(--dim); letter-spacing:.02em}
+  body.flooded .court{color:rgba(255,255,255,.75)}
+  h1{font-size:12px; font-weight:800; letter-spacing:.34em; text-transform:uppercase; margin-top:4px}
+  body.flooded h1, body.flooded .checkform input, body.flooded .hist h2{color:var(--onflood)}
+
+  .checkform{margin:26px 0 8px}
+  .checkform input{
+    width:100%; border:none; border-bottom:2.5px solid var(--edge); background:transparent;
+    font-size:38px; font-weight:800; letter-spacing:.14em; text-align:center; color:var(--ink);
+    text-transform:uppercase; outline:none; padding:6px 0 10px; font-family:inherit;
+  }
+  body.flooded .checkform input{border-color:rgba(255,255,255,.45)}
+  .checkform input::placeholder{color:var(--faint); font-weight:600; letter-spacing:.06em; font-size:22px}
+  .judgebtn{
+    margin-top:18px; min-height:52px; padding:0 38px; border-radius:999px; border:none;
+    background:var(--ink); color:var(--bg); font-size:15px; font-weight:800; letter-spacing:.22em;
+    text-transform:uppercase; cursor:pointer; font-family:inherit;
+  }
+  .judgebtn:active{transform:scale(.96)}
+  body.flooded .judgebtn{background:var(--onflood); color:var(--ink)}
+
+  .verdict{min-height:250px; padding-top:22px}
+  .vword{font-family:Georgia,serif; font-style:italic; font-size:16px; color:var(--dim)}
+  body.flooded .vword{color:rgba(255,255,255,.8)}
+  .vmain{
+    font-size:66px; font-weight:900; letter-spacing:.02em; line-height:1.02; margin:6px 0 4px;
+    text-transform:uppercase;
+  }
+  .vmain.small{font-size:44px}
+  body.flooded .vmain{color:var(--onflood)}
+  .stamp{display:inline-block; animation:stamp .38s cubic-bezier(.2,2.2,.4,1) both; transform-origin:center}
+  @keyframes stamp{
+    0%{transform:scale(2.4) rotate(-7deg); opacity:0}
+    100%{transform:scale(1) rotate(-2deg); opacity:1}
+  }
+  .vmark{font-size:30px; vertical-align:top}
+  .vdef{
+    font-family:Georgia,serif; font-size:15.5px; line-height:1.55; max-width:300px; margin:10px auto 0;
+  }
+  body.flooded .vdef{color:rgba(255,255,255,.94)}
+  .vdef i{opacity:.72; font-size:13px}
+  .dicts{display:flex; justify-content:center; gap:8px; margin-top:18px}
+  .dflag{
+    font-size:11.5px; font-weight:800; letter-spacing:.06em; padding:7px 12px; border-radius:999px;
+    border:1.5px solid; min-height:32px; display:flex; align-items:center; gap:5px;
+  }
+  body.flooded .dflag.yes{border-color:rgba(255,255,255,.9); color:#fff; background:rgba(255,255,255,.14)}
+  body.flooded .dflag.no{border-color:rgba(255,255,255,.35); color:rgba(255,255,255,.55)}
+  body:not(.flooded) .dflag.yes{border-color:var(--green); color:var(--green); background:var(--greenwash)}
+  body:not(.flooded) .dflag.no{border-color:var(--edge); color:var(--faint)}
+  .didyou{margin-top:18px; font-family:Georgia,serif; font-style:italic; font-size:14px}
+  body.flooded .didyou{color:rgba(255,255,255,.85)}
+  .sugg{display:flex; justify-content:center; gap:8px; margin-top:10px; flex-wrap:wrap}
+  .sugg button{
+    min-height:44px; padding:0 18px; border-radius:10px; border:1.5px solid rgba(255,255,255,.8);
+    background:rgba(255,255,255,.14); color:#fff; font-size:16px; font-weight:800; letter-spacing:.1em;
+    cursor:pointer; text-transform:uppercase; font-family:inherit;
+  }
+  body:not(.flooded) .sugg button{border-color:var(--edge); background:var(--panel); color:var(--ink)}
+  .idle{padding-top:46px; color:var(--faint); font-family:Georgia,serif; font-style:italic; font-size:15px; line-height:1.7}
+  .gavel{font-size:34px; font-style:normal; display:block; margin-bottom:8px}
+
+  .hist{margin-top:26px; text-align:left}
+  .hist h2{font-size:10px; font-weight:800; letter-spacing:.26em; text-transform:uppercase;
+    color:var(--faint); text-align:center; margin-bottom:12px}
+  .pills{display:flex; flex-wrap:wrap; gap:8px; justify-content:center}
+  .pill{
+    min-height:38px; padding:0 14px; border-radius:999px; font-size:13px; font-weight:700;
+    letter-spacing:.08em; display:flex; align-items:center; gap:6px; cursor:pointer; border:1.5px solid;
+    text-transform:uppercase; background:var(--panel); font-family:inherit;
+  }
+  .pill.ok{color:var(--green); border-color:var(--green)}
+  .pill.bad{color:var(--red); border-color:var(--red); text-decoration:line-through}
+  body.flooded .pill{background:rgba(255,255,255,.12); border-color:rgba(255,255,255,.5); color:#fff}
+  body.flooded .pill.bad{color:rgba(255,255,255,.75)}
+</style>
+
+<div class="topbar">
+  <a href="./index.html">‹ Gallery</a>
+  <span>20 · Word Judge</span>
+</div>
+
+<div class="floodwrap"><div class="flood" id="flood"></div></div>
+
+<main>
+  <div class="court">The court is now in session</div>
+  <h1>Word Judge</h1>
+
+  <form class="checkform" id="form">
+    <input id="w" placeholder="present a word" maxlength="15" autocomplete="off"
+      autocapitalize="characters" enterkeyhint="go" aria-label="Word to judge">
+    <br>
+    <button class="judgebtn" type="submit">Judge</button>
+  </form>
+
+  <div class="verdict" id="verdict">
+    <div class="idle">
+      <span class="gavel">⚖️</span>
+      Type a word and let the lexicon decide.<br>
+      Try <b>ZA</b>, <b>HANGRY</b> — or <b>EWW</b>.
+    </div>
+  </div>
+
+  <div class="hist">
+    <h2>Recent rulings</h2>
+    <div class="pills" id="pills"></div>
+  </div>
+</main>
+
+<script>
+// Demo lexicon — validity flags verified against the real NWL2023 / CSW21 / ENABLE lists.
+const LEX = {
+  za:      {d:"a pizza", n:1,c:1,e:0},
+  qi:      {d:"the vital force that, in Chinese thought, is inherent in all things", n:1,c:1,e:0},
+  ew:      {d:"used to express disgust", n:1,c:1,e:0},
+  zen:     {d:"mental calmness", n:1,c:1,e:0},
+  hangry:  {d:"hungry to the point of irritability", n:1,c:1,e:0},
+  yeet:    {d:"to throw recklessly", n:1,c:0,e:0},
+  vibed:   {d:"past tense of VIBE, to transmit a feeling", n:1,c:0,e:0},
+  cazh:    {d:"casual", n:1,c:1,e:0},
+  okay:    {d:"to approve", n:1,c:1,e:1},
+  jawline: {d:"the outline of the lower jaw", n:1,c:1,e:1},
+  quixotry:{d:"quixotic action or thought", n:1,c:1,e:1},
+  muzjiks: {d:"Russian peasants", n:1,c:1,e:1},
+  grok:    {d:"to understand intuitively", n:1,c:1,e:0},
+  stan:    {d:"to be an excessively devoted fan", n:1,c:0,e:0},
+  vax:     {d:"to vaccinate", n:1,c:1,e:0},
+  zyzzyva: {d:"a tropical American weevil", n:1,c:1,e:1},
+  thingy:  {d:"something whose name is unknown or forgotten", n:1,c:1,e:0},
+  oke:     {d:"okay", n:1,c:1,e:1},
+  ewer:    {d:"a large, wide-mouthed pitcher", n:1,c:1,e:1},
+  ewes:    {d:"female sheep", n:1,c:1,e:1},
+  sussed:  {d:"figured out; inspected (SUSS)", n:1,c:1,e:1}
+};
+let history = [["hangry",1],["eww",0],["qi",1],["za",1],["fomo",0]];
+
+function lev(a,b){
+  const m = Array.from({length:a.length+1},(_,i)=>[i,...Array(b.length).fill(0)]);
+  for(let j=0;j<=b.length;j++) m[0][j]=j;
+  for(let i=1;i<=a.length;i++)
+    for(let j=1;j<=b.length;j++)
+      m[i][j] = Math.min(m[i-1][j]+1, m[i][j-1]+1, m[i-1][j-1]+(a[i-1]===b[j-1]?0:1));
+  return m[a.length][b.length];
+}
+function suggestions(w){
+  return Object.keys(LEX)
+    .map(k=>[k, lev(w,k)])
+    .filter(([k,d])=>d>0 && d<=2)
+    .sort((a,b)=>a[1]-b[1])
+    .slice(0,3).map(([k])=>k);
+}
+function flag(name, on){
+  return `<span class="dflag ${on?"yes":"no"}">${name} ${on?"✓":"✗"}</span>`;
+}
+function judge(word){
+  word = word.toLowerCase().replace(/[^a-z]/g,"");
+  if (!word) return;
+  const entry = LEX[word];
+  const valid = !!entry;
+
+  // color flood animation
+  const f = document.getElementById("flood");
+  f.className = "flood";
+  void f.offsetWidth; // restart animation
+  f.classList.add(valid ? "go-valid" : "go-invalid");
+  document.body.classList.add("flooded");
+
+  const v = document.getElementById("verdict");
+  if (valid){
+    v.innerHTML = `
+      <div class="vword">In the matter of “${word.toUpperCase()}”</div>
+      <div class="vmain"><span class="stamp">VALID <span class="vmark">✓</span></span></div>
+      <div class="vdef">${entry.d}<br><i>— NWL2023</i></div>
+      <div class="dicts">${flag("NWL",entry.n)}${flag("CSW",entry.c)}${flag("ENABLE",entry.e)}</div>`;
+  } else {
+    const sugg = suggestions(word);
+    v.innerHTML = `
+      <div class="vword">In the matter of “${word.toUpperCase()}”</div>
+      <div class="vmain small"><span class="stamp">NOT A WORD <span class="vmark">✗</span></span></div>
+      <div class="vdef"><i>Overruled in all dictionaries.</i></div>
+      ${sugg.length ? `<div class="didyou">did you mean…</div>
+        <div class="sugg">${sugg.map(s=>`<button data-s="${s}">${s}</button>`).join("")}</div>`
+      : `<div class="didyou">and nothing even comes close.</div>`}`;
+    v.querySelectorAll("[data-s]").forEach(b=>b.addEventListener("click", ()=>{
+      document.getElementById("w").value = b.dataset.s;
+      judge(b.dataset.s);
+    }));
+  }
+  history = [[word, valid?1:0], ...history.filter(h=>h[0]!==word)].slice(0,10);
+  renderPills();
+}
+function renderPills(){
+  document.getElementById("pills").innerHTML = history.map(([w,ok])=>
+    `<button class="pill ${ok?"ok":"bad"}" data-w="${w}">${w} ${ok?"✓":"✗"}</button>`).join("");
+  document.querySelectorAll(".pill").forEach(p=>p.addEventListener("click", ()=>{
+    document.getElementById("w").value = p.dataset.w;
+    judge(p.dataset.w);
+  }));
+}
+document.getElementById("form").addEventListener("submit", e=>{
+  e.preventDefault();
+  document.getElementById("w").blur();
+  judge(document.getElementById("w").value);
+});
+renderPills();
+</script>

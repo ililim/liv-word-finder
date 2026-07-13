@@ -1,0 +1,271 @@
+<!--
+  13 · Filter Stack — Power-user query builder: stack removable filter chips (Starts with,
+  Ends with, Length, …) on top of a dictionary picker and watch the live narrowing indicator
+  funnel 196,601 words down to 29. All counts and result words are real, precomputed against
+  NWL2023 / CSW21 / ENABLE. Utilitarian pro-tool aesthetic: dense, monospaced, ordered.
+-->
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<title>13 · Filter Stack — Liv Word Finder</title>
+<style>
+  :root{
+    --bg:#f2f4f7; --panel:#ffffff; --edge:#d8dde6; --ink:#1a2230; --dim:#5f6a80; --faint:#98a2b6;
+    --acc:#0f62fe; --blue:#0f62fe; --violet:#7c3aed; --amber:#b45309; --teal:#0d7d74;
+    --bluebg:#e8efff; --violetbg:#f1e9fe; --amberbg:#fdf0dd; --shadow:0 1px 3px rgba(20,30,60,.10);
+    --mono:ui-monospace,"SF Mono",Menlo,monospace;
+  }
+  @media (prefers-color-scheme: dark){
+    :root{
+      --bg:#12151b; --panel:#1b2029; --edge:#2c3442; --ink:#e6eaf2; --dim:#9aa4b8; --faint:#5d6880;
+      --acc:#5c9bff; --blue:#5c9bff; --violet:#b18cff; --amber:#f2a950; --teal:#4fd1c5;
+      --bluebg:#1a2c4d; --violetbg:#2c2347; --amberbg:#3a2c17; --shadow:0 1px 3px rgba(0,0,0,.4);
+    }
+  }
+  *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  html{background:#e2e6ec}
+  @media (prefers-color-scheme: dark){ html{background:#0b0d11} }
+  body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif; background:var(--bg);
+    color:var(--ink); max-width:430px; margin:0 auto; min-height:100vh; box-shadow:0 0 40px rgba(0,0,0,.25)}
+  .topbar{display:flex; justify-content:space-between; align-items:center; padding:8px 14px;
+    font-size:12px; color:var(--dim); border-bottom:1px solid var(--edge); background:var(--panel)}
+  .topbar a{color:var(--dim); text-decoration:none; padding:6px 8px 6px 0}
+  header{padding:16px 16px 0}
+  h1{font-size:19px; font-weight:800; letter-spacing:-.01em}
+  h1 span{color:var(--acc)}
+  .sub{font-size:12px; color:var(--dim); margin-top:2px}
+
+  .dictseg{display:flex; margin:14px 16px 0; border:1px solid var(--edge); border-radius:10px;
+    overflow:hidden; background:var(--panel)}
+  .dictseg button{flex:1; min-height:44px; border:none; background:transparent; color:var(--dim);
+    font-size:13px; font-weight:700; cursor:pointer; border-right:1px solid var(--edge)}
+  .dictseg button:last-child{border-right:none}
+  .dictseg button.on{background:var(--acc); color:#fff}
+  .dictseg button small{display:block; font-weight:500; font-size:10px; opacity:.75; font-family:var(--mono)}
+
+  .stack{padding:14px 16px 0}
+  .label{font-size:10.5px; font-weight:800; letter-spacing:.14em; text-transform:uppercase; color:var(--faint); margin-bottom:8px}
+  .chips{display:flex; flex-direction:column; gap:8px}
+  .fchip{display:flex; align-items:center; gap:10px; min-height:48px; padding:0 6px 0 12px;
+    border-radius:10px; border:1px solid var(--edge); background:var(--panel); box-shadow:var(--shadow)}
+  .fchip .kind{font-size:10px; font-weight:800; letter-spacing:.1em; text-transform:uppercase;
+    padding:4px 8px; border-radius:6px; white-space:nowrap}
+  .fchip[data-f="un"]  .kind{color:var(--blue);  background:var(--bluebg)}
+  .fchip[data-f="able"] .kind{color:var(--violet); background:var(--violetbg)}
+  .fchip[data-f="l9"]  .kind{color:var(--amber); background:var(--amberbg)}
+  .fchip .val{font-family:var(--mono); font-size:15px; font-weight:700; letter-spacing:.05em}
+  .fchip .eff{margin-left:auto; font-family:var(--mono); font-size:11px; color:var(--faint); white-space:nowrap}
+  .fchip .x{width:44px; height:44px; border:none; background:none; color:var(--faint); font-size:17px; cursor:pointer}
+  .fchip .x:active{color:var(--ink)}
+  .addbtn{margin-top:8px; width:100%; min-height:48px; border-radius:10px; border:1.5px dashed var(--edge);
+    background:transparent; color:var(--acc); font-size:14px; font-weight:700; cursor:pointer}
+
+  .funnel{margin:16px 16px 0; background:var(--panel); border:1px solid var(--edge); border-radius:12px;
+    padding:14px; box-shadow:var(--shadow)}
+  .fnums{font-family:var(--mono); font-size:13px; color:var(--dim); display:flex; align-items:baseline;
+    flex-wrap:wrap; gap:4px 8px; font-variant-numeric:tabular-nums}
+  .fnums .arrow{color:var(--faint)}
+  .fnums .final{font-size:22px; font-weight:800; color:var(--teal)}
+  .fbars{display:flex; align-items:flex-end; gap:5px; height:34px; margin-top:10px}
+  .fbars div{background:var(--teal); border-radius:3px 3px 0 0; flex:1; opacity:.28; transition:height .35s}
+  .fbars div:last-child{opacity:1}
+  .fnote{font-size:11px; color:var(--faint); margin-top:8px}
+
+  .results{padding:14px 16px 44px}
+  .rhead{display:flex; justify-content:space-between; align-items:baseline; margin-bottom:8px}
+  .rcount{font-family:var(--mono); font-size:11px; color:var(--faint)}
+  .words{display:grid; grid-template-columns:1fr 1fr; gap:1px; background:var(--edge);
+    border:1px solid var(--edge); border-radius:10px; overflow:hidden}
+  .words div{background:var(--panel); padding:11px 12px; font-family:var(--mono); font-size:13.5px;
+    letter-spacing:.03em; display:flex; justify-content:space-between; min-height:44px; align-items:center}
+  .words div small{color:var(--faint); font-size:10px}
+  .more{grid-column:1/-1; text-align:center; color:var(--faint); font-size:12px !important; justify-content:center !important}
+  .empty{padding:28px 12px; text-align:center; color:var(--faint); font-size:13px; line-height:1.6;
+    border:1.5px dashed var(--edge); border-radius:10px}
+
+  .scrim{position:fixed; inset:0; background:rgba(10,14,22,.5); opacity:0; pointer-events:none; transition:opacity .25s; z-index:9}
+  .sheet{position:fixed; left:50%; transform:translate(-50%,105%); bottom:0; width:100%; max-width:430px;
+    background:var(--panel); border-radius:18px 18px 0 0; z-index:10; visibility:hidden;
+    transition:transform .3s cubic-bezier(.3,1,.4,1), visibility .3s;
+    padding:8px 16px calc(20px + env(safe-area-inset-bottom)); box-shadow:0 -10px 40px rgba(0,0,0,.3)}
+  body.sheetopen .scrim{opacity:1; pointer-events:auto}
+  body.sheetopen .sheet{transform:translate(-50%,0); visibility:visible}
+  .grab{width:36px; height:4px; border-radius:2px; background:var(--edge); margin:6px auto 14px}
+  .sheet h3{font-size:15px; font-weight:800; margin-bottom:10px}
+  .opt{display:flex; align-items:center; gap:12px; min-height:52px; width:100%; border:none;
+    background:none; color:var(--ink); font-size:15px; cursor:pointer; border-bottom:1px solid var(--edge); text-align:left}
+  .opt:last-child{border-bottom:none}
+  .opt .k{width:34px; height:34px; border-radius:8px; display:flex; align-items:center; justify-content:center;
+    font-weight:800; font-size:13px; font-family:var(--mono)}
+  .opt[data-add="un"] .k{color:var(--blue); background:var(--bluebg)}
+  .opt[data-add="able"] .k{color:var(--violet); background:var(--violetbg)}
+  .opt[data-add="l9"] .k{color:var(--amber); background:var(--amberbg)}
+  .opt.soon{opacity:.42; cursor:default}
+  .opt.soon .k{color:var(--dim); background:var(--bg)}
+  .opt small{margin-left:auto; font-size:10px; font-weight:700; letter-spacing:.08em; color:var(--faint)}
+</style>
+
+<div class="topbar">
+  <a href="./index.html">‹ Gallery</a>
+  <span>13 · Filter Stack</span>
+</div>
+
+<header>
+  <h1>Filter<span>Stack</span></h1>
+  <div class="sub">Stack constraints. Watch the list collapse.</div>
+</header>
+
+<div class="dictseg" id="dictseg">
+  <button data-d="nwl" class="on">NWL2023<small>196,601</small></button>
+  <button data-d="csw">CSW21<small>279,077</small></button>
+  <button data-d="en">ENABLE<small>172,823</small></button>
+</div>
+
+<div class="stack">
+  <div class="label">Active filters</div>
+  <div class="chips" id="chips"></div>
+  <button class="addbtn" id="addbtn">+ Add filter</button>
+</div>
+
+<div class="funnel">
+  <div class="fnums" id="fnums"></div>
+  <div class="fbars" id="fbars"></div>
+  <div class="fnote" id="fnote"></div>
+</div>
+
+<div class="results">
+  <div class="rhead">
+    <div class="label" style="margin:0">Matches</div>
+    <div class="rcount" id="rcount"></div>
+  </div>
+  <div id="out"></div>
+</div>
+
+<div class="scrim" id="scrim"></div>
+<div class="sheet" id="sheet">
+  <div class="grab"></div>
+  <h3>Add a filter</h3>
+  <div id="opts"></div>
+</div>
+
+<script>
+// Real precomputed counts & word samples per dictionary and filter combination.
+// Key: un|able|l9 flags, e.g. "110" = starts-with-UN + ends-with-ABLE.
+const N = {
+  nwl:{ "000":196601,"001":120059,"010":1785,"011":771,"100":4672,"101":2156,"110":260,"111":29 },
+  csw:{ "000":279077,"001":162192,"010":2456,"011":885,"100":7560,"101":3167,"110":426,"111":42 },
+  en: { "000":172823,"001":105241,"010":1477,"011":580,"100":3856,"101":1763,"110":213,"111":20 }
+};
+const HEAD9 = ["aa","aah","aahed","aahing","aahs","aal","aalii","aaliis","aals","aardvark","aardwolf","aargh","aarrgh","aarrghh","aas","ab","aba","abaca"];
+const W = {
+  nwl:{
+    "001":HEAD9,
+    "100":["un","unabashed","unabashedly","unabated","unabatedly","unabating","unabetted","unabiding","unabjured","unable","unaborted","unabraded","unabridged","unabsorbed","unabsorbent","unabused","unabusive","unacademic"],
+    "010":["abatable","abdicable","able","abolishable","abominable","abradable","abridgeable","abrogable","absorbable","abstractable","abusable","acceptable","accomplishable","accountable","accreditable","accruable","accusable","achievable"],
+    "110":["unable","unacceptable","unaccountable","unachievable","unactable","unadaptable","unadoptable","unaffordable","unalienable","unallowable","unalterable","unamenable","unamiable","unanalysable","unanalyzable","unanswerable","unappealable","unappeasable"],
+    "101":["un","unabashed","unabated","unabating","unabetted","unabiding","unabjured","unable","unaborted","unabraded","unabused","unabusive","unaccrued","unacerbic","unacidic","unactable","unacted","unadapted"],
+    "011":["abatable","abdicable","able","abradable","abrogable","abusable","accruable","accusable","actable","adaptable","addable","adherable","admirable","adoptable","adorable","adorkable","advisable","affable"],
+    "111":["unable","unactable","unamiable","uncapable","uncurable","undatable","undoable","uneatable","unfazable","unflyable","unhirable","unifiable","unlikable","unlivable","unlovable","unmixable","unmovable","unnamable","unpliable","unridable","unsalable","unsayable","unseeable","unstable","untamable","untenable","untunable","unusable","unviable"]
+  },
+  csw:{
+    "001":HEAD9,
+    "100":["un","unabashed","unabashedly","unabated","unabatedly","unabating","unabbreviated","unabetted","unabiding","unabjured","unable","unabolished","unaborted","unabraded","unabridged","unabrogated","unabsolved","unabsorbed"],
+    "010":["abatable","abdicable","abhominable","able","abolishable","abominable","abradable","abridgable","abridgeable","abrogable","absolvable","absorbable","abstractable","abusable","accable","accelerable","acceptable","acclimatable"],
+    "110":["unable","unacceptable","unaccountable","unaccusable","unachievable","unactable","unadaptable","unadoptable","unadvisable","unaffordable","unagreeable","unaidable","unalienable","unallowable","unalterable","unamenable","unamendable","unamiable"],
+    "101":["un","unabashed","unabated","unabating","unabetted","unabiding","unabjured","unable","unaborted","unabraded","unabused","unabusive","unaccrued","unaccused","unacerbic","unaching","unacidic","unactable"],
+    "011":["abatable","abdicable","able","abradable","abrogable","abusable","accable","accruable","accusable","actable","adaptable","addable","adherable","admirable","adoptable","adorable","adorkable","advisable"],
+    "111":["unable","unactable","unaidable","unamiable","uncapable","uncurable","undatable","undoable","uneatable","unequable","unfadable","unfazable","unflyable","unhable","unhirable","unifiable","unlikable","unlivable","unlosable","unlovable","unmakable","unmixable","unmovable","unnamable","unpayable","unpliable","unpotable","unridable","unsalable","unsatable","unsayable","unseeable","unsizable","unstable","untamable","untaxable","untenable","untirable","untunable","untypable","unusable","unviable"]
+  },
+  en:{
+    "001":HEAD9,
+    "100":["un","unabashed","unabashedly","unabated","unabatedly","unable","unabraded","unabridged","unabsorbed","unabsorbent","unabused","unacademic","unacademically","unaccented","unacceptabilities","unacceptability","unacceptable","unacceptably"],
+    "010":["abatable","abdicable","able","abolishable","abominable","abradable","absorbable","abstractable","abusable","acceptable","accomplishable","accountable","accreditable","accruable","achievable","acquirable","actable","actionable"],
+    "110":["unable","unacceptable","unaccountable","unactable","unadaptable","unadoptable","unaffordable","unalienable","unalterable","unamenable","unamiable","unanalyzable","unanswerable","unappealable","unappeasable","unapproachable","unarguable","unassailable"],
+    "101":["un","unabashed","unabated","unable","unabraded","unabused","unactable","unacted","unadapted","unadmired","unadorned","unadult","unadvised","unafraid","unaged","unageing","unagile","unaging"],
+    "011":["abatable","abdicable","able","abradable","abusable","accruable","actable","adaptable","addable","admirable","adoptable","adorable","advisable","affable","affixable","agitable","agreeable","alienable"],
+    "111":["unable","unactable","unamiable","undoable","uneatable","unflyable","unifiable","unlikable","unlivable","unlovable","unmixable","unmovable","unridable","unsalable","unsayable","unstable","untamable","untenable","unusable","unviable"]
+  }
+};
+const DEFS = {
+  un:  {kind:"Starts with", val:"UN—",  flag:0},
+  able:{kind:"Ends with",  val:"—ABLE", flag:1},
+  l9:  {kind:"Length",     val:"≤ 9",   flag:2}
+};
+const DNAMES = {nwl:"NWL2023", csw:"CSW21", en:"ENABLE"};
+let dict = "nwl";
+let stack = ["un","able","l9"];        // ordered active filters
+
+const fmt = n => n.toLocaleString("en-US");
+const keyOf = fs => { const k=[0,0,0]; fs.forEach(f=>k[DEFS[f].flag]=1); return k.join(""); };
+
+function render(){
+  // chips (with per-filter effect: count if it were removed → current)
+  const cur = N[dict][keyOf(stack)];
+  document.getElementById("chips").innerHTML = stack.map(f=>{
+    const without = N[dict][keyOf(stack.filter(x=>x!==f))];
+    return `<div class="fchip" data-f="${f}">
+      <span class="kind">${DEFS[f].kind}</span>
+      <span class="val">${DEFS[f].val}</span>
+      <span class="eff">−${fmt(without-cur)}</span>
+      <button class="x" data-rm="${f}" aria-label="Remove filter">✕</button>
+    </div>`;
+  }).join("") || `<div class="empty" style="padding:16px">No filters — the whole dictionary matches.</div>`;
+
+  // funnel: apply stack in order
+  const steps = [N[dict]["000"]];
+  const acc = [];
+  stack.forEach(f=>{ acc.push(f); steps.push(N[dict][keyOf(acc)]); });
+  document.getElementById("fnums").innerHTML = steps.map((n,i)=>
+    (i? '<span class="arrow">→</span>':'') +
+    (i===steps.length-1 ? `<span class="final">${fmt(n)}</span>` : `<span>${fmt(n)}</span>`)
+  ).join("") + ' <span style="font-size:12px;color:var(--faint)">words</span>';
+  const max = Math.log10(steps[0]);
+  document.getElementById("fbars").innerHTML =
+    steps.map(n=>`<div style="height:${Math.max(8, Math.log10(Math.max(n,1))/max*100)}%"></div>`).join("");
+  document.getElementById("fnote").textContent = stack.length
+    ? `${stack.length} filter${stack.length>1?"s":""} · ${DNAMES[dict]} · narrowed ${(100-cur/steps[0]*100).toFixed(2)}%`
+    : `No filters applied · ${DNAMES[dict]}`;
+
+  // results
+  const key = keyOf(stack);
+  const out = document.getElementById("out");
+  document.getElementById("rcount").textContent = `${fmt(cur)} · ${DNAMES[dict]}`;
+  if (key==="000"){
+    out.innerHTML = `<div class="empty">All ${fmt(cur)} words match.<br>Add a filter to start narrowing.</div>`;
+  } else {
+    const words = W[dict][key] || [];
+    const shown = words.length;
+    out.innerHTML = `<div class="words">` +
+      words.map(w=>`<div>${w}<small>${w.length}</small></div>`).join("") +
+      (cur>shown ? `<div class="more">… ${fmt(cur-shown)} more</div>` : ``) +
+      `</div>`;
+  }
+
+  // add-sheet options
+  document.getElementById("opts").innerHTML =
+    ["un","able","l9"].filter(f=>!stack.includes(f)).map(f=>
+      `<button class="opt" data-add="${f}"><span class="k">${f==="l9"?"≤9":f==="un"?"UN":"BLE"}</span>
+       ${DEFS[f].kind} <b style="font-family:var(--mono)">&nbsp;${DEFS[f].val}</b></button>`).join("") +
+    [["Aa","Contains"],["✱","Must use letters"],["⊘","Exclude letters"]].map(([k,t])=>
+      `<button class="opt soon"><span class="k">${k}</span>${t}<small>DEMO</small></button>`).join("");
+
+  document.querySelectorAll("[data-rm]").forEach(b=>b.addEventListener("click", ()=>{
+    stack = stack.filter(f=>f!==b.dataset.rm); render();
+  }));
+  document.querySelectorAll("[data-add]").forEach(b=>b.addEventListener("click", ()=>{
+    stack.push(b.dataset.add); closeSheet(); render();
+  }));
+}
+function openSheet(){ document.body.classList.add("sheetopen"); }
+function closeSheet(){ document.body.classList.remove("sheetopen"); }
+document.getElementById("addbtn").addEventListener("click", openSheet);
+document.getElementById("scrim").addEventListener("click", closeSheet);
+document.getElementById("dictseg").querySelectorAll("button").forEach(b=>{
+  b.addEventListener("click", ()=>{
+    dict = b.dataset.d;
+    document.querySelectorAll("#dictseg button").forEach(x=>x.classList.toggle("on", x===b));
+    render();
+  });
+});
+render();
+</script>

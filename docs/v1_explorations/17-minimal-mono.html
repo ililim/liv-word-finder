@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<!--
+  17 · Mono Minimal — the brutalist, "for people who hate apps" take on Liv Word Finder.
+  Monospace type only, black and white, zero chrome: one input line (letters = anagram
+  solve, ? or _ = pattern match) and a dense column of results grouped by length with
+  counts. The single flourish: fixed pattern letters are underlined in the results.
+-->
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<title>17 · Mono Minimal — Liv Word Finder</title>
+<style>
+  :root{ --bg:#ffffff; --fg:#000000; --dim:#8c8c8c; --faint:#dcdcdc; --side:#f0f0f0; }
+  @media (prefers-color-scheme: dark){
+    :root{ --bg:#000000; --fg:#ffffff; --dim:#7d7d7d; --faint:#262626; --side:#0c0c0c; }
+  }
+  *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  html{background:var(--side)}
+  body{
+    font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+    background:var(--side);color:var(--fg);
+  }
+  ::selection{background:var(--fg);color:var(--bg)}
+  .phone{max-width:430px;margin:0 auto;background:var(--bg);min-height:100dvh;
+    display:flex;flex-direction:column;border-left:1px solid var(--faint);
+    border-right:1px solid var(--faint)}
+  .gbar{display:flex;justify-content:space-between;align-items:center;padding:8px 16px;
+    font-size:11px;color:var(--dim);border-bottom:1px solid var(--faint);flex:none}
+  .gbar a{color:var(--fg);text-decoration:none;padding:4px 0}
+  .gbar a:active{opacity:.5}
+
+  .top{flex:none;padding:22px 16px 0}
+  .brand{font-size:11px;color:var(--dim);letter-spacing:.08em;margin-bottom:14px}
+  .inwrap{display:flex;align-items:center;border-bottom:2px solid var(--fg);padding-bottom:8px}
+  .inwrap .p{font-size:19px;margin-right:8px;color:var(--dim);user-select:none}
+  input{flex:1;min-height:44px;background:none;border:none;outline:none;color:var(--fg);
+    font-family:inherit;font-size:19px;letter-spacing:.14em;text-transform:lowercase}
+  input::placeholder{color:var(--dim);letter-spacing:.02em;font-size:14px}
+  .meta{display:flex;justify-content:space-between;font-size:11px;color:var(--dim);
+    padding:10px 0 0;letter-spacing:.04em}
+  .meta b{color:var(--fg);font-weight:700}
+
+  .out{flex:1;overflow-y:auto;padding:6px 16px calc(28px + env(safe-area-inset-bottom))}
+  .ghead{display:flex;align-items:baseline;gap:10px;margin:22px 0 10px;font-size:12px;
+    color:var(--dim);letter-spacing:.06em}
+  .ghead b{color:var(--fg);font-size:13px}
+  .ghead .rule{flex:1;border-top:1px solid var(--faint);transform:translateY(-3px)}
+  .words{font-size:15px;line-height:2.1;letter-spacing:.06em;word-spacing:.2em;
+    display:flex;flex-wrap:wrap;column-gap:1.6em}
+  .words span{white-space:nowrap;min-height:32px;display:inline-flex;align-items:center}
+  .words u{text-decoration-thickness:1.5px;text-underline-offset:4px}
+  .none{color:var(--dim);font-size:13px;margin-top:26px;line-height:1.8}
+  .help{color:var(--dim);font-size:12px;line-height:2;margin-top:26px}
+  .help b{color:var(--fg)}
+</style>
+</head>
+<body>
+<div class="phone">
+  <div class="gbar"><a href="./index.html">‹ Gallery</a><span>17 · mono minimal</span></div>
+
+  <div class="top">
+    <div class="brand">liv word finder</div>
+    <div class="inwrap">
+      <span class="p">›</span>
+      <input id="q" value="aerstln" autocomplete="off" autocapitalize="none" spellcheck="false"
+             placeholder="letters to solve, or pattern with ? / _">
+    </div>
+    <div class="meta"><span id="mode">anagram</span><span id="count"></span></div>
+  </div>
+
+  <div class="out" id="out"></div>
+</div>
+
+<script>
+const WORDS=(
+"ale alt ant are art ate ear eat era lea let net not oat one ran rat sat sea set tan tar tea ten "+
+"ace act age aid aim air and any ape apt arc arm ash ask awe axe bad bag ban bar bat bed bee bet bid big bin bit bow box boy bud bug bun bus but buy cab can cap car cat cot cow cry cub cup cut day den dew dig dim dip dog dot dry dub due dug duo dye ebb eel egg ego elf elk elm end eve ewe eye fan far fat fee few fig fin fir fit fix flu fly foe fog for fox fry fun fur gap gas gel gem get gig gin got gum gun gut guy gym ham has hat hay hen her hew hid him hip his hit hoe hog hop hot how hub hue hug hum hut ice icy ill imp ink inn ion ire its ivy jab jam jar jaw jay jet jig job jog jot joy jug keg key kid kin kit lab lad lag lap law lax lay led leg lid lie lip lit lob log lot low mad man map mar mat maw may men met mix mob mop mow mud mug nab nag nap new nil nip nod nor now nun nut oak oar odd ode off oft oil old opt orb ore our out owe owl own pad pan par pat paw pay pea peg pen pet pew pie pig pin pit ply pod pop pot pry pub pun pup put rag ram rap raw ray red rib rid rig rim rip rob rod rot row rub rug rum run rut rye sad sag sap saw say sew she shy sin sip sir sit six ski sky sly sob sod son sow soy spa spy sty sub sue sum sun tab tag tap the thy tie tin tip toe ton too top tow toy try tub tug two urn use van vat vet vex via vie vow wad wag war was wax way web wed wet who why wig win wit woe wok won woo yak yam yap yes yet yew you zap zip zoo za qi jo "+
+"ante ants arts earl earn ears east eats elan eras etna lane last late lean lens lent near neat nest nets rant rate rats real rent rest salt sale sane seal sear seat sent slat star tale tans tare tarn tars teal tear teas tens tern "+
+"able acid aged also area army away back ball band bank base bath bear beat been beer bell belt bend best bird blue boat body bone book born both bowl burn bush busy cake call calm came camp card care case cash cast cell chat chip city club coal coat code cold come cook cool copy core cost crew crop dark data date dawn dead deal dear deep deny desk dial diet dish does done door dose down draw drew drop drug dual dust duty each edge else even ever evil exit face fact fail fair fall farm fast fate fear feed feel feet fell felt file fill film find fine fire firm fish five flat flow food foot form fort four free from fuel full fund gain game gate gave gear gift girl give glad goal goes gold golf gone good gray grew grow hair half hall hand hang hard harm hate have head hear heat held help here hero high hill hire hold hole holy home hope host hour huge hung hunt hurt idea inch into iron item join jump jury just keen keep kept kick kind king knee knew know lack lady laid lake land lead left less life lift like line link list live load loan lock long look lord lose loss lost love luck made mail main make male many mark mass meal mean meat meet menu mere mile milk mind mine miss mode mood moon more most move much must name navy neck need news next nice nine none nose note okay once only onto open oral over pace pack page paid pain pair palm park part pass past path peak pick pink pipe plan play plot plus poll pool poor port post pull pure push race rail rain rank rare rich ride ring rise risk road rock role roll roof room root rose rule rush safe said sail sake sand save seed seek seem seen self sell send ship shop shot show shut sick side sign site size skin slip slow snow soft soil sold sole some song soon sort soul spot stay step stop such suit sure take tall tank tape task team tell tend term test text than that them then they thin this thus till time tiny told toll tone took tool torn tour town tree trip true tune turn twin type unit upon used user vary vast very view vote wage wait wake walk wall want ward warm wash wave ways weak wear week well went were west what when whom wide wife wild will wind wine wing wire wise wish with wood word wore work yard yeah year your zero zone "+
+"alert alter antes antre arles aster avers bough cough dough earls early earns elans laser later learn leans leant least lores lough nares nears nates rales rates reals renal rents rough sough slant slate snare snarl stale stane stare steal stern taler tales tares tarns teals tears terns tough "+
+"about above adobe adore agent agile aisle alarm alien alike alive alone amber angel anger angle ankle apple arena argue arise aroma arrow aside audio avoid awake award aware badge baker basic beach begin bench berry birth black blade blame blank blast blaze blend bless blind block blood bloom board bonus boost booth bound brain brand brave bread break brick bride brief bring broad brown brush build bunch burst cabin cable candy cargo carry catch cause chain chair chalk charm chart chase cheap check cheek cheer chess chest chief child chill choir civic claim class clean clear clerk cliff climb clock close cloud coach coast count court cover craft crane crash cream crime crowd crown curve cycle daily dairy dance dealt debut delay depth diary dozen draft drain drama dream dress drift drink drive eager eagle earth eight elbow empty enjoy enter equal error event exact extra fable faint fairy faith fancy feast fence fiber field fifty fight final flame flash fleet flesh float flock flood floor flour focus force forge forth forty forum frame fresh front frost fruit ghost giant given glass globe glory glove grace grade grain grand grant grape grasp grass grave great green greet grief grill grind group grove guard guess guest guide habit happy heart heavy hello honey horse hotel house human humor ideal image index inner input issue ivory joint jolly judge juice kneel knife knock label large layer laugh lease leave legal lemon level light limit liver local logic loose loyal lucky lunch magic major maple march match maybe mayor medal media mercy merit metal might minor minus mixed model money month moral motor mount mouse mouth movie music naive nerve never night noble noise north novel nurse occur ocean offer often olive onion opera orbit order organ other ought ounce outer owner paint panel paper party pasta patch pause peace peach pearl penny phase phone photo piano piece pilot pitch pizza place plain plane plant plate plaza point pound power press price pride prime print prize proof proud pulse punch pupil queen quest quick quiet quote radio raise range rapid ratio reach react ready realm rebel rhyme ridge right rival river roast robin rocky roman round route royal rural saint salad sauce scale scene scent scope score scout sense serve seven shade shake shale shame shape share shark sharp shave sheep sheet shelf shell shift shine shirt shock shore short shout shown sight silly since sixty skate skill skirt sleep slice slide slope small smart smile smoke snack snake snore solar solid sorry sound south space spade spare spark speak speed spell spend spice spine spire split spoke sport spray stack staff stage stair stake stamp stand start state steam steel stick still stock stone store storm story stove straw strip study style sugar suite sunny super sweet swore table taste teach teeth tempo tenth thank theme there thick thing think third those three thumb tiger tight title toast today token topic torch total touch towel tower track trade trail train treat trend trial tribe trick truck truly trust truth twice uncle under union unite unity upper urban usage usual vague valid value video virus visit vital vivid vocal voice voter wagon waste watch water whale wheat wheel where while white whole woman world worry worth wound wrist write wrong yacht yield young youth "+
+"antler astern learns learnt rental ranted salter slater staler sterna talons stanes latens "+
+"antlers rentals saltern sternal lantern rattles starlet slanted"
+).split(" ");
+
+const q=document.getElementById('q'),
+      out=document.getElementById('out'),
+      count=document.getElementById('count'),
+      mode=document.getElementById('mode');
+
+function counts(s){const m={};for(const c of s)m[c]=(m[c]||0)+1;return m}
+function subsetOf(word,rack){
+  const r=counts(rack),w=counts(word);
+  return Object.keys(w).every(c=>r[c]>=w[c]);
+}
+function solve(raw){
+  const s=raw.toLowerCase().replace(/[^a-z?_]/g,'');
+  if(!s){render(null,null,'');return}
+  const isPat=/[?_]/.test(s);
+  let hits;
+  if(isPat){
+    const pat=s.replace(/_/g,'?');
+    hits=WORDS.filter(w=>w.length===pat.length&&[...pat].every((c,i)=>c==='?'||w[i]===c));
+    render(hits,pat,'pattern');
+  }else{
+    hits=WORDS.filter(w=>w.length>=3&&w.length<=s.length&&subsetOf(w,s));
+    render(hits,null,'anagram');
+  }
+}
+function render(hits,pat,m){
+  mode.textContent=m||'—';
+  out.innerHTML='';
+  if(hits===null){
+    count.textContent='';
+    out.innerHTML='<div class="help">type <b>letters</b> to solve an anagram rack<br>'+
+      'use <b>?</b> or <b>_</b> for unknown letters<br><br>'+
+      'aerstln &nbsp;→ every word in the rack<br>'+
+      's??re &nbsp;&nbsp;&nbsp;→ score share snore …<br>'+
+      '?ough &nbsp;&nbsp;&nbsp;→ bough cough dough …</div>';
+    return;
+  }
+  count.innerHTML='<b>'+hits.length+'</b> word'+(hits.length===1?'':'s');
+  if(!hits.length){
+    out.innerHTML='<div class="none">nothing.<br>english has failed you, not the other way around.</div>';
+    return;
+  }
+  const byLen={};
+  hits.forEach(w=>(byLen[w.length]=byLen[w.length]||[]).push(w));
+  Object.keys(byLen).map(Number).sort((a,b)=>b-a).forEach(len=>{
+    const list=[...new Set(byLen[len])].sort();
+    const h=document.createElement('div');
+    h.className='ghead';
+    h.innerHTML='<b>'+len+'</b> letters <span class="rule"></span> '+list.length;
+    out.appendChild(h);
+    const d=document.createElement('div');
+    d.className='words';
+    d.innerHTML=list.map(w=>{
+      if(!pat) return '<span>'+w+'</span>';
+      return '<span>'+[...w].map((c,i)=>pat[i]!=='?'?'<u>'+c+'</u>':c).join('')+'</span>';
+    }).join('');
+    out.appendChild(d);
+  });
+}
+q.addEventListener('input',()=>solve(q.value));
+solve(q.value);
+</script>
+</body>
+</html>

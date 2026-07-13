@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<!--
+  02 · Classic Tabs — the iOS-standard app shell for Liv Word Finder.
+  A bottom tab bar with five tools (Rack, Pattern, Bee, Wordle, More), each a working
+  view switch. Deliberately conventional: the "boring but proven" baseline that every
+  iPhone user already knows how to drive.
+-->
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<title>02 · Classic Tabs — Liv Word Finder</title>
+<style>
+  :root{
+    --bg:#f2f2f7; --card:#ffffff; --text:#1c1c1e; --text2:#6e6e73;
+    --sep:#e5e5ea; --accent:#007aff; --accent-soft:#eaf3ff;
+    --tabbar:rgba(249,249,251,.92); --tile:#fdf6e3; --tile-edge:#e8d9a8;
+    --green:#34c759; --yellow:#ffcc00; --gray-tile:#c7c7cc;
+    --page-side:#e3e3ea;
+  }
+  @media (prefers-color-scheme: dark){
+    :root{
+      --bg:#000; --card:#1c1c1e; --text:#f2f2f7; --text2:#98989f;
+      --sep:#2c2c2e; --accent:#0a84ff; --accent-soft:#0c2743;
+      --tabbar:rgba(22,22,24,.94); --tile:#3a3120; --tile-edge:#5c4d2a;
+      --green:#30d158; --yellow:#ffd60a; --gray-tile:#48484a;
+      --page-side:#0a0a0c;
+    }
+  }
+  *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  html{background:var(--page-side)}
+  body{
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+    color:var(--text); background:var(--page-side);
+  }
+  .phone{max-width:430px;margin:0 auto;background:var(--bg);min-height:100dvh;
+    box-shadow:0 0 40px rgba(0,0,0,.12);display:flex;flex-direction:column;position:relative}
+  /* gallery bar */
+  .gbar{display:flex;justify-content:space-between;align-items:center;
+    padding:6px 14px;font-size:12px;color:var(--text2);background:var(--bg);
+    border-bottom:1px solid var(--sep)}
+  .gbar a{color:var(--accent);text-decoration:none;font-weight:600;padding:6px 0}
+  /* header */
+  header.app{padding:14px 18px 8px}
+  header.app h1{font-size:30px;font-weight:800;letter-spacing:-.5px}
+  header.app .sub{font-size:13px;color:var(--text2);margin-top:2px}
+  main{flex:1;padding:8px 16px 110px;overflow-y:auto}
+  .view{display:none;animation:fadein .18s ease}
+  .view.active{display:block}
+  @keyframes fadein{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
+  /* cards */
+  .card{background:var(--card);border-radius:14px;padding:14px;margin-bottom:12px}
+  .card h3{font-size:13px;font-weight:700;color:var(--text2);text-transform:uppercase;
+    letter-spacing:.06em;margin-bottom:10px}
+  .field{display:flex;gap:8px}
+  .field input{flex:1;min-height:48px;border:none;border-radius:10px;background:var(--bg);
+    color:var(--text);font-size:20px;padding:0 14px;font-weight:600;letter-spacing:.15em;
+    text-transform:uppercase;outline:none}
+  .field input::placeholder{letter-spacing:0;font-weight:400;font-size:15px;text-transform:none}
+  .btn{min-height:48px;min-width:78px;border:none;border-radius:10px;background:var(--accent);
+    color:#fff;font-size:16px;font-weight:700;padding:0 16px;cursor:pointer}
+  .btn:active{opacity:.75}
+  /* results */
+  .grp{margin:14px 2px 6px;font-size:13px;font-weight:700;color:var(--text2)}
+  .grp b{color:var(--text)}
+  .chips{display:flex;flex-wrap:wrap;gap:8px}
+  .chip{display:flex;align-items:center;gap:7px;background:var(--card);border-radius:10px;
+    padding:11px 12px;min-height:44px;font-weight:700;font-size:16px;letter-spacing:.06em;cursor:pointer}
+  .chip .pts{font-size:12px;font-weight:800;color:var(--accent);background:var(--accent-soft);
+    border-radius:6px;padding:2px 6px}
+  .bingo{outline:2px solid var(--accent)}
+  /* scrabble tiles */
+  .tiles{display:flex;gap:5px;margin-top:12px;justify-content:center}
+  .tile{width:40px;height:44px;background:var(--tile);border:1px solid var(--tile-edge);
+    border-radius:6px;display:flex;align-items:center;justify-content:center;font-weight:800;
+    font-size:20px;position:relative;box-shadow:0 1.5px 0 var(--tile-edge)}
+  .tile i{position:absolute;right:3px;bottom:2px;font-size:9px;font-style:normal;font-weight:700;color:var(--text2)}
+  /* bee */
+  .hive{display:flex;flex-direction:column;align-items:center;gap:5px;margin:8px 0 14px}
+  .hive .hrow{display:flex;gap:5px}
+  .cell{width:62px;height:56px;display:flex;align-items:center;justify-content:center;
+    background:var(--sep);border-radius:10px;font-size:22px;font-weight:800;cursor:pointer}
+  .cell:active{transform:scale(.94)}
+  .cell.center{background:var(--yellow);color:#1c1c1e}
+  .beelist .chip .pts{color:#8a6d00;background:rgba(255,204,0,.22)}
+  .pangram{background:var(--yellow);color:#1c1c1e}
+  .pangram .pts{background:rgba(0,0,0,.12)!important;color:#1c1c1e!important}
+  /* wordle */
+  .wgrid{display:grid;grid-template-columns:repeat(5,52px);gap:5px;justify-content:center;margin:6px 0 4px}
+  .wt{width:52px;height:52px;display:flex;align-items:center;justify-content:center;
+    font-size:24px;font-weight:800;color:#fff;border-radius:6px;background:var(--gray-tile)}
+  .wt.g{background:var(--green)} .wt.y{background:var(--yellow);color:#1c1c1e}
+  .remain{font-size:13px;color:var(--text2);text-align:center;margin:10px 0 2px}
+  /* more list */
+  .list{background:var(--card);border-radius:14px;overflow:hidden}
+  .row{display:flex;align-items:center;justify-content:space-between;min-height:50px;
+    padding:0 16px;font-size:16px;border-bottom:1px solid var(--sep)}
+  .row:last-child{border-bottom:none}
+  .row .val{color:var(--text2);font-size:15px}
+  .row .chev{color:var(--gray-tile);margin-left:8px}
+  .switch{width:51px;height:31px;border-radius:16px;background:var(--gray-tile);position:relative;
+    cursor:pointer;transition:background .2s;flex:none}
+  .switch.on{background:var(--green)}
+  .switch::after{content:"";position:absolute;top:2px;left:2px;width:27px;height:27px;border-radius:50%;
+    background:#fff;box-shadow:0 2px 4px rgba(0,0,0,.25);transition:left .2s}
+  .switch.on::after{left:22px}
+  .foot{text-align:center;color:var(--text2);font-size:12px;margin-top:18px}
+  /* tab bar */
+  nav.tabs{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:430px;
+    background:var(--tabbar);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);
+    border-top:.5px solid var(--sep);display:flex;
+    padding:6px 4px calc(6px + env(safe-area-inset-bottom));z-index:10}
+  nav.tabs button{flex:1;min-height:48px;background:none;border:none;cursor:pointer;
+    display:flex;flex-direction:column;align-items:center;gap:2px;color:var(--text2);
+    font-family:inherit}
+  nav.tabs button .ic{font-size:22px;line-height:1;filter:grayscale(1);opacity:.55}
+  nav.tabs button span{font-size:10px;font-weight:600}
+  nav.tabs button.active{color:var(--accent)}
+  nav.tabs button.active .ic{filter:none;opacity:1}
+</style>
+</head>
+<body>
+<div class="phone">
+  <div class="gbar"><a href="./index.html">‹ Gallery</a><span>02 · Classic Tabs</span></div>
+
+  <header class="app"><h1 id="title">Rack</h1><div class="sub" id="subtitle">Anagram solver · NWL 2023</div></header>
+
+  <main>
+    <!-- RACK -->
+    <section class="view active" id="v-rack">
+      <div class="card">
+        <h3>Your tiles</h3>
+        <div class="field"><input value="AERSTLN" maxlength="10" aria-label="Rack letters"><button class="btn">Solve</button></div>
+        <div class="tiles">
+          <div class="tile">A<i>1</i></div><div class="tile">E<i>1</i></div><div class="tile">R<i>1</i></div>
+          <div class="tile">S<i>1</i></div><div class="tile">T<i>1</i></div><div class="tile">L<i>1</i></div>
+          <div class="tile">N<i>1</i></div>
+        </div>
+      </div>
+      <div class="grp"><b>7 letters</b> · 4 words · bingo! +50</div>
+      <div class="chips">
+        <div class="chip bingo">ANTLERS <span class="pts">57</span></div>
+        <div class="chip bingo">RENTALS <span class="pts">57</span></div>
+        <div class="chip bingo">SALTERN <span class="pts">57</span></div>
+        <div class="chip bingo">STERNAL <span class="pts">57</span></div>
+      </div>
+      <div class="grp"><b>6 letters</b> · 18 words</div>
+      <div class="chips">
+        <div class="chip">ANTLER <span class="pts">6</span></div>
+        <div class="chip">ASTERN <span class="pts">6</span></div>
+        <div class="chip">LEARNT <span class="pts">6</span></div>
+        <div class="chip">RENTAL <span class="pts">6</span></div>
+        <div class="chip">SALTER <span class="pts">6</span></div>
+        <div class="chip">SLATER <span class="pts">6</span></div>
+        <div class="chip">STALER <span class="pts">6</span></div>
+        <div class="chip">STERNA <span class="pts">6</span></div>
+        <div class="chip">TALERS <span class="pts">6</span></div>
+      </div>
+      <div class="grp"><b>5 letters</b> · 31 words</div>
+      <div class="chips">
+        <div class="chip">ALERT <span class="pts">5</span></div>
+        <div class="chip">ALTER <span class="pts">5</span></div>
+        <div class="chip">LEANT <span class="pts">5</span></div>
+        <div class="chip">LEARN <span class="pts">5</span></div>
+        <div class="chip">RENTS <span class="pts">5</span></div>
+        <div class="chip">SLANT <span class="pts">5</span></div>
+        <div class="chip">SNARE <span class="pts">5</span></div>
+        <div class="chip">STALE <span class="pts">5</span></div>
+        <div class="chip">STERN <span class="pts">5</span></div>
+      </div>
+    </section>
+
+    <!-- PATTERN -->
+    <section class="view" id="v-pattern">
+      <div class="card">
+        <h3>Pattern · ? = any letter</h3>
+        <div class="field"><input value="S??RE" maxlength="15" aria-label="Pattern"><button class="btn">Match</button></div>
+      </div>
+      <div class="grp"><b>S??RE</b> · 10 matches</div>
+      <div class="chips">
+        <div class="chip">SCORE <span class="pts">7</span></div>
+        <div class="chip">SHARE <span class="pts">8</span></div>
+        <div class="chip">SHORE <span class="pts">8</span></div>
+        <div class="chip">SNORE <span class="pts">5</span></div>
+        <div class="chip">SPARE <span class="pts">7</span></div>
+        <div class="chip">SPIRE <span class="pts">7</span></div>
+        <div class="chip">SPORE <span class="pts">7</span></div>
+        <div class="chip">STARE <span class="pts">5</span></div>
+        <div class="chip">STORE <span class="pts">5</span></div>
+        <div class="chip">SWORE <span class="pts">8</span></div>
+      </div>
+    </section>
+
+    <!-- BEE -->
+    <section class="view" id="v-bee">
+      <div class="card">
+        <h3>Today's hive · center must appear</h3>
+        <div class="hive">
+          <div class="hrow"><div class="cell">P</div><div class="cell">L</div></div>
+          <div class="hrow"><div class="cell">A</div><div class="cell center">T</div><div class="cell">N</div></div>
+          <div class="hrow"><div class="cell">O</div><div class="cell">I</div></div>
+        </div>
+        <div class="field"><input placeholder="Tap letters or type…" aria-label="Bee word"><button class="btn">Add</button></div>
+      </div>
+      <div class="grp"><b>Found for you</b> · 34 words · 96 pts possible</div>
+      <div class="chips beelist">
+        <div class="chip pangram">PLANTATION <span class="pts">17 · pangram</span></div>
+        <div class="chip">TALION <span class="pts">6</span></div>
+        <div class="chip">ATTAIN <span class="pts">6</span></div>
+        <div class="chip">PLAINT <span class="pts">6</span></div>
+        <div class="chip">TALON <span class="pts">5</span></div>
+        <div class="chip">PILOT <span class="pts">5</span></div>
+        <div class="chip">PAINT <span class="pts">5</span></div>
+        <div class="chip">PLAIT <span class="pts">5</span></div>
+        <div class="chip">POINT <span class="pts">5</span></div>
+        <div class="chip">PINTO <span class="pts">5</span></div>
+        <div class="chip">TITAN <span class="pts">5</span></div>
+        <div class="chip">TAIL <span class="pts">1</span></div>
+        <div class="chip">TOIL <span class="pts">1</span></div>
+        <div class="chip">TINT <span class="pts">1</span></div>
+      </div>
+    </section>
+
+    <!-- WORDLE -->
+    <section class="view" id="v-wordle">
+      <div class="card">
+        <h3>Your board so far</h3>
+        <div class="wgrid">
+          <div class="wt">C</div><div class="wt">R</div><div class="wt y">A</div><div class="wt">N</div><div class="wt g">E</div>
+          <div class="wt y">S</div><div class="wt y">A</div><div class="wt y">L</div><div class="wt">T</div><div class="wt">Y</div>
+        </div>
+        <div class="remain"><b>1</b> word remains</div>
+      </div>
+      <div class="grp"><b>Best next guess</b></div>
+      <div class="chips">
+        <div class="chip bingo">AISLE <span class="pts">100%</span></div>
+      </div>
+      <div class="grp"><b>Why AISLE?</b></div>
+      <div class="card" style="font-size:14px;line-height:1.5;color:var(--text2)">
+        Green <b style="color:var(--text)">E</b> locks position 5. Yellow
+        <b style="color:var(--text)">A</b>, <b style="color:var(--text)">S</b> and
+        <b style="color:var(--text)">L</b> are all in the word but not where you tried them.
+        Only one answer satisfies every clue — go win it.
+      </div>
+    </section>
+
+    <!-- MORE -->
+    <section class="view" id="v-more">
+      <div class="list">
+        <div class="row">Dictionary <span><span class="val">NWL 2023</span><span class="chev">›</span></span></div>
+        <div class="row">Show definitions <div class="switch on" onclick="this.classList.toggle('on')"></div></div>
+        <div class="row">Sort by score first <div class="switch" onclick="this.classList.toggle('on')"></div></div>
+        <div class="row">Minimum word length <span><span class="val">3</span><span class="chev">›</span></span></div>
+      </div>
+      <div class="grp"><b>History</b></div>
+      <div class="list">
+        <div class="row">AERSTLN <span class="val">today · 62 words</span></div>
+        <div class="row">S??RE <span class="val">today · 10 words</span></div>
+        <div class="row">QIVUZ?? <span class="val">yesterday · 8 words</span></div>
+      </div>
+      <div class="foot">Liv Word Finder v1.0<br>Made with ♥ for Liv</div>
+    </section>
+  </main>
+
+  <nav class="tabs">
+    <button class="active" data-v="rack" data-t="Rack" data-s="Anagram solver · NWL 2023"><span class="ic">🔤</span><span>Rack</span></button>
+    <button data-v="pattern" data-t="Pattern" data-s="Crossword &amp; hook finder"><span class="ic">🧩</span><span>Pattern</span></button>
+    <button data-v="bee" data-t="Spelling Bee" data-s="NYT · Sunday, July 13"><span class="ic">🐝</span><span>Bee</span></button>
+    <button data-v="wordle" data-t="Wordle" data-s="Solver · puzzle #1,485"><span class="ic">🟩</span><span>Wordle</span></button>
+    <button data-v="more" data-t="More" data-s="Settings &amp; history"><span class="ic">⚙️</span><span>More</span></button>
+  </nav>
+</div>
+
+<script>
+  const tabs=document.querySelectorAll('nav.tabs button');
+  tabs.forEach(b=>b.addEventListener('click',()=>{
+    tabs.forEach(x=>x.classList.remove('active'));
+    b.classList.add('active');
+    document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
+    document.getElementById('v-'+b.dataset.v).classList.add('active');
+    document.getElementById('title').textContent=b.dataset.t;
+    document.getElementById('subtitle').innerHTML=b.dataset.s;
+    document.querySelector('main').scrollTo(0,0);
+    window.scrollTo(0,0);
+  }));
+</script>
+</body>
+</html>

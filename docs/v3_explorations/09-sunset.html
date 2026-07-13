@@ -1,0 +1,337 @@
+<!-- 09 SUNSET WARM — warm cream and terracotta with deep espresso ink; the
+     primary button, hot chips and pressed keys carry a subtle burnt-orange
+     gradient, shadows are warm-tinted. Dark mode is brown-black with ember
+     accents. Light + dark. -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<title>09 · Sunset Warm — Liv Word Finder v3</title>
+<style>
+/* ============================================================
+   LOCKED BASE — DO NOT EDIT. Layout, sizing, spacing only.
+   All look-and-feel comes from the THEME block via variables.
+   ============================================================ */
+* { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+html { color-scheme: light dark; }
+body {
+  font-family: var(--font, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif);
+  background: var(--page, #ddd);
+  color: var(--ink);
+  min-height: 100vh;
+  display: flex; flex-direction: column; align-items: center;
+}
+.topbar {
+  width: 100%; max-width: 430px;
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 8px 14px; font-size: 12px;
+  color: var(--muted);
+}
+.topbar a { color: var(--muted); text-decoration: none; }
+.phone {
+  width: 100%; max-width: 430px; flex: 1;
+  display: flex; flex-direction: column;
+  background: var(--bg);
+  position: relative;
+  overflow: hidden;
+}
+.app { flex: 1; padding: 16px 16px 0; display: flex; flex-direction: column; gap: 14px; overflow: hidden; }
+
+/* brand + counter */
+.brand-row { display: flex; justify-content: space-between; align-items: baseline; }
+.brand { font-size: 13px; letter-spacing: .14em; font-weight: var(--w-label, 700); color: var(--muted); }
+.counter { font-size: 13px; letter-spacing: .08em; color: var(--muted); font-variant-numeric: tabular-nums; }
+.counter b { font-size: 20px; color: var(--accent-text, var(--accent)); font-weight: var(--w-display, 800); }
+
+/* segmented mode pills */
+.seg {
+  display: grid; grid-template-columns: repeat(4, 1fr);
+  height: 44px; padding: 4px; gap: 2px;
+  background: var(--seg-bg);
+  border: var(--bw, 1px) solid var(--seg-line, transparent);
+  border-radius: var(--r-pill, 22px);
+}
+.seg button {
+  border: none; background: transparent; color: var(--seg-ink, var(--muted));
+  font: inherit; font-size: 12px; font-weight: var(--w-label, 700); letter-spacing: .06em;
+  border-radius: calc(var(--r-pill, 22px) - 4px);
+  cursor: pointer;
+}
+.seg button.active { background: var(--seg-active-bg); color: var(--seg-active-ink); box-shadow: var(--seg-active-shadow, none); }
+
+/* pattern slots */
+.slots { display: flex; gap: 8px; justify-content: center; }
+.slot {
+  width: 52px; height: 60px;
+  display: grid; place-items: center;
+  font-size: 28px; font-weight: var(--w-display, 800);
+  background: var(--slot-bg);
+  border: var(--bw-slot, var(--bw, 1px)) solid var(--slot-line);
+  border-radius: var(--r-slot, 10px);
+  color: var(--ink);
+  box-shadow: var(--slot-shadow, none);
+}
+.slot.empty { color: var(--muted); background: var(--slot-empty-bg, transparent); border-style: var(--slot-empty-border-style, dashed); }
+.slot.cursor { border-color: var(--accent); box-shadow: var(--slot-cursor-shadow, none); }
+
+/* filter chips */
+.chip-row { display: flex; gap: 8px; flex-wrap: wrap; }
+.chip {
+  height: 34px; padding: 0 14px;
+  display: inline-flex; align-items: center; gap: 6px;
+  font-size: 12px; font-weight: var(--w-label, 700); letter-spacing: .05em;
+  background: var(--chip-bg);
+  color: var(--chip-ink, var(--ink));
+  border: var(--bw, 1px) solid var(--chip-line);
+  border-radius: var(--r-chip, 17px);
+  box-shadow: var(--chip-shadow, none);
+}
+.chip.active { background: var(--chip-active-bg); color: var(--chip-active-ink); border-color: var(--chip-active-line, var(--chip-active-bg)); }
+.chip.toggle.on::before { content: "●"; font-size: 8px; color: var(--accent-text, var(--accent)); }
+.chip.toggle.on { border-color: var(--accent); }
+
+/* action buttons */
+.actions { display: grid; grid-template-columns: 2fr 1fr; gap: 10px; }
+.btn {
+  height: 50px; border: var(--bw, 1px) solid transparent;
+  font: inherit; font-size: 14px; font-weight: var(--w-display, 800); letter-spacing: .1em;
+  border-radius: var(--r-btn, 12px); cursor: pointer;
+}
+.btn.primary { background: var(--btn-bg); color: var(--btn-ink); border-color: var(--btn-line, transparent); box-shadow: var(--btn-shadow, none); }
+.btn.secondary { background: var(--btn2-bg, transparent); color: var(--btn2-ink, var(--muted)); border-color: var(--btn2-line, var(--line)); box-shadow: var(--btn2-shadow, none); }
+
+/* results */
+.results { flex: 1; overflow: hidden; display: flex; flex-direction: column; gap: 10px; }
+.group-h {
+  display: flex; justify-content: space-between; align-items: baseline;
+  font-size: 11px; letter-spacing: .12em; font-weight: var(--w-label, 700);
+  color: var(--muted);
+  padding-bottom: 6px;
+  border-bottom: var(--bw, 1px) solid var(--line);
+}
+.words { display: flex; flex-wrap: wrap; gap: 8px; }
+.word {
+  height: 38px; padding: 0 13px;
+  display: inline-flex; align-items: center; gap: 7px;
+  font-size: 15px; font-weight: var(--w-word, 650); letter-spacing: .04em;
+  background: var(--word-bg);
+  color: var(--word-ink, var(--ink));
+  border: var(--bw, 1px) solid var(--word-line);
+  border-radius: var(--r-word, 10px);
+  box-shadow: var(--word-shadow, none);
+}
+.word .pts {
+  font-size: 10px; font-weight: 700; font-variant-numeric: tabular-nums;
+  color: var(--pts-ink, var(--muted));
+  background: var(--pts-bg, transparent);
+  border-radius: 6px; padding: 2px 4px;
+}
+.word.hot { background: var(--hot-bg); color: var(--hot-ink); border-color: var(--hot-line, var(--hot-bg)); box-shadow: var(--hot-shadow, none); }
+.word.hot .pts { color: var(--hot-pts-ink, var(--hot-ink)); }
+.word.sealed { color: var(--muted); letter-spacing: .2em; background: var(--sealed-bg, var(--word-bg)); border-style: var(--sealed-border-style, dashed); }
+
+/* keyboard — sizes locked */
+.kb { padding: 10px 6px 8px; display: flex; flex-direction: column; gap: 7px; background: var(--kb-bg, transparent); border-top: var(--kb-top-line, none); }
+.kb-row { display: flex; gap: 6px; justify-content: center; }
+.key {
+  flex: 0 0 34px; height: 44px;
+  display: grid; place-items: center;
+  font: inherit; font-size: 16px; font-weight: var(--w-key, 700);
+  background: var(--key-bg);
+  color: var(--key-ink, var(--ink));
+  border: var(--bw-key, var(--bw, 1px)) solid var(--key-line);
+  border-radius: var(--r-key, 8px);
+  box-shadow: var(--key-shadow, none);
+  cursor: pointer;
+}
+.key.pressed { background: var(--key-pressed-bg, var(--accent)); color: var(--key-pressed-ink, var(--accent-ink)); border-color: var(--key-pressed-line, transparent); box-shadow: var(--key-pressed-shadow, none); transform: var(--key-pressed-transform, none); }
+.key.dim { opacity: var(--key-dim-opacity, .35); }
+.key.special { background: var(--key-special-bg, var(--accent)); color: var(--key-special-ink, var(--accent-ink)); border-color: var(--key-special-line, transparent); font-weight: var(--w-display, 800); }
+.key.wide { flex: 0 0 56px; }
+
+/* bottom mode bar */
+.modebar {
+  height: calc(58px + env(safe-area-inset-bottom));
+  padding-bottom: env(safe-area-inset-bottom);
+  display: grid; grid-template-columns: repeat(4, 1fr);
+  background: var(--bar-bg);
+  border-top: var(--bw, 1px) solid var(--bar-line, var(--line));
+  box-shadow: var(--bar-shadow, none);
+}
+.mode {
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px;
+  font-size: 10px; font-weight: var(--w-label, 700); letter-spacing: .08em;
+  color: var(--bar-ink, var(--muted)); cursor: pointer;
+}
+.mode .ic { font-size: 18px; line-height: 1; }
+.mode.active { color: var(--bar-active-ink, var(--accent-text, var(--accent))); }
+.mode.active .ic { transform: var(--bar-active-transform, none); }
+
+/* ============================================================
+   THEME — EDIT ONLY BELOW THIS LINE.
+   Set the variables (and optionally add decorative rules that
+   do NOT change any width/height/padding/font-size/gap).
+   Support light AND dark via prefers-color-scheme, unless the
+   skin deliberately commits to a single mode.
+   ============================================================ */
+:root {
+  --font: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --w-display: 800; --w-label: 700; --w-word: 650; --w-key: 700;
+
+  --page: #ecd9c3;         /* behind the phone on desktop */
+  --bg: #f9efe2;           /* warm cream app background */
+  --ink: #362318;          /* deep espresso */
+  --muted: #9b7d63;
+  --line: rgba(84,52,32,.14);
+  --accent: #d1602f;       /* burnt orange */
+  --accent-ink: #fff6ec;   /* text ON accent */
+  --accent-text: #b54a1e;  /* burnt orange as text */
+
+  --bw: 1px;
+
+  --seg-bg: #3a251a; --seg-ink: #c5a186;
+  --seg-active-bg: #f9efe2; --seg-active-ink: #362318;
+  --r-pill: 22px;
+
+  --slot-bg: #fffaf2; --slot-line: rgba(84,52,32,.18); --r-slot: 12px;
+  --slot-shadow: 0 2px 6px rgba(120,70,30,.1);
+  --slot-cursor-shadow: 0 0 0 3px rgba(209,96,47,.3);
+
+  --chip-bg: #fffaf2; --chip-line: rgba(84,52,32,.16); --r-chip: 12px;
+  --chip-active-bg: #3a251a; --chip-active-ink: #f9efe2; --chip-active-line: #3a251a;
+
+  --btn-bg: linear-gradient(135deg, #e0762f, #c8501f); --btn-ink: #fff6ec;
+  --btn-line: transparent; --r-btn: 12px;
+  --btn-shadow: 0 6px 16px rgba(200,80,31,.35);
+  --btn2-ink: #7c5c42; --btn2-line: rgba(84,52,32,.25);
+
+  --word-bg: #fffaf2; --word-line: rgba(84,52,32,.14); --r-word: 12px;
+  --word-shadow: 0 2px 5px rgba(120,70,30,.08);
+  --hot-bg: linear-gradient(135deg, #e0762f, #c8501f); --hot-ink: #fff6ec;
+  --hot-line: #c8501f;
+  --hot-shadow: 0 4px 12px rgba(200,80,31,.35);
+  --hot-pts-ink: #ffe3cd;
+  --pts-bg: rgba(209,96,47,.12); --pts-ink: #b54a1e;
+
+  --key-bg: #fffaf2; --key-line: rgba(84,52,32,.16); --r-key: 10px;
+  --key-shadow: 0 1px 0 rgba(120,70,30,.28);
+  --key-pressed-bg: linear-gradient(135deg, #e0762f, #c8501f);
+  --key-pressed-ink: #fff6ec; --key-pressed-line: #c8501f;
+  --key-special-bg: #d1602f; --key-special-ink: #fff6ec;
+
+  --bar-bg: #f9efe2; --bar-line: rgba(84,52,32,.12);
+  --bar-active-ink: #b54a1e;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --page: #0e0805; --bg: #191009; --ink: #f3e6d8; --muted: #a08468;
+    --line: rgba(243,230,216,.11);
+    --accent: #f07a3a; --accent-ink: #23120a; --accent-text: #f59a63;
+    --seg-bg: #241811; --seg-ink: #a08468;
+    --seg-active-bg: #f07a3a; --seg-active-ink: #23120a;
+    --slot-bg: #261a11; --slot-line: rgba(243,230,216,.16);
+    --slot-shadow: 0 2px 8px rgba(0,0,0,.4);
+    --slot-cursor-shadow: 0 0 0 3px rgba(240,122,58,.3);
+    --chip-bg: #241811; --chip-line: rgba(243,230,216,.14);
+    --chip-active-bg: #f3e6d8; --chip-active-ink: #191009; --chip-active-line: #f3e6d8;
+    --btn-bg: linear-gradient(135deg, #f07a3a, #d9541f); --btn-ink: #1d0e06;
+    --btn-shadow: 0 6px 20px rgba(240,122,58,.28);
+    --btn2-ink: #b09077; --btn2-line: rgba(243,230,216,.2);
+    --word-bg: #241811; --word-line: rgba(243,230,216,.12);
+    --word-shadow: none;
+    --hot-bg: linear-gradient(135deg, #f07a3a, #d9541f); --hot-ink: #1d0e06;
+    --hot-line: #d9541f;
+    --hot-shadow: 0 4px 14px rgba(240,122,58,.3);
+    --hot-pts-ink: #4a2210;
+    --pts-bg: rgba(240,122,58,.15); --pts-ink: #f59a63;
+    --key-bg: #2a1d13; --key-line: rgba(243,230,216,.13);
+    --key-shadow: 0 1px 0 rgba(0,0,0,.5);
+    --key-pressed-bg: linear-gradient(135deg, #f07a3a, #d9541f);
+    --key-pressed-ink: #1d0e06; --key-pressed-line: #d9541f;
+    --key-special-bg: #f07a3a; --key-special-ink: #23120a;
+    --bar-bg: #191009; --bar-line: rgba(243,230,216,.1);
+  }
+}
+/* decorative: warm press feedback */
+.key, .chip, .btn, .seg button { transition: background-color .14s ease, color .14s ease, box-shadow .14s ease; }
+</style>
+</head>
+<body>
+<div class="topbar"><a href="./index.html">‹ Gallery</a><span>09 · Sunset Warm</span></div>
+<div class="phone">
+  <div class="app">
+    <div class="brand-row">
+      <div class="brand">WORD FINDER</div>
+      <div class="counter"><b>149</b> WORDS</div>
+    </div>
+
+    <nav class="seg">
+      <button>SLOTS</button>
+      <button class="active">PATTERN</button>
+      <button>RACK</button>
+      <button>±1</button>
+    </nav>
+
+    <div class="slots">
+      <div class="slot">S</div>
+      <div class="slot empty">·</div>
+      <div class="slot">A</div>
+      <div class="slot empty cursor">·</div>
+      <div class="slot">E</div>
+    </div>
+
+    <div class="chip-row">
+      <span class="chip">ALL</span>
+      <span class="chip active">5</span>
+      <span class="chip">6</span>
+      <span class="chip">7+</span>
+      <span class="chip toggle on">NO DOUBLES</span>
+    </div>
+
+    <div class="actions">
+      <button class="btn primary">FIND WORDS</button>
+      <button class="btn secondary">CLEAR</button>
+    </div>
+
+    <div class="results">
+      <div class="group-h"><span>5 LETTERS</span><span>12 WORDS</span></div>
+      <div class="words">
+        <span class="word hot">SHALE <span class="pts">8</span></span>
+        <span class="word">SPACE <span class="pts">9</span></span>
+        <span class="word">STAGE</span>
+        <span class="word">SCALE</span>
+        <span class="word">SNAKE</span>
+        <span class="word">SUAVE</span>
+        <span class="word sealed">•••••</span>
+      </div>
+      <div class="group-h"><span>6 LETTERS</span><span>4 WORDS</span></div>
+      <div class="words">
+        <span class="word">SPARSE</span>
+        <span class="word">STABLE</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="kb">
+    <div class="kb-row">
+      <button class="key dim">Q</button><button class="key">W</button><button class="key">E</button><button class="key">R</button><button class="key">T</button><button class="key">Y</button><button class="key">U</button><button class="key">I</button><button class="key">O</button><button class="key">P</button>
+    </div>
+    <div class="kb-row">
+      <button class="key">A</button><button class="key pressed">S</button><button class="key">D</button><button class="key">F</button><button class="key">G</button><button class="key">H</button><button class="key">J</button><button class="key">K</button><button class="key">L</button>
+    </div>
+    <div class="kb-row">
+      <button class="key special">?</button><button class="key">Z</button><button class="key dim">X</button><button class="key">C</button><button class="key">V</button><button class="key">B</button><button class="key">N</button><button class="key">M</button><button class="key wide">⌫</button>
+    </div>
+  </div>
+
+  <nav class="modebar">
+    <div class="mode active"><span class="ic">▦</span>FIND</div>
+    <div class="mode"><span class="ic">⇄</span>±1</div>
+    <div class="mode"><span class="ic">▤</span>SHEETS</div>
+    <div class="mode"><span class="ic">⚙</span>SETTINGS</div>
+  </nav>
+</div>
+</body>
+</html>

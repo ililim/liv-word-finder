@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<!--
+  15 · Letter Dials — a playful, mechanical take on word finding.
+  Each letter position is a vertical slot-machine dial (scroll-snap A–Z plus a ✳ wildcard);
+  flick some dials, leave others on ✳, hit FIND and matching words clatter in like a
+  split-flap airport board. Deliberately experimental: charm over efficiency.
+-->
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<title>15 · Letter Dials — Liv Word Finder</title>
+<style>
+  :root{
+    --bg:#efe8da; --page-side:#ddd2bd; --text:#2b241a; --text2:#8a7c63;
+    --board:#22242a; --board-edge:#0e0f13; --slot:#15161b; --slotline:#000;
+    --flap:#2c2e36; --flap-line:#1a1b21; --letter:#f6ead2; --amber:#ffb648;
+    --amber-deep:#e08900; --btn-text:#241a05; --panel:#e3d9c4; --sep:#d4c7ab;
+  }
+  @media (prefers-color-scheme: dark){
+    :root{
+      --bg:#101116; --page-side:#07080b; --text:#ece4d2; --text2:#93876c;
+      --board:#1b1d23; --board-edge:#000; --slot:#111217; --slotline:#000;
+      --flap:#262830; --flap-line:#15161c; --letter:#f6ead2; --amber:#ffb648;
+      --amber-deep:#ffa21f; --btn-text:#241a05; --panel:#181a20; --sep:#23252d;
+    }
+  }
+  *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  html{background:var(--page-side)}
+  body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;color:var(--text);
+    background:var(--page-side)}
+  .phone{max-width:430px;margin:0 auto;background:var(--bg);height:100dvh;display:flex;
+    flex-direction:column;box-shadow:0 0 44px rgba(0,0,0,.3)}
+  .gbar{display:flex;justify-content:space-between;align-items:center;padding:6px 14px;
+    font-size:12px;color:var(--text2);border-bottom:1px solid var(--sep);flex:none}
+  .gbar a{color:var(--amber-deep);text-decoration:none;font-weight:700;padding:6px 0}
+  header{flex:none;text-align:center;padding:14px 16px 4px}
+  header h1{font-size:24px;font-weight:900;letter-spacing:.28em;text-transform:uppercase}
+  header .sub{font-size:11px;font-weight:700;letter-spacing:.2em;text-transform:uppercase;
+    color:var(--text2);margin-top:3px}
+  /* the machine */
+  .machine{flex:none;margin:12px 14px 0;background:var(--board);border-radius:18px;
+    padding:16px 12px 14px;border:1px solid var(--board-edge);
+    box-shadow:inset 0 2px 0 rgba(255,255,255,.06),0 10px 26px rgba(0,0,0,.35)}
+  .dials{display:flex;gap:8px;justify-content:center;position:relative}
+  .dial{width:58px;height:168px;overflow-y:auto;scroll-snap-type:y mandatory;
+    scrollbar-width:none;background:var(--slot);border-radius:10px;
+    box-shadow:inset 0 10px 14px rgba(0,0,0,.65),inset 0 -10px 14px rgba(0,0,0,.65)}
+  .dial::-webkit-scrollbar{display:none}
+  .dial .pad{height:56px}
+  .dial .c{height:56px;scroll-snap-align:center;display:flex;align-items:center;
+    justify-content:center;font-size:30px;font-weight:900;color:var(--letter);
+    position:relative}
+  .dial .c::after{content:"";position:absolute;left:8%;right:8%;top:50%;height:1px;
+    background:var(--slotline);opacity:.55}
+  .dial .c.wild{color:var(--amber);font-size:24px}
+  /* highlight window across all dials */
+  .window{position:absolute;left:-6px;right:-6px;top:56px;height:56px;border-radius:8px;
+    border:2px solid var(--amber);pointer-events:none;
+    box-shadow:0 0 14px rgba(255,182,72,.35)}
+  .legend{text-align:center;font-size:10px;font-weight:700;letter-spacing:.18em;
+    text-transform:uppercase;color:#8d8468;margin-top:10px}
+  /* buttons */
+  .controls{flex:none;display:flex;gap:10px;padding:14px 14px 4px}
+  .find{flex:1;min-height:54px;border:none;border-radius:14px;
+    background:linear-gradient(180deg,var(--amber),var(--amber-deep));color:var(--btn-text);
+    font-size:17px;font-weight:900;letter-spacing:.22em;text-transform:uppercase;cursor:pointer;
+    box-shadow:0 4px 0 rgba(0,0,0,.28);font-family:inherit}
+  .find:active{transform:translateY(2px);box-shadow:0 2px 0 rgba(0,0,0,.28)}
+  .spin{flex:none;min-width:76px;min-height:54px;border-radius:14px;cursor:pointer;
+    border:2px solid var(--amber-deep);background:transparent;color:var(--amber-deep);
+    font-size:14px;font-weight:900;letter-spacing:.08em;font-family:inherit}
+  .spin:active{opacity:.7}
+  /* results */
+  .status{flex:none;text-align:center;font-size:12px;font-weight:800;letter-spacing:.24em;
+    text-transform:uppercase;color:var(--text2);padding:12px 0 8px}
+  .status b{color:var(--amber-deep)}
+  .results{flex:1;overflow-y:auto;padding:0 14px calc(18px + env(safe-area-inset-bottom));
+    display:flex;flex-direction:column;gap:7px;align-items:center}
+  .word{display:flex;gap:4px;perspective:400px}
+  .word .f{width:44px;height:50px;background:var(--flap);border-radius:5px;display:flex;
+    align-items:center;justify-content:center;font-size:24px;font-weight:900;color:var(--letter);
+    position:relative;box-shadow:0 2px 3px rgba(0,0,0,.4);
+    animation:flap .4s cubic-bezier(.3,1.4,.5,1) both}
+  .word .f::after{content:"";position:absolute;left:0;right:0;top:50%;height:1.5px;
+    background:var(--flap-line)}
+  .word .f.hit{color:var(--amber)}
+  @keyframes flap{0%{transform:rotateX(-92deg);opacity:0}60%{transform:rotateX(14deg);opacity:1}100%{transform:rotateX(0)}}
+  .moremsg{font-size:12px;font-weight:800;letter-spacing:.2em;text-transform:uppercase;
+    color:var(--text2);padding:8px 0 4px}
+  .empty{font-size:13px;font-weight:800;letter-spacing:.24em;text-transform:uppercase;
+    color:var(--text2);padding:26px 0;text-align:center}
+</style>
+</head>
+<body>
+<div class="phone">
+  <div class="gbar"><a href="./index.html">‹ Gallery</a><span>15 · Letter Dials</span></div>
+
+  <header>
+    <h1>Letter Dials</h1>
+    <div class="sub">flick · lock · find</div>
+  </header>
+
+  <div class="machine">
+    <div class="dials" id="dials">
+      <div class="window"></div>
+    </div>
+    <div class="legend">✳ = any letter · flick a dial to lock one</div>
+  </div>
+
+  <div class="controls">
+    <button class="find" id="find">Find words</button>
+    <button class="spin" id="spin">🎰 spin</button>
+  </div>
+
+  <div class="status" id="status">set the dials, then find</div>
+  <div class="results" id="results"></div>
+</div>
+
+<script>
+  const WORDS=("ABOUT ABOVE ADOBE ADORE AGENT AGILE AISLE ALARM ALERT ALIEN ALIKE ALIVE ALONE ALTER AMBER ANGEL ANGER ANGLE ANKLE APPLE ARENA ARGUE ARISE AROMA ARROW ASIDE AUDIO AVOID AWAKE AWARD AWARE BADGE BAKER BASIC BEACH BEGIN BENCH BERRY BIRTH BLACK BLADE BLAME BLANK BLAST BLAZE BLEND BLESS BLIND BLOCK BLOOD BLOOM BOARD BONUS BOOST BOOTH BOUGH BOUND BRAIN BRAND BRAVE BREAD BREAK BRICK BRIDE BRIEF BRING BROAD BROWN BRUSH BUILD BUNCH BURST CABIN CABLE CANDY CARGO CARRY CATCH CAUSE CHAIN CHAIR CHALK CHARM CHART CHASE CHEAP CHECK CHEEK CHEER CHESS CHEST CHIEF CHILD CHILL CHOIR CIVIC CLAIM CLASS CLEAN CLEAR CLERK CLIFF CLIMB CLOCK CLOSE CLOUD COACH COAST COUGH COUNT COURT COVER CRAFT CRANE CRASH CREAM CRIME CROWD CROWN CURVE CYCLE DAILY DAIRY DANCE DEALT DEBUT DELAY DEPTH DIARY DOUGH DOZEN DRAFT DRAIN DRAMA DREAM DRESS DRIFT DRINK DRIVE EAGER EAGLE EARLY EARTH EIGHT ELBOW EMPTY ENJOY ENTER EQUAL ERROR EVENT EXACT EXTRA FABLE FAINT FAIRY FAITH FANCY FEAST FENCE FIBER FIELD FIFTY FIGHT FINAL FLAME FLASH FLEET FLESH FLOAT FLOCK FLOOD FLOOR FLOUR FOCUS FORCE FORGE FORTH FORTY FORUM FRAME FRESH FRONT FROST FRUIT GHOST GIANT GIVEN GLASS GLOBE GLORY GLOVE GRACE GRADE GRAIN GRAND GRANT GRAPE GRASP GRASS GRAVE GREAT GREEN GREET GRIEF GRILL GRIND GROUP GROVE GUARD GUESS GUEST GUIDE HABIT HAPPY HEART HEAVY HELLO HONEY HORSE HOTEL HOUSE HUMAN HUMOR IDEAL IMAGE INDEX INNER INPUT ISSUE IVORY JOINT JOLLY JUDGE JUICE KNEEL KNIFE KNOCK LABEL LARGE LASER LATER LAUGH LAYER LEARN LEASE LEAVE LEGAL LEMON LEVEL LIGHT LIMIT LIVER LOCAL LOGIC LOOSE LOUGH LOYAL LUCKY LUNCH MAGIC MAJOR MAPLE MARCH MATCH MAYBE MAYOR MEDAL MEDIA MERCY MERIT METAL MIGHT MINOR MINUS MIXED MODEL MONEY MONTH MORAL MOTOR MOUNT MOUSE MOUTH MOVIE MUSIC NAIVE NERVE NEVER NIGHT NOBLE NOISE NORTH NOVEL NURSE OCCUR OCEAN OFFER OFTEN OLIVE ONION OPERA ORBIT ORDER ORGAN OTHER OUGHT OUNCE OUTER OWNER PAINT PANEL PAPER PARTY PASTA PATCH PAUSE PEACE PEACH PEARL PENNY PHASE PHONE PHOTO PIANO PIECE PILOT PITCH PIZZA PLACE PLAIN PLANE PLANT PLATE PLAZA POINT POUND POWER PRESS PRICE PRIDE PRIME PRINT PRIZE PROOF PROUD PULSE PUNCH PUPIL QUEEN QUEST QUICK QUIET QUOTE RADIO RAISE RANGE RAPID RATIO REACH REACT READY REALM REBEL RHYME RIDGE RIGHT RIVAL RIVER ROAST ROBIN ROCKY ROMAN ROUGH ROUND ROUTE ROYAL RURAL SAINT SALAD SAUCE SCALE SCENE SCENT SCOPE SCORE SCOUT SENSE SERVE SEVEN SHADE SHAKE SHALE SHAME SHAPE SHARE SHARK SHARP SHAVE SHEEP SHEET SHELF SHELL SHIFT SHINE SHIRT SHOCK SHORE SHORT SHOUT SHOWN SIGHT SILLY SINCE SIXTY SKATE SKILL SKIRT SLATE SLEEP SLICE SLIDE SLOPE SMALL SMART SMILE SMOKE SNACK SNAKE SNORE SOLAR SOLID SORRY SOUND SOUTH SPACE SPADE SPARE SPARK SPEAK SPEED SPELL SPEND SPICE SPINE SPIRE SPLIT SPOKE SPORT SPRAY STACK STAFF STAGE STAIR STAKE STALE STAMP STAND STARE START STATE STEAM STEEL STICK STILL STOCK STONE STORE STORM STORY STOVE STRAW STRIP STUDY STYLE SUGAR SUITE SUNNY SUPER SWEET SWORE TABLE TASTE TEACH TEETH TEMPO TENTH THANK THEME THERE THICK THING THINK THIRD THOSE THREE THUMB TIGER TIGHT TITLE TOAST TODAY TOKEN TOPIC TORCH TOTAL TOUCH TOUGH TOWEL TOWER TRACK TRADE TRAIL TRAIN TREAT TREND TRIAL TRIBE TRICK TRUCK TRULY TRUST TRUTH TWICE UNCLE UNDER UNION UNITE UNITY UPPER URBAN USAGE USUAL VAGUE VALID VALUE VIDEO VIRUS VISIT VITAL VIVID VOCAL VOICE VOTER WAGON WASTE WATCH WATER WHALE WHEAT WHEEL WHERE WHILE WHITE WHOLE WOMAN WORLD WORRY WORTH WOUND WRIST WRITE WRONG YACHT YIELD YOUNG YOUTH").split(" ");
+
+  const CELL=56, N=5;
+  const dialsBox=document.getElementById('dials');
+  const results=document.getElementById('results');
+  const status=document.getElementById('status');
+  const ALPHA="✳ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+  const dials=[];
+
+  for(let d=0;d<N;d++){
+    const col=document.createElement('div');
+    col.className='dial';
+    let html='<div class="pad"></div>';
+    for(const ch of ALPHA) html+=`<div class="c${ch==='✳'?' wild':''}">${ch}</div>`;
+    html+='<div class="pad"></div>';
+    col.innerHTML=html;
+    dialsBox.appendChild(col);
+    dials.push(col);
+  }
+
+  function setDial(d,letter,smooth){
+    const i=ALPHA.indexOf(letter);
+    dials[d].scrollTo({top:i*CELL,behavior:smooth?'smooth':'auto'});
+  }
+  function getPattern(){
+    return dials.map(col=>{
+      const i=Math.max(0,Math.min(26,Math.round(col.scrollTop/CELL)));
+      return i===0?'?':ALPHA[i];
+    }).join('');
+  }
+  function find(){
+    const pat=getPattern();
+    const fixed=[...pat].map(c=>c!=='?');
+    const hits=WORDS.filter(w=>[...pat].every((c,i)=>c==='?'||w[i]===c));
+    results.innerHTML='';
+    const shown=hits.slice(0,24);
+    shown.forEach((w,wi)=>{
+      const row=document.createElement('div');
+      row.className='word';
+      row.innerHTML=[...w].map((ch,i)=>
+        `<div class="f${fixed[i]?' hit':''}" style="animation-delay:${wi*60+i*45}ms">${ch}</div>`
+      ).join('');
+      results.appendChild(row);
+    });
+    if(hits.length>24){
+      const m=document.createElement('div');
+      m.className='moremsg'; m.textContent=`+ ${hits.length-24} more`;
+      results.appendChild(m);
+    }
+    if(hits.length===0){
+      results.innerHTML='<div class="empty">— no matches —<br><br>pull again</div>';
+    }
+    status.innerHTML=`<b>${pat.replaceAll('?','✳')}</b> · ${hits.length} word${hits.length===1?'':'s'}`;
+  }
+  function spin(){
+    // land on a random real word with 2 letters locked, rest wild — always a winner
+    const w=WORDS[Math.floor(Math.random()*WORDS.length)];
+    const lockA=Math.floor(Math.random()*5);
+    let lockB=Math.floor(Math.random()*5);
+    if(lockB===lockA)lockB=(lockB+2)%5;
+    for(let d=0;d<N;d++) setDial(d,(d===lockA||d===lockB)?w[d]:'✳',true);
+    status.textContent='spinning…';
+    setTimeout(find,650);
+  }
+
+  document.getElementById('find').addEventListener('click',find);
+  document.getElementById('spin').addEventListener('click',spin);
+
+  // initial state: S ✳ A ✳ E
+  requestAnimationFrame(()=>{
+    setDial(0,'S');setDial(1,'✳');setDial(2,'A');setDial(3,'✳');setDial(4,'E');
+    setTimeout(find,80);
+  });
+</script>
+</body>
+</html>

@@ -1,0 +1,120 @@
+<!-- Gallery index for the 10 v2 design exploration mockups of Liv Word Finder.
+     Round 2: unified style DNA (from v1 mockup 14, compact keys from 08),
+     assist-don't-solve philosophy. Cards show live scaled iframe previews. -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<title>Liv Word Finder — v2 Design Explorations</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🔤</text></svg>">
+<style>
+  :root {
+    --bg: #f4f2ee;
+    --card: #ffffff;
+    --ink: #1c1b18;
+    --muted: #77726a;
+    --accent: #93c400;
+    --line: rgba(0,0,0,.08);
+    color-scheme: light dark;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #141312;
+      --card: #201f1d;
+      --ink: #f0ede8;
+      --muted: #9b958c;
+      --accent: #b8e62e;
+      --line: rgba(255,255,255,.09);
+    }
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    background: var(--bg);
+    color: var(--ink);
+    padding: max(20px, env(safe-area-inset-top)) 16px 48px;
+  }
+  .wrap { max-width: 1200px; margin: 0 auto; }
+  header { margin: 16px 4px 8px; }
+  h1 { font-size: 28px; letter-spacing: -.02em; }
+  h1 .v { color: var(--accent); }
+  .sub { color: var(--muted); margin-top: 6px; font-size: 15px; line-height: 1.45; max-width: 640px; }
+  .backlink { display: inline-block; margin-top: 10px; font-size: 13px; color: var(--muted); text-decoration: none; }
+  .backlink:hover { color: var(--accent); }
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: 16px;
+    margin-top: 24px;
+  }
+  a.card {
+    display: block; text-decoration: none; color: inherit;
+    background: var(--card); border: 1px solid var(--line);
+    border-radius: 18px; overflow: hidden;
+    transition: transform .15s ease, box-shadow .15s ease;
+  }
+  a.card:active { transform: scale(.97); }
+  @media (hover: hover) {
+    a.card:hover { transform: translateY(-3px); box-shadow: 0 10px 30px rgba(0,0,0,.12); }
+  }
+  .preview {
+    height: 300px; overflow: hidden; position: relative;
+    background: var(--bg); border-bottom: 1px solid var(--line);
+  }
+  .preview iframe {
+    width: 390px; height: 700px; border: 0;
+    transform: scale(.72); transform-origin: top center;
+    position: absolute; left: 50%; margin-left: -195px; top: 0;
+    pointer-events: none;
+  }
+  .meta { padding: 12px 14px 14px; }
+  .num {
+    font-size: 11px; font-weight: 700; color: var(--accent);
+    letter-spacing: .06em;
+  }
+  .name { font-size: 17px; font-weight: 650; margin: 2px 0 3px; }
+  .tag { font-size: 13px; color: var(--muted); line-height: 1.4; }
+  footer { margin-top: 48px; color: var(--muted); font-size: 13px; text-align: center; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>Liv Word Finder <span class="v">· v2 explorations</span></h1>
+    <p class="sub">Round 2 — 10 designs in one visual family (mockup 14's boldness, mockup 08's
+    compact keys). Guiding idea: help her <em>find</em> words, never hand her the win.</p>
+    <a class="backlink" href="../v1_explorations/index.html">← round 1 gallery (20 mockups)</a>
+  </header>
+
+  <div class="grid" id="grid"></div>
+
+  <footer>Round 2 of ideation · the winners become the real app 💜</footer>
+</div>
+
+<script>
+  const items = [
+    ["01-mode-board.html", "01", "Mode Board", "The flagship synthesis: one screen, bottom mode bar switching Slots · Pattern · Rack · ±1."],
+    ["02-word-lab.html", "02", "Word Lab ±1", "Her add-a-letter/remove-a-letter idea: walk chains of words one letter apart, with breadcrumbs."],
+    ["03-letter-sets.html", "03", "Letter Sets", "Keys cycle allowed → required → excluded; no-doubles toggle; presets for Boxed, Bee, Rack."],
+    ["04-parallel-search.html", "04", "Parallel", "Stacked independent search panes with an optional chain-link — build Letter Boxed pairs yourself."],
+    ["05-anchors.html", "05", "Anchors", "Scrabble play-through finder: locked board letters, your rack, words that fit through."],
+    ["06-nudge.html", "06", "Nudge", "Results arrive sealed — tap chips for escalating letter hints; a meter tracks how much help you took."],
+    ["07-chunks.html", "07", "Chunks", "Search by letter combos: must-contain TCH, must-not QU — certain combos but not others."],
+    ["08-recall-first.html", "08", "Recall First", "Shows only the count; she guesses, valid words stamp in — 'you found 9 of 23'."],
+    ["09-trace-square.html", "09", "Trace", "Letter Boxed square as an input: trace paths under real rules, get count-only hints, never words."],
+    ["10-live-pro.html", "10", "Live Pro", "Zero-button instant search with inline mode chips, no-doubles and letter-set filters."]
+  ];
+  document.getElementById("grid").innerHTML = items.map(([file, num, name, tag]) => `
+    <a class="card" href="${file}">
+      <div class="preview"><iframe src="${file}" loading="lazy" tabindex="-1" title="${name} preview"></iframe></div>
+      <div class="meta">
+        <div class="num">MOCKUP ${num}</div>
+        <div class="name">${name}</div>
+        <div class="tag">${tag}</div>
+      </div>
+    </a>`).join("");
+</script>
+</body>
+</html>

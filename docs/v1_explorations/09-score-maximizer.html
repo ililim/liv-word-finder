@@ -1,0 +1,303 @@
+<!--
+  09 · Score Max — Tournament-serious Scrabble scoring tool. Enter your 7 rack tiles plus an
+  optional board letter to play through; results are ranked purely by score with big neon
+  numbers, expandable per-letter point breakdowns, and DL/TL/DW/TW premium-square chips that
+  recalculate every score live. All sample results are real NWL2023 words solved from the rack.
+-->
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<title>09 · Score Max — Liv Word Finder</title>
+<style>
+  :root{
+    --bg:#0b0e14; --panel:#131824; --panel2:#1a2132; --edge:#232d44;
+    --ink:#e8edf7; --dim:#8a94ab; --faint:#525d75;
+    --neon:#3dff9c; --neon-dim:rgba(61,255,156,.14); --cyan:#39d6ff;
+    --tile:#f5e3b3; --tile-ink:#4a3618; --amber:#ffc53d;
+    --shadow:0 1px 0 rgba(255,255,255,.04) inset, 0 8px 24px rgba(0,0,0,.45);
+  }
+  @media (prefers-color-scheme: light){
+    :root{
+      --bg:#eef1f6; --panel:#ffffff; --panel2:#f4f6fb; --edge:#dde3ee;
+      --ink:#141a26; --dim:#5c667c; --faint:#9aa3b8;
+      --neon:#0aa860; --neon-dim:rgba(10,168,96,.10); --cyan:#0779c2;
+      --tile:#f3e2b0; --tile-ink:#4a3618; --amber:#c47f00;
+      --shadow:0 1px 2px rgba(20,30,60,.08), 0 6px 20px rgba(20,30,60,.08);
+    }
+  }
+  *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  html{background:#05070b}
+  @media (prefers-color-scheme: light){ html{background:#dfe4ec} }
+  body{
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+    background:var(--bg); color:var(--ink);
+    max-width:430px; margin:0 auto; min-height:100vh;
+    box-shadow:0 0 60px rgba(0,0,0,.5);
+  }
+  .topbar{
+    display:flex; justify-content:space-between; align-items:center;
+    padding:8px 14px; font-size:12px; color:var(--dim);
+    border-bottom:1px solid var(--edge); background:var(--panel);
+  }
+  .topbar a{color:var(--dim); text-decoration:none; padding:6px 8px 6px 0}
+  .topbar a:active{color:var(--ink)}
+  header{padding:18px 16px 4px}
+  .brand{display:flex; align-items:baseline; justify-content:space-between}
+  h1{font-size:22px; font-weight:800; letter-spacing:.06em; text-transform:uppercase}
+  h1 .max{color:var(--neon); text-shadow:0 0 18px var(--neon-dim)}
+  .lexchip{font-size:11px; font-weight:700; letter-spacing:.08em; color:var(--cyan);
+    border:1px solid var(--edge); border-radius:999px; padding:5px 10px; background:var(--panel)}
+  .sub{font-size:12.5px; color:var(--dim); margin-top:4px}
+
+  section{padding:14px 16px 0}
+  .label{font-size:11px; font-weight:700; letter-spacing:.14em; text-transform:uppercase; color:var(--faint); margin-bottom:8px}
+  .rack{display:flex; gap:6px; justify-content:space-between}
+  .tile{
+    flex:1; aspect-ratio:1/1.08; min-width:0; border-radius:8px;
+    background:linear-gradient(180deg,#fbeecb,var(--tile));
+    color:var(--tile-ink); font-weight:800; font-size:24px;
+    display:flex; align-items:center; justify-content:center; position:relative;
+    box-shadow:0 2px 0 #c9a95e, 0 4px 10px rgba(0,0,0,.35);
+    text-transform:uppercase; user-select:none;
+  }
+  .tile sub{position:absolute; right:4px; bottom:3px; font-size:9px; font-weight:700}
+  .tile.empty{background:var(--panel2); box-shadow:none; border:1.5px dashed var(--edge); color:var(--faint)}
+  .rackrow{position:relative}
+  .rackrow input{
+    position:absolute; inset:0; opacity:0; font-size:16px; width:100%;
+  }
+  .hint{font-size:11px; color:var(--faint); margin-top:6px; text-align:center}
+
+  .through{display:flex; align-items:center; gap:12px; margin-top:2px}
+  .through .tile{flex:0 0 46px; aspect-ratio:1/1.08; font-size:20px}
+  .switch{
+    margin-left:auto; width:52px; height:32px; border-radius:999px; border:1px solid var(--edge);
+    background:var(--panel2); position:relative; transition:background .2s; flex:0 0 52px;
+  }
+  .switch::after{content:""; position:absolute; top:3px; left:3px; width:24px; height:24px;
+    border-radius:50%; background:var(--dim); transition:all .2s}
+  .switch.on{background:var(--neon-dim); border-color:var(--neon)}
+  .switch.on::after{left:23px; background:var(--neon)}
+  .through .tdesc{font-size:13px; color:var(--dim); line-height:1.35}
+  .through .tdesc b{color:var(--ink)}
+
+  .prem{display:flex; gap:8px; flex-wrap:wrap}
+  .chip{
+    min-height:44px; padding:0 14px; border-radius:10px; border:1px solid var(--edge);
+    background:var(--panel); color:var(--dim); font-weight:800; font-size:14px;
+    letter-spacing:.04em; display:flex; align-items:center; gap:6px; cursor:pointer;
+  }
+  .chip small{font-weight:600; font-size:10px; letter-spacing:0; opacity:.75}
+  .chip.dl.on{color:#7db8ff; border-color:#3a6db3; background:rgba(80,140,230,.12)}
+  .chip.tl.on{color:#4fc3f7; border-color:#1e88b0; background:rgba(57,214,255,.12)}
+  .chip.dw.on{color:#ffab91; border-color:#b3603a; background:rgba(255,130,80,.12)}
+  .chip.tw.on{color:#ff6e6e; border-color:#b33a3a; background:rgba(255,80,80,.12)}
+
+  .results{padding:16px 16px 40px}
+  .rhead{display:flex; justify-content:space-between; align-items:baseline; margin-bottom:10px}
+  .rhead .n{font-size:12px; color:var(--faint)}
+  .row{
+    background:var(--panel); border:1px solid var(--edge); border-radius:14px;
+    margin-bottom:8px; overflow:hidden; box-shadow:var(--shadow);
+  }
+  .row.best{border-color:var(--neon); box-shadow:0 0 0 1px var(--neon), 0 0 24px var(--neon-dim), var(--shadow)}
+  .rowmain{display:flex; align-items:center; gap:12px; padding:12px 14px; min-height:56px; cursor:pointer}
+  .rank{font-size:11px; font-weight:700; color:var(--faint); width:18px; text-align:right}
+  .word{font-size:19px; font-weight:800; letter-spacing:.12em; text-transform:uppercase}
+  .badges{display:flex; gap:6px; margin-top:3px}
+  .badge{font-size:9.5px; font-weight:800; letter-spacing:.08em; padding:2px 7px; border-radius:999px}
+  .badge.bingo{background:var(--neon-dim); color:var(--neon); border:1px solid var(--neon)}
+  .badge.thru{background:transparent; color:var(--cyan); border:1px solid var(--edge)}
+  .score{
+    margin-left:auto; font-family:ui-monospace,"SF Mono",Menlo,monospace;
+    font-size:30px; font-weight:800; color:var(--neon); text-shadow:0 0 16px var(--neon-dim);
+    font-variant-numeric:tabular-nums;
+  }
+  .row.best .score{font-size:38px}
+  .caret{color:var(--faint); font-size:12px; transition:transform .2s}
+  .row.open .caret{transform:rotate(180deg)}
+  .breakdown{display:none; padding:2px 14px 14px; border-top:1px dashed var(--edge)}
+  .row.open .breakdown{display:block}
+  .btiles{display:flex; gap:4px; margin:12px 0 10px; flex-wrap:wrap}
+  .btile{
+    width:34px; height:37px; border-radius:6px; background:linear-gradient(180deg,#fbeecb,var(--tile));
+    color:var(--tile-ink); font-weight:800; font-size:16px; display:flex; align-items:center;
+    justify-content:center; position:relative; box-shadow:0 1.5px 0 #c9a95e; text-transform:uppercase;
+  }
+  .btile sub{position:absolute; right:3px; bottom:2px; font-size:8px}
+  .btile.boardletter{background:var(--panel2); color:var(--cyan); box-shadow:none; border:1.5px solid var(--cyan)}
+  .btile.bonus-dl{outline:2.5px solid #7db8ff; outline-offset:1px}
+  .btile.bonus-tl{outline:2.5px solid #4fc3f7; outline-offset:1px}
+  .math{font-family:ui-monospace,"SF Mono",Menlo,monospace; font-size:12.5px; color:var(--dim); line-height:1.7}
+  .math b{color:var(--ink)} .math .m{color:var(--neon)}
+</style>
+
+<div class="topbar">
+  <a href="./index.html">‹ Gallery</a>
+  <span>09 · Score Max</span>
+</div>
+
+<header>
+  <div class="brand">
+    <h1>Score<span class="max">Max</span></h1>
+    <span class="lexchip">NWL2023</span>
+  </div>
+  <div class="sub">Rank every play by points. Tap a result for the math.</div>
+</header>
+
+<section>
+  <div class="label">Your rack — tap to edit</div>
+  <div class="rackrow" id="rackrow">
+    <div class="rack" id="rack"></div>
+    <input id="rackinput" value="AEINRTZ" maxlength="7" autocomplete="off" autocapitalize="characters"
+      aria-label="Rack letters">
+  </div>
+  <div class="hint" id="rackhint">Results shown for the demo rack A E I N R T Z</div>
+</section>
+
+<section>
+  <div class="label">Play through a board letter</div>
+  <div class="through">
+    <div class="tile" id="thrutile">O<sub>1</sub></div>
+    <div class="tdesc">Playing through <b>O</b> already on the board<br>8-letter bingos become possible</div>
+    <div class="switch on" id="thruswitch" role="switch" aria-checked="true" aria-label="Play through board letter"></div>
+  </div>
+</section>
+
+<section>
+  <div class="label">Premium squares under your play</div>
+  <div class="prem">
+    <button class="chip dl" data-p="dl">DL <small>2× letter</small></button>
+    <button class="chip tl" data-p="tl">TL <small>3× letter</small></button>
+    <button class="chip dw" data-p="dw">DW <small>2× word</small></button>
+    <button class="chip tw" data-p="tw">TW <small>3× word</small></button>
+  </div>
+  <div class="hint">Letter premium is applied to your highest-value tile</div>
+</section>
+
+<div class="results">
+  <div class="rhead">
+    <div class="label" style="margin:0">Best plays</div>
+    <div class="n" id="count"></div>
+  </div>
+  <div id="list"></div>
+</div>
+
+<script>
+const VALS = {a:1,b:3,c:3,d:2,e:1,f:4,g:2,h:4,i:1,j:8,k:5,l:1,m:3,n:1,o:1,p:3,q:10,r:1,s:1,t:1,u:1,v:4,w:4,x:8,y:4,z:10};
+// Real NWL2023 solves for rack AEINRTZ (+ optional board O). bingo = uses all 7 rack tiles.
+const WITH_O = [
+  {w:"notarize", bingo:true,  thru:true},
+  {w:"zonate"}, {w:"zoner"}, {w:"zonae"}, {w:"azote"},
+  {w:"zori", noThru:true}, {w:"zone"}, {w:"zero"}, {w:"azon"},
+  {w:"tonier"}, {w:"ration"}, {w:"ornate"}, {w:"orient"}, {w:"norite"}
+];
+const NO_O = [
+  {w:"zeatin"}, {w:"zanier"}, {w:"zaire"}, {w:"nertz"}, {w:"azine"},
+  {w:"zine"}, {w:"zeta"}, {w:"zein"}, {w:"tzar"}, {w:"ritz"},
+  {w:"raze"}, {w:"nazi"}, {w:"izar"}, {w:"retina", bingo:false}
+];
+let prem = {dl:false, tl:false, dw:false, tw:false};
+let thru = true;
+let openWord = "notarize";
+
+function baseSum(w){ return [...w].reduce((s,c)=>s+VALS[c],0); }
+function bestIdx(w){ let bi=0; [...w].forEach((c,i)=>{ if(VALS[c]>VALS[w[bi]]) bi=i; }); return bi; }
+function calc(w, bingo){
+  let sum = baseSum(w);
+  const bi = bestIdx(w), bv = VALS[w[bi]];
+  if (prem.dl) sum += bv;
+  if (prem.tl) sum += bv*2;
+  let mult = prem.dw ? 2 : prem.tw ? 3 : 1;
+  return sum*mult + (bingo?50:0);
+}
+function mathLine(w, bingo){
+  const bi = bestIdx(w);
+  let parts = [...w].map((c,i)=>{
+    let v = VALS[c];
+    if (i===bi && prem.dl) return c.toUpperCase()+"<b>"+(v*2)+"</b>";
+    if (i===bi && prem.tl) return c.toUpperCase()+"<b>"+(v*3)+"</b>";
+    return c.toUpperCase()+v;
+  });
+  let sum = baseSum(w) + (prem.dl?VALS[w[bi]]:0) + (prem.tl?VALS[w[bi]]*2:0);
+  let s = parts.join(" + ")+" = <b>"+sum+"</b>";
+  if (prem.dw) s += " × <b>2</b> <span class=m>DW</span> = <b>"+(sum*2)+"</b>";
+  if (prem.tw) s += " × <b>3</b> <span class=m>TW</span> = <b>"+(sum*3)+"</b>";
+  if (bingo)   s += " &nbsp;+ <b>50</b> <span class=m>BINGO</span>";
+  return s + " &nbsp;→ <span class=m><b>"+calc(w,bingo)+"</b></span>";
+}
+function render(){
+  const data = (thru ? WITH_O : NO_O).map(d => ({...d, bingo: !!d.bingo || (!thru && d.w.length===7)}));
+  data.sort((a,b)=>calc(b.w,b.bingo)-calc(a.w,a.bingo));
+  document.getElementById("count").textContent = (thru? "142":"96") + " legal plays · top " + data.length;
+  const list = document.getElementById("list");
+  list.innerHTML = data.map((d,i)=>{
+    const sc = calc(d.w, d.bingo);
+    const bi = bestIdx(d.w);
+    const tiles = [...d.w].map((c,j)=>{
+      let cls = "btile";
+      if (thru && c==="o" && j===d.w.indexOf("o")) cls+=" boardletter";
+      if (j===bi && prem.dl) cls+=" bonus-dl";
+      if (j===bi && prem.tl) cls+=" bonus-tl";
+      return `<div class="${cls}">${c}<sub>${VALS[c]}</sub></div>`;
+    }).join("");
+    return `<div class="row ${i===0?"best":""} ${openWord===d.w?"open":""}" data-w="${d.w}">
+      <div class="rowmain">
+        <span class="rank">${i+1}</span>
+        <div>
+          <div class="word">${d.w}</div>
+          <div class="badges">
+            ${d.bingo?'<span class="badge bingo">BINGO +50</span>':''}
+            ${thru?'<span class="badge thru">through O</span>':''}
+          </div>
+        </div>
+        <span class="score">${sc}</span>
+        <span class="caret">▾</span>
+      </div>
+      <div class="breakdown">
+        <div class="btiles">${tiles}</div>
+        <div class="math">${mathLine(d.w, d.bingo)}</div>
+      </div>
+    </div>`;
+  }).join("");
+  list.querySelectorAll(".row").forEach(r=>{
+    r.querySelector(".rowmain").addEventListener("click", ()=>{
+      openWord = (openWord===r.dataset.w) ? null : r.dataset.w; render();
+    });
+  });
+}
+// Rack tiles render from the input (visual only in this mockup)
+function renderRack(){
+  const v = document.getElementById("rackinput").value.toLowerCase().replace(/[^a-z]/g,"");
+  const rack = document.getElementById("rack");
+  rack.innerHTML = Array.from({length:7},(_,i)=>{
+    const c = v[i];
+    return c ? `<div class="tile">${c}<sub>${VALS[c]}</sub></div>` : `<div class="tile empty">·</div>`;
+  }).join("");
+  document.getElementById("rackhint").textContent =
+    v==="aeinrtz" ? "Results shown for the demo rack A E I N R T Z"
+                  : "Mockup: results stay pinned to the demo rack";
+}
+document.getElementById("rackinput").addEventListener("input", renderRack);
+document.querySelectorAll(".prem .chip").forEach(ch=>{
+  ch.addEventListener("click", ()=>{
+    const p = ch.dataset.p;
+    prem[p] = !prem[p];
+    if (p==="dl" && prem.dl) prem.tl=false;
+    if (p==="tl" && prem.tl) prem.dl=false;
+    if (p==="dw" && prem.dw) prem.tw=false;
+    if (p==="tw" && prem.tw) prem.dw=false;
+    document.querySelectorAll(".prem .chip").forEach(c=>c.classList.toggle("on", prem[c.dataset.p]));
+    render();
+  });
+});
+document.getElementById("thruswitch").addEventListener("click", function(){
+  thru = !thru;
+  this.classList.toggle("on", thru);
+  this.setAttribute("aria-checked", thru);
+  document.getElementById("thrutile").style.opacity = thru?1:.35;
+  openWord = null;
+  render();
+});
+renderRack(); render();
+</script>

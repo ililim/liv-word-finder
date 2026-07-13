@@ -1,0 +1,318 @@
+<!-- 13 · Riso — Liv Word Finder v3 skin.
+     Risograph zine: two flat inks — press blue + fluorescent red-orange — on warm paper, with an overprint misregistration shadow on hot elements. Dual mode (navy paper at night). -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<title>13 · Riso — Liv Word Finder v3</title>
+<style>
+/* ============================================================
+   LOCKED BASE — DO NOT EDIT. Layout, sizing, spacing only.
+   All look-and-feel comes from the THEME block via variables.
+   ============================================================ */
+* { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+html { color-scheme: light dark; }
+body {
+  font-family: var(--font, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif);
+  background: var(--page, #ddd);
+  color: var(--ink);
+  min-height: 100vh;
+  display: flex; flex-direction: column; align-items: center;
+}
+.topbar {
+  width: 100%; max-width: 430px;
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 8px 14px; font-size: 12px;
+  color: var(--muted);
+}
+.topbar a { color: var(--muted); text-decoration: none; }
+.phone {
+  width: 100%; max-width: 430px; flex: 1;
+  display: flex; flex-direction: column;
+  background: var(--bg);
+  position: relative;
+  overflow: hidden;
+}
+.app { flex: 1; padding: 16px 16px 0; display: flex; flex-direction: column; gap: 14px; overflow: hidden; }
+
+/* brand + counter */
+.brand-row { display: flex; justify-content: space-between; align-items: baseline; }
+.brand { font-size: 13px; letter-spacing: .14em; font-weight: var(--w-label, 700); color: var(--muted); }
+.counter { font-size: 13px; letter-spacing: .08em; color: var(--muted); font-variant-numeric: tabular-nums; }
+.counter b { font-size: 20px; color: var(--accent-text, var(--accent)); font-weight: var(--w-display, 800); }
+
+/* segmented mode pills */
+.seg {
+  display: grid; grid-template-columns: repeat(4, 1fr);
+  height: 44px; padding: 4px; gap: 2px;
+  background: var(--seg-bg);
+  border: var(--bw, 1px) solid var(--seg-line, transparent);
+  border-radius: var(--r-pill, 22px);
+}
+.seg button {
+  border: none; background: transparent; color: var(--seg-ink, var(--muted));
+  font: inherit; font-size: 12px; font-weight: var(--w-label, 700); letter-spacing: .06em;
+  border-radius: calc(var(--r-pill, 22px) - 4px);
+  cursor: pointer;
+}
+.seg button.active { background: var(--seg-active-bg); color: var(--seg-active-ink); box-shadow: var(--seg-active-shadow, none); }
+
+/* pattern slots */
+.slots { display: flex; gap: 8px; justify-content: center; }
+.slot {
+  width: 52px; height: 60px;
+  display: grid; place-items: center;
+  font-size: 28px; font-weight: var(--w-display, 800);
+  background: var(--slot-bg);
+  border: var(--bw-slot, var(--bw, 1px)) solid var(--slot-line);
+  border-radius: var(--r-slot, 10px);
+  color: var(--ink);
+  box-shadow: var(--slot-shadow, none);
+}
+.slot.empty { color: var(--muted); background: var(--slot-empty-bg, transparent); border-style: var(--slot-empty-border-style, dashed); }
+.slot.cursor { border-color: var(--accent); box-shadow: var(--slot-cursor-shadow, none); }
+
+/* filter chips */
+.chip-row { display: flex; gap: 8px; flex-wrap: wrap; }
+.chip {
+  height: 34px; padding: 0 14px;
+  display: inline-flex; align-items: center; gap: 6px;
+  font-size: 12px; font-weight: var(--w-label, 700); letter-spacing: .05em;
+  background: var(--chip-bg);
+  color: var(--chip-ink, var(--ink));
+  border: var(--bw, 1px) solid var(--chip-line);
+  border-radius: var(--r-chip, 17px);
+  box-shadow: var(--chip-shadow, none);
+}
+.chip.active { background: var(--chip-active-bg); color: var(--chip-active-ink); border-color: var(--chip-active-line, var(--chip-active-bg)); }
+.chip.toggle.on::before { content: "●"; font-size: 8px; color: var(--accent-text, var(--accent)); }
+.chip.toggle.on { border-color: var(--accent); }
+
+/* action buttons */
+.actions { display: grid; grid-template-columns: 2fr 1fr; gap: 10px; }
+.btn {
+  height: 50px; border: var(--bw, 1px) solid transparent;
+  font: inherit; font-size: 14px; font-weight: var(--w-display, 800); letter-spacing: .1em;
+  border-radius: var(--r-btn, 12px); cursor: pointer;
+}
+.btn.primary { background: var(--btn-bg); color: var(--btn-ink); border-color: var(--btn-line, transparent); box-shadow: var(--btn-shadow, none); }
+.btn.secondary { background: var(--btn2-bg, transparent); color: var(--btn2-ink, var(--muted)); border-color: var(--btn2-line, var(--line)); box-shadow: var(--btn2-shadow, none); }
+
+/* results */
+.results { flex: 1; overflow: hidden; display: flex; flex-direction: column; gap: 10px; }
+.group-h {
+  display: flex; justify-content: space-between; align-items: baseline;
+  font-size: 11px; letter-spacing: .12em; font-weight: var(--w-label, 700);
+  color: var(--muted);
+  padding-bottom: 6px;
+  border-bottom: var(--bw, 1px) solid var(--line);
+}
+.words { display: flex; flex-wrap: wrap; gap: 8px; }
+.word {
+  height: 38px; padding: 0 13px;
+  display: inline-flex; align-items: center; gap: 7px;
+  font-size: 15px; font-weight: var(--w-word, 650); letter-spacing: .04em;
+  background: var(--word-bg);
+  color: var(--word-ink, var(--ink));
+  border: var(--bw, 1px) solid var(--word-line);
+  border-radius: var(--r-word, 10px);
+  box-shadow: var(--word-shadow, none);
+}
+.word .pts {
+  font-size: 10px; font-weight: 700; font-variant-numeric: tabular-nums;
+  color: var(--pts-ink, var(--muted));
+  background: var(--pts-bg, transparent);
+  border-radius: 6px; padding: 2px 4px;
+}
+.word.hot { background: var(--hot-bg); color: var(--hot-ink); border-color: var(--hot-line, var(--hot-bg)); box-shadow: var(--hot-shadow, none); }
+.word.hot .pts { color: var(--hot-pts-ink, var(--hot-ink)); }
+.word.sealed { color: var(--muted); letter-spacing: .2em; background: var(--sealed-bg, var(--word-bg)); border-style: var(--sealed-border-style, dashed); }
+
+/* keyboard — sizes locked */
+.kb { padding: 10px 6px 8px; display: flex; flex-direction: column; gap: 7px; background: var(--kb-bg, transparent); border-top: var(--kb-top-line, none); }
+.kb-row { display: flex; gap: 6px; justify-content: center; }
+.key {
+  flex: 0 0 34px; height: 44px;
+  display: grid; place-items: center;
+  font: inherit; font-size: 16px; font-weight: var(--w-key, 700);
+  background: var(--key-bg);
+  color: var(--key-ink, var(--ink));
+  border: var(--bw-key, var(--bw, 1px)) solid var(--key-line);
+  border-radius: var(--r-key, 8px);
+  box-shadow: var(--key-shadow, none);
+  cursor: pointer;
+}
+.key.pressed { background: var(--key-pressed-bg, var(--accent)); color: var(--key-pressed-ink, var(--accent-ink)); border-color: var(--key-pressed-line, transparent); box-shadow: var(--key-pressed-shadow, none); transform: var(--key-pressed-transform, none); }
+.key.dim { opacity: var(--key-dim-opacity, .35); }
+.key.special { background: var(--key-special-bg, var(--accent)); color: var(--key-special-ink, var(--accent-ink)); border-color: var(--key-special-line, transparent); font-weight: var(--w-display, 800); }
+.key.wide { flex: 0 0 56px; }
+
+/* bottom mode bar */
+.modebar {
+  height: calc(58px + env(safe-area-inset-bottom));
+  padding-bottom: env(safe-area-inset-bottom);
+  display: grid; grid-template-columns: repeat(4, 1fr);
+  background: var(--bar-bg);
+  border-top: var(--bw, 1px) solid var(--bar-line, var(--line));
+  box-shadow: var(--bar-shadow, none);
+}
+.mode {
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px;
+  font-size: 10px; font-weight: var(--w-label, 700); letter-spacing: .08em;
+  color: var(--bar-ink, var(--muted)); cursor: pointer;
+}
+.mode .ic { font-size: 18px; line-height: 1; }
+.mode.active { color: var(--bar-active-ink, var(--accent-text, var(--accent))); }
+.mode.active .ic { transform: var(--bar-active-transform, none); }
+
+/* ============================================================
+   THEME — EDIT ONLY BELOW THIS LINE.
+   Set the variables (and optionally add decorative rules that
+   do NOT change any width/height/padding/font-size/gap).
+   Support light AND dark via prefers-color-scheme, unless the
+   skin deliberately commits to a single mode.
+   ============================================================ */
+:root {
+  --font: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --w-display: 850; --w-label: 700; --w-word: 600; --w-key: 600;
+
+  --page: #e7e1cf; --bg: #faf6ea;
+  --ink: #1b2f8a; --muted: #7b84ad;
+  --line: rgba(27,47,138,.35);
+  --accent: #ff4b33; --accent-ink: #faf6ea; --accent-text: #e83a22;
+
+  --bw: 1px;
+
+  --seg-bg: #1b2f8a; --seg-ink: #9aa7e0;
+  --seg-active-bg: #faf6ea; --seg-active-ink: #1b2f8a;
+  --r-pill: 4px;
+
+  --slot-bg: transparent; --slot-line: #1b2f8a; --r-slot: 3px;
+
+  --chip-bg: transparent; --chip-line: #1b2f8a; --chip-ink: #1b2f8a; --r-chip: 3px;
+  --chip-active-bg: #ff4b33; --chip-active-ink: #faf6ea; --chip-active-line: #ff4b33;
+
+  --btn-bg: #1b2f8a; --btn-ink: #faf6ea; --r-btn: 3px;
+  --btn-shadow: 3px 3px 0 #ff4b33;
+  --btn2-bg: transparent; --btn2-ink: #1b2f8a; --btn2-line: #1b2f8a;
+
+  --word-bg: #f1ebda; --word-line: rgba(27,47,138,.45); --r-word: 3px;
+  --pts-ink: #e83a22;
+  --hot-bg: #ff4b33; --hot-ink: #faf6ea; --hot-line: #ff4b33;
+  --hot-shadow: 3px 3px 0 #1b2f8a;
+  --hot-pts-ink: #faf6ea;
+
+  --key-bg: #faf6ea; --key-line: #1b2f8a; --r-key: 3px;
+  --key-shadow: 0 2px 0 rgba(27,47,138,.45);
+  --key-pressed-bg: #1b2f8a; --key-pressed-ink: #faf6ea; --key-pressed-shadow: none;
+  --key-pressed-transform: translateY(2px);
+  --key-special-bg: #ff4b33; --key-special-ink: #faf6ea;
+  --key-dim-opacity: .3;
+
+  --bar-bg: #faf6ea; --bar-line: #1b2f8a; --bar-ink: #7b84ad;
+  --bar-active-ink: #e83a22;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --page: #0a0f26; --bg: #10173a;
+    --ink: #e9e4d5; --muted: #8d93b8;
+    --line: rgba(233,228,213,.3);
+    --accent: #ff5a41; --accent-ink: #10173a; --accent-text: #ff5a41;
+    --seg-bg: #1d2650; --seg-ink: #8d93b8; --seg-active-bg: #e9e4d5; --seg-active-ink: #10173a;
+    --slot-line: #e9e4d5;
+    --chip-line: rgba(233,228,213,.5); --chip-ink: #e9e4d5;
+    --chip-active-bg: #ff5a41; --chip-active-ink: #10173a; --chip-active-line: #ff5a41;
+    --btn-bg: #e9e4d5; --btn-ink: #10173a; --btn-shadow: 3px 3px 0 #ff5a41;
+    --btn2-ink: #e9e4d5; --btn2-line: rgba(233,228,213,.5);
+    --word-bg: #182050; --word-line: rgba(233,228,213,.35);
+    --pts-ink: #ff5a41;
+    --hot-bg: #ff5a41; --hot-ink: #10173a; --hot-line: #ff5a41;
+    --hot-shadow: 3px 3px 0 #e9e4d5; --hot-pts-ink: #10173a;
+    --key-bg: #182050; --key-line: rgba(233,228,213,.5);
+    --key-shadow: 0 2px 0 rgba(0,0,0,.6);
+    --key-pressed-bg: #e9e4d5; --key-pressed-ink: #10173a;
+    --key-special-bg: #ff5a41; --key-special-ink: #10173a;
+    --bar-bg: #10173a; --bar-line: rgba(233,228,213,.5); --bar-active-ink: #ff5a41;
+  }
+}
+</style>
+</head>
+<body>
+<div class="topbar"><a href="./index.html">‹ Gallery</a><span>13 · Riso</span></div>
+<div class="phone">
+  <div class="app">
+    <div class="brand-row">
+      <div class="brand">WORD FINDER</div>
+      <div class="counter"><b>149</b> WORDS</div>
+    </div>
+
+    <nav class="seg">
+      <button>SLOTS</button>
+      <button class="active">PATTERN</button>
+      <button>RACK</button>
+      <button>±1</button>
+    </nav>
+
+    <div class="slots">
+      <div class="slot">S</div>
+      <div class="slot empty">·</div>
+      <div class="slot">A</div>
+      <div class="slot empty cursor">·</div>
+      <div class="slot">E</div>
+    </div>
+
+    <div class="chip-row">
+      <span class="chip">ALL</span>
+      <span class="chip active">5</span>
+      <span class="chip">6</span>
+      <span class="chip">7+</span>
+      <span class="chip toggle on">NO DOUBLES</span>
+    </div>
+
+    <div class="actions">
+      <button class="btn primary">FIND WORDS</button>
+      <button class="btn secondary">CLEAR</button>
+    </div>
+
+    <div class="results">
+      <div class="group-h"><span>5 LETTERS</span><span>12 WORDS</span></div>
+      <div class="words">
+        <span class="word hot">SHALE <span class="pts">8</span></span>
+        <span class="word">SPACE <span class="pts">9</span></span>
+        <span class="word">STAGE</span>
+        <span class="word">SCALE</span>
+        <span class="word">SNAKE</span>
+        <span class="word">SUAVE</span>
+        <span class="word sealed">•••••</span>
+      </div>
+      <div class="group-h"><span>6 LETTERS</span><span>4 WORDS</span></div>
+      <div class="words">
+        <span class="word">SPARSE</span>
+        <span class="word">STABLE</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="kb">
+    <div class="kb-row">
+      <button class="key dim">Q</button><button class="key">W</button><button class="key">E</button><button class="key">R</button><button class="key">T</button><button class="key">Y</button><button class="key">U</button><button class="key">I</button><button class="key">O</button><button class="key">P</button>
+    </div>
+    <div class="kb-row">
+      <button class="key">A</button><button class="key pressed">S</button><button class="key">D</button><button class="key">F</button><button class="key">G</button><button class="key">H</button><button class="key">J</button><button class="key">K</button><button class="key">L</button>
+    </div>
+    <div class="kb-row">
+      <button class="key special">?</button><button class="key">Z</button><button class="key dim">X</button><button class="key">C</button><button class="key">V</button><button class="key">B</button><button class="key">N</button><button class="key">M</button><button class="key wide">⌫</button>
+    </div>
+  </div>
+
+  <nav class="modebar">
+    <div class="mode active"><span class="ic">▦</span>FIND</div>
+    <div class="mode"><span class="ic">⇄</span>±1</div>
+    <div class="mode"><span class="ic">▤</span>SHEETS</div>
+    <div class="mode"><span class="ic">⚙</span>SETTINGS</div>
+  </nav>
+</div>
+</body>
+</html>

@@ -1,0 +1,274 @@
+<!--
+  12 · Cheat Sheets — A reference library rather than a solver: the classic Scrabble
+  memorization lists (all 107 two-letter words, Q-without-U, J/X/Z/Q short words, vowel
+  dumps, bingo stems) as searchable, collapsible index cards. Every chip flips over on tap
+  to reveal a short real definition from NWL2023. Book-like serif aesthetic.
+-->
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<title>12 · Cheat Sheets — Liv Word Finder</title>
+<style>
+  :root{
+    --paper:#f7f1e3; --card:#fffdf6; --ink:#2d2418; --soft:#6e5f4b; --faint:#a3937b;
+    --rule:#e3d8c2; --accent:#8c2f24; --chipbg:#fbf7ec; --chipedge:#d9cdb4;
+    --flip:#fdf3d9; --tabbg:#efe6d1; --shadow:0 1px 2px rgba(80,60,20,.10), 0 4px 14px rgba(80,60,20,.08);
+  }
+  @media (prefers-color-scheme: dark){
+    :root{
+      --paper:#1e1a13; --card:#28231a; --ink:#ede4d2; --soft:#b0a288; --faint:#7d715c;
+      --rule:#3a3325; --accent:#e07a5f; --chipbg:#2f2920; --chipedge:#4a4130;
+      --flip:#3a3222; --tabbg:#332d21; --shadow:0 1px 2px rgba(0,0,0,.4), 0 4px 14px rgba(0,0,0,.3);
+    }
+  }
+  *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  html{background:#e4dcc9}
+  @media (prefers-color-scheme: dark){ html{background:#14110b} }
+  body{
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+    background:var(--paper); color:var(--ink); max-width:430px; margin:0 auto;
+    min-height:100vh; box-shadow:0 0 40px rgba(60,40,10,.25);
+    background-image:repeating-linear-gradient(0deg, transparent 0 31px, rgba(140,110,60,.05) 31px 32px);
+  }
+  .topbar{display:flex; justify-content:space-between; align-items:center; padding:8px 14px;
+    font-size:12px; color:var(--soft); border-bottom:1px solid var(--rule); background:var(--card)}
+  .topbar a{color:var(--soft); text-decoration:none; padding:6px 8px 6px 0}
+  header{padding:22px 18px 6px; text-align:center}
+  h1{font-family:Georgia,"Iowan Old Style","Times New Roman",serif; font-size:30px; font-weight:700;
+     letter-spacing:.01em}
+  h1::after{content:""; display:block; width:64px; height:2px; background:var(--accent); margin:10px auto 0}
+  .tagline{font-family:Georgia,serif; font-style:italic; font-size:13.5px; color:var(--soft); margin-top:8px}
+  .search{padding:14px 16px 4px; position:sticky; top:0; z-index:5;
+    background:linear-gradient(var(--paper) 75%, transparent)}
+  .search input{
+    width:100%; min-height:46px; border-radius:12px; border:1.5px solid var(--chipedge);
+    background:var(--card); color:var(--ink); font-size:16px; padding:0 16px;
+    font-family:Georgia,serif; box-shadow:var(--shadow); outline:none;
+  }
+  .search input::placeholder{color:var(--faint); font-style:italic}
+  main{padding:10px 14px 48px}
+  .cardsec{
+    background:var(--card); border:1px solid var(--rule); border-radius:4px 14px 14px 14px;
+    margin:16px 2px; box-shadow:var(--shadow); position:relative;
+  }
+  .cardsec::before{ /* index-card tab */
+    content:attr(data-tab); position:absolute; top:-11px; left:14px;
+    background:var(--tabbg); border:1px solid var(--rule); border-bottom:none;
+    font-size:10px; font-weight:700; letter-spacing:.12em; color:var(--soft);
+    padding:3px 10px 2px; border-radius:6px 6px 0 0;
+  }
+  .sechead{
+    display:flex; align-items:center; gap:10px; padding:18px 16px 12px; cursor:pointer; min-height:52px;
+  }
+  .sechead h2{font-family:Georgia,"Iowan Old Style",serif; font-size:19px; font-weight:700; flex:1; line-height:1.25}
+  .count{font-size:11.5px; color:var(--faint); font-variant-numeric:tabular-nums; white-space:nowrap}
+  .disc{color:var(--accent); font-size:13px; transition:transform .25s}
+  .cardsec.open .disc{transform:rotate(90deg)}
+  .secbody{display:none; padding:0 14px 16px}
+  .cardsec.open .secbody{display:block}
+  .note{font-family:Georgia,serif; font-style:italic; font-size:12.5px; color:var(--soft);
+    margin:0 2px 12px; line-height:1.5; border-left:2px solid var(--rule); padding-left:10px}
+  .grid{display:grid; grid-template-columns:repeat(auto-fill, minmax(58px,1fr)); gap:7px}
+  .chip{
+    min-height:44px; border:1px solid var(--chipedge); border-radius:9px; background:var(--chipbg);
+    font-family:Georgia,serif; font-weight:700; font-size:16px; letter-spacing:.08em; color:var(--ink);
+    display:flex; align-items:center; justify-content:center; cursor:pointer;
+    transition:transform .12s; text-transform:uppercase; padding:4px;
+  }
+  .chip:active{transform:scale(.94)}
+  .chip.flipped{
+    grid-column:1/-1; background:var(--flip); flex-direction:column; align-items:flex-start;
+    padding:10px 14px; animation:flip .3s ease; text-align:left;
+  }
+  @keyframes flip{from{transform:rotateX(90deg); opacity:0} to{transform:rotateX(0); opacity:1}}
+  .chip.flipped .def{
+    font-weight:400; font-style:italic; font-size:13.5px; letter-spacing:0; color:var(--soft);
+    text-transform:none; margin-top:2px; line-height:1.45;
+  }
+  .chip.hid{display:none}
+  .stem{border:1px solid var(--rule); border-radius:10px; padding:12px; margin-bottom:10px; background:var(--chipbg)}
+  .stem .st{font-family:Georgia,serif; font-weight:700; font-size:17px; letter-spacing:.35em}
+  .stem .mk{font-size:12.5px; color:var(--soft); margin-top:6px; line-height:1.6}
+  .stem .mk b{color:var(--accent); letter-spacing:.05em}
+  .nores{display:none; text-align:center; font-family:Georgia,serif; font-style:italic;
+    color:var(--faint); padding:40px 20px}
+  footer{font-family:Georgia,serif; font-style:italic; text-align:center; font-size:12px;
+    color:var(--faint); padding:0 20px 40px}
+</style>
+
+<div class="topbar">
+  <a href="./index.html">‹ Gallery</a>
+  <span>12 · Cheat Sheets</span>
+</div>
+
+<header>
+  <h1>Cheat Sheets</h1>
+  <div class="tagline">The lists every Scrabble player memorizes · NWL2023</div>
+</header>
+
+<div class="search">
+  <input id="q" type="search" placeholder="Search the sheets… (try “zo” or “qat”)" autocomplete="off">
+</div>
+
+<main id="main"></main>
+<div class="nores" id="nores">Nothing in the sheets matches that.<br>Try a shorter fragment.</div>
+<footer>Tap any word to flip its card and see the definition.</footer>
+
+<script>
+const SHEETS = [
+  {
+    id:"two", tab:"SHEET 1", title:"All the Two-Letter Words", note:"All 107 twos in NWL2023 — the single highest-value list to memorize. Tap to flip.",
+    words: [
+      ["AA","rough, cindery lava"],["AB","a muscle in the abdomen"],["AD","an advertisement"],["AE","one"],
+      ["AG","agriculture"],["AH","to exclaim in delight"],["AI","a three-toed sloth"],["AL","an East Indian tree"],
+      ["AM","a form of BE"],["AN","used before a vowel sound"],["AR","the letter R"],["AS","to the same degree"],
+      ["AT","to respond to someone online"],["AW","expressing protest or disbelief"],["AX","to cut with an ax"],
+      ["AY","aye; a yes vote"],["BA","the eternal soul, in Egyptian myth"],["BE","to have actuality"],
+      ["BI","a bisexual"],["BO","a pal"],["BY","a pass in certain card games"],["DA","dad"],["DE","of; from"],
+      ["DO","the first tone of the scale"],["ED","education"],["EF","the letter F"],["EH","expressing doubt"],
+      ["EL","an elevated train"],["EM","a typographic unit"],["EN","half of an em"],["ER","expressing hesitation"],
+      ["ES","the letter S"],["ET","a past tense of EAT"],["EW","expressing disgust"],["EX","to cross out"],
+      ["FA","the fourth tone of the scale"],["FE","a Hebrew letter"],["GI","a martial-arts garment"],
+      ["GO","a Japanese board game"],["HA","a sound of surprise"],["HE","a male person"],["HI","used as a greeting"],
+      ["HM","expressing consideration"],["HO","a derogatory term"],["ID","a part of the psyche"],
+      ["IF","a possibility"],["IN","to harvest"],["IS","a form of BE"],["IT","the neuter pronoun"],
+      ["JO","a sweetheart"],["KA","the spiritual self, in Egyptian religion"],["KI","qi; the vital force"],
+      ["LA","the sixth tone of the scale"],["LI","a Chinese unit of distance"],["LO","used to attract attention"],
+      ["MA","mother"],["ME","an ego"],["MI","the third tone of the scale"],["MM","expressing satisfaction"],
+      ["MO","a moment"],["MU","a Greek letter"],["MY","possessive form of I"],["NA","no; not"],
+      ["NE","born with the name of"],["NO","a negative reply"],["NU","a Greek letter"],
+      ["OD","a hypothetical natural force"],["OE","a whirlwind off the Faeroes"],["OF","coming from"],
+      ["OH","to exclaim in surprise"],["OI","expressing dismay"],["OK","okay"],["OM","a sacred mantra"],
+      ["ON","the batsman's side in cricket"],["OP","a style of abstract art"],["OR","the heraldic color gold"],
+      ["OS","a bone"],["OW","expressing sudden pain"],["OX","a hoofed mammal; a clumsy person"],
+      ["OY","expressing dismay"],["PA","a father"],["PE","a Hebrew letter"],["PI","a Greek letter"],
+      ["PO","a chamber pot"],["QI","the vital force, in Chinese thought"],["RE","the second tone of the scale"],
+      ["SH","used to urge silence"],["SI","ti; the seventh tone"],["SO","sol; the fifth tone"],
+      ["TA","an expression of gratitude"],["TE","ti; the seventh tone"],["TI","the seventh tone of the scale"],
+      ["TO","in the direction of"],["UH","expressing hesitation"],["UM","to pause in speaking"],["UN","one"],
+      ["UP","to raise"],["US","objective case of WE"],["UT","the tone C, in French solmization"],
+      ["WE","first person plural pronoun"],["WO","woe"],["XI","a Greek letter"],
+      ["XU","a monetary unit of Vietnam"],["YA","an Asian pear"],["YE","you"],["YO","used to call attention"],
+      ["ZA","a pizza"]
+    ]
+  },
+  {
+    id:"three", tab:"SHEET 2", title:"Three-Letter Power Picks", note:"1,085 threes in NWL2023 — far too many to card. These are the high-value and most-missed ones.",
+    words: [
+      ["ADZ","to shape wood with a cutting tool"],["AJI","a spicy pepper"],["AVO","a monetary unit of Macao"],
+      ["BIZ","business"],["CWM","a cirque; a steep hollow"],["EAU","water"],["FEZ","a brimless cap"],
+      ["GHI","clarified butter"],["HAJ","a pilgrimage to Mecca"],["JEU","a game"],["JUS","a legal right; a gravy"],
+      ["NTH","of an indefinitely large ordinal"],["PHT","expressing mild anger"],["PST","used to attract attention"],
+      ["QAT","an evergreen shrub; kat"],["RAJ","sovereignty"],["SUQ","a marketplace"],["TAJ","a tall conical cap"],
+      ["TSK","to utter an exclamation of annoyance"],["ULU","a knife with a crescent blade"],
+      ["UTE","a utility vehicle"],["VUG","a small cavity in a rock"],["WIZ","a very skillful person"],
+      ["ZAX","a tool for cutting roof slates"],["ZED","the letter Z"],["ZEK","an inmate of a labor camp"],
+      ["ZEP","a long sandwich"],["ZUZ","an ancient Hebrew coin"]
+    ]
+  },
+  {
+    id:"qnou", tab:"SHEET 3", title:"Q without U", note:"When you draw the Q and no U comes. All playable in NWL2023.",
+    words: [
+      ["QI","the vital force, in Chinese thought"],["QIS","plural of QI"],["QAT","an evergreen shrub; kat"],
+      ["QATS","plural of QAT"],["QADI","a Muslim judge; cadi"],["QAID","a North African chieftain; caid"],
+      ["QOPH","a Hebrew letter; koph"],["QAJAQ","a kayak"],["QANAT","an underground irrigation tunnel"],
+      ["QAPIK","a monetary unit of Azerbaijan"],["QIBLA","the direction of Mecca; kiblah"],
+      ["FAQIR","a fakir; a Muslim ascetic"],["QADIS","plural of QADI"],["QAIDS","plural of QAID"],
+      ["QOPHS","plural of QOPH"]
+    ]
+  },
+  {
+    id:"heavy", tab:"SHEET 4", title:"J · X · Z · Q — Short & Deadly", note:"Ten-point tiles pay rent in small rooms. Twos, threes and fours for the heavy artillery.",
+    words: [
+      ["JO","a sweetheart"],["JEU","a game"],["JUS","a legal right; a gravy"],["TAJ","a tall conical cap"],
+      ["RAJ","sovereignty"],["HAJ","a pilgrimage to Mecca"],["HADJ","a pilgrimage to Mecca"],
+      ["JEEZ","used as a mild oath"],["JIAO","a Chinese monetary unit"],
+      ["AX","to cut with an ax"],["EX","to cross out"],["OX","a hoofed mammal"],["XI","a Greek letter"],
+      ["XU","a monetary unit of Vietnam"],["ZAX","a tool for cutting roof slates"],
+      ["ZA","a pizza"],["ADZ","to shape wood with a cutting tool"],["FEZ","a brimless cap"],
+      ["WIZ","a very skillful person"],["COZ","a cousin"],["ZAG","to turn sharply"],["ZIG","to turn sharply"],
+      ["ZEK","an inmate of a labor camp"],["ZEP","a long sandwich"],["CAZH","casual"],["QI","the vital force"],
+      ["QAT","an evergreen shrub; kat"]
+    ]
+  },
+  {
+    id:"vowel", tab:"SHEET 5", title:"Vowel Dumps", note:"For the rack that's all vowels. Unload two or three at a time.",
+    words: [
+      ["AA","rough, cindery lava"],["AE","one"],["AI","a three-toed sloth"],["OE","a whirlwind off the Faeroes"],
+      ["OI","expressing dismay"],["EAU","water"],["AALII","a tropical tree"],["AECIA","spore cups of rust fungi"],
+      ["AERIE","an eagle's nest"],["AIOLI","a garlic mayonnaise"],["AUREI","gold coins of ancient Rome"],
+      ["COOEE","to cry out shrilly"],["ETUI","a small ornamental case"],["LUAU","a Hawaiian feast"],
+      ["MIAOU","to meow"],["OIDIA","fungal spores"],["OURIE","shivery; dreary"],
+      ["QUEUE","to line up"],["URAEI","serpent emblems of Egypt"],["ZOEAE","larval crabs"],
+      ["EPOPEE","an epic poem"]
+    ]
+  }
+];
+const STEMS = [
+  {s:"SATINE", mk:[["+R","RETAINS · RETSINA · STAINER · NASTIER · ANESTRI"],["+B","BANTIES · BASINET"],["+G","EASTING · SEATING · TEASING · INGATES"]]},
+  {s:"SATIRE", mk:[["+P","PARTIES · PIRATES · PIASTER · TRAIPSE"],["+N","NASTIER · RETAINS · RETINAS"],["+D","ARIDEST · ASTRIDE · STAIDER · TIRADES"]]},
+  {s:"RETINA", mk:[["+G","GRANITE · INGRATE · TEARING · TANGIER"],["+S","NASTIER · RATINES · RETSINA · STAINER"],["+C","CERATIN · CERTAIN · CREATIN"]]},
+  {s:"ARSINE", mk:[["+D","RANDIES · SANDIER · SARDINE"],["+T","NASTIER · RETAINS · STEARIN"],["+L","ALINERS · NAILERS · RENAILS"]]}
+];
+const main = document.getElementById("main");
+main.innerHTML = SHEETS.map((s,i)=>`
+  <section class="cardsec ${i===0?"open":""}" data-tab="${s.tab}" id="sec-${s.id}">
+    <div class="sechead">
+      <h2>${s.title}</h2>
+      <span class="count">${s.id==="two"?"107 words":s.id==="three"?"1,085 · showing "+s.words.length:s.words.length+" words"}</span>
+      <span class="disc">❧</span>
+    </div>
+    <div class="secbody">
+      <p class="note">${s.note}</p>
+      <div class="grid">
+        ${s.words.map(([w,d])=>`<button class="chip" data-w="${w.toLowerCase()}">
+            <span class="w">${w}</span><span class="def" hidden>${d}</span>
+          </button>`).join("")}
+      </div>
+    </div>
+  </section>`).join("") + `
+  <section class="cardsec" data-tab="SHEET 6" id="sec-stems">
+    <div class="sechead">
+      <h2>Top Bingo Stems</h2>
+      <span class="count">4 stems</span>
+      <span class="disc">❧</span>
+    </div>
+    <div class="secbody">
+      <p class="note">Keep these six letters together and almost any seventh tile makes a 50-point bingo.</p>
+      ${STEMS.map(t=>`<div class="stem"><div class="st">${t.s}</div>
+        <div class="mk">${t.mk.map(([h,ws])=>`<b>${h}</b>&ensp;${ws}`).join("<br>")}</div></div>`).join("")}
+    </div>
+  </section>`;
+
+// collapse / expand
+document.querySelectorAll(".sechead").forEach(h=>{
+  h.addEventListener("click", ()=> h.parentElement.classList.toggle("open"));
+});
+// flip chips
+document.querySelectorAll(".chip").forEach(ch=>{
+  ch.addEventListener("click", ()=>{
+    const on = ch.classList.toggle("flipped");
+    ch.querySelector(".def").hidden = !on;
+  });
+});
+// search
+const q = document.getElementById("q");
+q.addEventListener("input", ()=>{
+  const v = q.value.trim().toLowerCase();
+  let total = 0;
+  document.querySelectorAll(".cardsec").forEach(sec=>{
+    if (sec.id==="sec-stems"){ sec.style.display = v ? "none" : ""; return; }
+    let hits = 0;
+    sec.querySelectorAll(".chip").forEach(ch=>{
+      const hit = !v || ch.dataset.w.includes(v);
+      ch.classList.toggle("hid", !hit);
+      if (hit) hits++;
+    });
+    total += hits;
+    sec.style.display = (v && !hits) ? "none" : "";
+    if (v && hits) sec.classList.add("open");
+    if (!v) sec.classList.toggle("open", sec.id==="sec-two");
+  });
+  document.getElementById("nores").style.display = (v && !total) ? "block" : "none";
+});
+</script>

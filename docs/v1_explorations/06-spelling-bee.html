@@ -1,0 +1,302 @@
+<!--
+  Mockup 06 · Bee Buddy
+  NYT Spelling Bee helper: a CSS clip-path honeycomb of 7 hexes with the required
+  center letter in yellow. Tap an outer hex to swap it into the center (results
+  refilter live), tap words to check them off and watch the Genius progress bar fill.
+  Pangrams get a gold highlight and a trophy badge. Warm yellow/black bee aesthetic.
+-->
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<title>06 · Bee Buddy — Liv Word Finder</title>
+<style>
+  :root {
+    --bg: #fffdf5;
+    --ink: #1c1a15;
+    --muted: #8a8474;
+    --yellow: #f7da21;
+    --hex: #e6e6e6;
+    --hex-ink: #1c1a15;
+    --card: #ffffff;
+    --edge: rgba(0,0,0,.08);
+    --gold-bg: #fff7d6;
+    --gold-edge: #e8c93f;
+    --bar-track: #efeadb;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #191712;
+      --ink: #f5f1e4;
+      --muted: #9a937f;
+      --yellow: #e8c800;
+      --hex: #33312a;
+      --hex-ink: #f5f1e4;
+      --card: #221f19;
+      --edge: rgba(255,255,255,.09);
+      --gold-bg: #2e2a15;
+      --gold-edge: #a8901c;
+      --bar-track: #2b2820;
+    }
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html { background: #efe9d8; }
+  @media (prefers-color-scheme: dark) { html { background: #0d0c09; } }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    background: var(--bg); color: var(--ink);
+    max-width: 430px; margin: 0 auto; min-height: 100vh;
+    box-shadow: 0 0 40px rgba(0,0,0,.15);
+    padding-bottom: 40px;
+  }
+  .topbar {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 8px 14px; font-size: 12px; color: var(--muted);
+    border-bottom: 1px solid var(--edge);
+  }
+  .topbar a { color: var(--muted); text-decoration: none; font-weight: 600; }
+
+  header.app { padding: 20px 20px 4px; display: flex; align-items: baseline; justify-content: space-between; }
+  header.app h1 { font-size: 26px; font-weight: 800; letter-spacing: -.4px; }
+  header.app h1 span { font-size: 20px; }
+  header.app .date { font-size: 13px; color: var(--muted); font-weight: 600; }
+
+  /* honeycomb */
+  .comb-wrap { display: grid; place-items: center; padding: 14px 0 4px; }
+  .comb { position: relative; width: 250px; height: 232px; }
+  .hex {
+    position: absolute; width: 84px; height: 74px;
+    clip-path: polygon(25% 0, 75% 0, 100% 50%, 75% 100%, 25% 100%, 0 50%);
+    background: var(--hex); color: var(--hex-ink);
+    display: grid; place-items: center;
+    font-size: 28px; font-weight: 800; text-transform: uppercase;
+    cursor: pointer; -webkit-tap-highlight-color: transparent;
+    user-select: none; -webkit-user-select: none;
+    transition: transform .12s ease;
+  }
+  .hex:active { transform: scale(.92); }
+  .hex.center { background: var(--yellow); color: #1c1a15; }
+  /* layout: center + 6 around */
+  .p0 { left: 83px;  top: 79px; }   /* center */
+  .p1 { left: 83px;  top: 0; }
+  .p2 { left: 152px; top: 39.5px; }
+  .p3 { left: 152px; top: 118.5px; }
+  .p4 { left: 83px;  top: 158px; }
+  .p5 { left: 14px;  top: 118.5px; }
+  .p6 { left: 14px;  top: 39.5px; }
+
+  .comb-hint { text-align: center; font-size: 12px; color: var(--muted); margin: 6px 0 2px; }
+  .actions { display: flex; justify-content: center; gap: 10px; padding: 12px 16px 4px; }
+  .pill {
+    min-height: 44px; padding: 0 20px;
+    border-radius: 999px; border: 2px solid var(--ink);
+    background: none; color: var(--ink);
+    font: inherit; font-size: 14px; font-weight: 700; cursor: pointer;
+  }
+  .pill.primary { background: var(--yellow); border-color: var(--yellow); color: #1c1a15; }
+  .pill:active { opacity: .75; }
+
+  .editrow { display: none; justify-content: center; padding: 10px 16px 0; }
+  .editrow.show { display: flex; }
+  .editrow input {
+    width: 100%; max-width: 280px; min-height: 46px;
+    border: 2px solid var(--gold-edge); border-radius: 12px;
+    background: var(--card); color: var(--ink);
+    font: inherit; font-size: 18px; font-weight: 700; letter-spacing: .4em;
+    text-align: center; text-transform: uppercase; outline: none;
+  }
+
+  /* progress */
+  .progress { padding: 18px 20px 6px; }
+  .progress .labels { display: flex; justify-content: space-between; font-size: 13px; font-weight: 700; margin-bottom: 8px; }
+  .progress .labels .rank { color: var(--ink); }
+  .progress .labels .pts { color: var(--muted); font-weight: 600; }
+  .track { height: 10px; background: var(--bar-track); border-radius: 999px; position: relative; }
+  .fill { height: 100%; width: 0%; background: var(--yellow); border-radius: 999px; transition: width .4s ease; }
+
+  /* results */
+  .results { padding: 12px 16px 0; }
+  .results h2 {
+    font-size: 12px; text-transform: uppercase; letter-spacing: .1em; color: var(--muted);
+    margin: 14px 4px 8px;
+    display: flex; justify-content: space-between;
+  }
+  .wordcard {
+    display: flex; align-items: center; gap: 12px;
+    background: var(--card); border: 1px solid var(--edge);
+    border-radius: 14px; padding: 12px 14px; margin-bottom: 8px;
+    min-height: 52px; cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+    transition: opacity .15s;
+  }
+  .wordcard.pangram { background: var(--gold-bg); border: 1.5px solid var(--gold-edge); }
+  .wordcard .check {
+    width: 26px; height: 26px; border-radius: 999px;
+    border: 2px solid var(--muted); flex: none;
+    display: grid; place-items: center; font-size: 14px; color: transparent;
+  }
+  .wordcard.found .check { background: var(--yellow); border-color: var(--yellow); color: #1c1a15; }
+  .wordcard.found .w { text-decoration: line-through; opacity: .55; }
+  .wordcard .w { font-weight: 700; font-size: 17px; letter-spacing: .06em; text-transform: capitalize; flex: 1; }
+  .wordcard .w .req { color: #b59410; }
+  .badge {
+    font-size: 11px; font-weight: 800; background: var(--gold-edge); color: #1c1a15;
+    border-radius: 999px; padding: 4px 9px; letter-spacing: .03em;
+  }
+  .wpts { font-weight: 800; font-size: 14px; color: var(--muted); min-width: 34px; text-align: right; }
+  .none { color: var(--muted); font-size: 14px; padding: 8px 4px 16px; }
+</style>
+
+<div class="topbar">
+  <a href="./index.html">‹ Gallery</a>
+  <span>06 · Bee Buddy</span>
+</div>
+
+<header class="app">
+  <h1>Bee Buddy <span>🐝</span></h1>
+  <span class="date">July 13</span>
+</header>
+
+<div class="comb-wrap">
+  <div class="comb" id="comb"></div>
+</div>
+<p class="comb-hint">Tap an outer letter to make it the center (required) letter</p>
+
+<div class="actions">
+  <button class="pill" onclick="toggleEdit()">Edit letters</button>
+  <button class="pill primary" onclick="shuffle()">Shuffle</button>
+</div>
+<div class="editrow" id="editrow">
+  <input id="editInput" maxlength="7" value="TACILNO" oninput="editLetters(this.value)" aria-label="Puzzle letters, center letter first">
+</div>
+
+<div class="progress">
+  <div class="labels">
+    <span class="rank" id="rank">Beginner</span>
+    <span class="pts"><b id="score">0</b> / <span id="geniusAt">—</span> pts to Genius</span>
+  </div>
+  <div class="track">
+    <div class="fill" id="fill"></div>
+  </div>
+</div>
+
+<div class="results" id="results"></div>
+
+<script>
+  // puzzle word list (all use only letters T A C I L N O)
+  const ALL_WORDS = [
+    "lactation", "cattail", "coolant", "action", "atonal", "attain", "cannot",
+    "canton", "catcall", "cotton", "octant", "nation", "notion", "lotion",
+    "antic", "tacit", "talon", "titan", "tonal", "total", "atilt", "clint",
+    "cant", "clot", "coat", "colt", "lilt", "lint", "tail", "taco", "talc",
+    "tilt", "tint", "toil", "toll", "coil", "icon", "clan", "loco", "lion", "loin"
+  ];
+  const PANGRAM_SET = "tacilno";
+
+  let letters = ["t","a","c","i","l","n","o"]; // [0] = center
+  let found = new Set(["taco", "talon", "cotton"]); // pre-checked for realism
+
+  const comb = document.getElementById('comb');
+
+  function isPangram(w) { return new Set(w).size === 7 && [...w].every(ch => PANGRAM_SET.includes(ch)); }
+  function pts(w) { return (w.length === 4 ? 1 : w.length) + (isPangram(w) ? 7 : 0); }
+  function usesOnly(w) { return [...w].every(ch => letters.includes(ch)); }
+
+  function validWords() {
+    return ALL_WORDS.filter(w => usesOnly(w) && w.includes(letters[0]))
+                    .sort((a, b) => (isPangram(b) - isPangram(a)) || (b.length - a.length) || a.localeCompare(b));
+  }
+
+  function renderComb() {
+    comb.innerHTML = "";
+    letters.forEach((ch, i) => {
+      const h = document.createElement('div');
+      h.className = 'hex p' + i + (i === 0 ? ' center' : '');
+      h.textContent = ch;
+      if (i > 0) h.onclick = () => {
+        [letters[0], letters[i]] = [letters[i], letters[0]];
+        renderComb(); renderResults();
+      };
+      comb.appendChild(h);
+    });
+  }
+
+  function shuffle() {
+    const outer = letters.slice(1);
+    for (let i = outer.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [outer[i], outer[j]] = [outer[j], outer[i]];
+    }
+    letters = [letters[0], ...outer];
+    renderComb();
+  }
+
+  function toggleEdit() {
+    const row = document.getElementById('editrow');
+    row.classList.toggle('show');
+    if (row.classList.contains('show')) document.getElementById('editInput').focus();
+  }
+  function editLetters(v) {
+    const clean = [...new Set(v.toLowerCase().replace(/[^a-z]/g, ""))];
+    if (clean.length === 7) { letters = clean; renderComb(); renderResults(); }
+  }
+
+  function renderResults() {
+    const words = validWords();
+    const el = document.getElementById('results');
+    el.innerHTML = "";
+
+    const totalPts = words.reduce((s, w) => s + pts(w), 0);
+    const geniusAt = Math.round(totalPts * 0.7);
+    const myScore = words.filter(w => found.has(w)).reduce((s, w) => s + pts(w), 0);
+    document.getElementById('score').textContent = myScore;
+    document.getElementById('geniusAt').textContent = geniusAt;
+    const pct = Math.min(100, geniusAt ? (myScore / geniusAt) * 100 : 0);
+    document.getElementById('fill').style.width = pct + "%";
+    const ranks = [[0,"Beginner"],[5,"Good Start"],[12,"Moving Up"],[25,"Good"],[45,"Solid"],[60,"Nice"],[75,"Great"],[90,"Amazing"],[100,"Genius 🧠"]];
+    let rank = "Beginner";
+    for (const [p, name] of ranks) if (pct >= p) rank = name;
+    document.getElementById('rank').textContent = rank;
+
+    const pangrams = words.filter(isPangram);
+    const rest = words.filter(w => !isPangram(w));
+
+    const mkCard = w => {
+      const d = document.createElement('div');
+      d.className = 'wordcard' + (isPangram(w) ? ' pangram' : '') + (found.has(w) ? ' found' : '');
+      const highlighted = [...w].map(ch => ch === letters[0] ? '<span class="req">' + ch + '</span>' : ch).join("");
+      d.innerHTML =
+        '<span class="check">✓</span>' +
+        '<span class="w">' + highlighted + '</span>' +
+        (isPangram(w) ? '<span class="badge">🏆 PANGRAM</span>' : '') +
+        '<span class="wpts">+' + pts(w) + '</span>';
+      d.onclick = () => { found.has(w) ? found.delete(w) : found.add(w); renderResults(); };
+      return d;
+    };
+
+    if (pangrams.length) {
+      const h = document.createElement('h2');
+      h.innerHTML = '<span>Pangrams</span><span>' + pangrams.length + '</span>';
+      el.appendChild(h);
+      pangrams.forEach(w => el.appendChild(mkCard(w)));
+    }
+
+    let lastLen = null;
+    rest.forEach(w => {
+      if (w.length !== lastLen) {
+        lastLen = w.length;
+        const h = document.createElement('h2');
+        const count = rest.filter(x => x.length === lastLen).length;
+        h.innerHTML = '<span>' + lastLen + ' letters</span><span>' + count + '</span>';
+        el.appendChild(h);
+      }
+      el.appendChild(mkCard(w));
+    });
+
+    if (!words.length) {
+      el.innerHTML = '<p class="none">No words for this letter set — try a different center letter.</p>';
+    }
+  }
+
+  renderComb();
+  renderResults();
+</script>

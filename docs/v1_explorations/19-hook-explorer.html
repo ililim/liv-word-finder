@@ -1,0 +1,244 @@
+<!--
+  19 · Hooks & Extensions — For playing on top of what's already on the board: type a word
+  (e.g. LOUR) and see its front hooks, back hooks and longer extensions rendered as a tile
+  tree branching above and below the base word, each with a score delta. Board-green felt
+  background, real Scrabble tile lettering; hook data is real (NWL2023 / CSW21 verified).
+-->
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<title>19 · Hooks &amp; Extensions — Liv Word Finder</title>
+<style>
+  :root{
+    --felt:#2a7a52; --felt-dk:#226845; --felt-line:rgba(255,255,255,.10);
+    --ink:#f2fbf5; --dim:#bfe3cd; --faint:#8dc4a4;
+    --tile:#f7e8c3; --tile-hi:#ffd24a; --tile-ink:#4a3618; --tile-edge:#cbaa62;
+    --panel:rgba(0,0,0,.22); --gold:#ffd24a; --delta:#c8f7d8;
+    --chrome:#1d5a3c;
+  }
+  @media (prefers-color-scheme: dark){
+    :root{
+      --felt:#123726; --felt-dk:#0e2c1f; --felt-line:rgba(255,255,255,.06);
+      --ink:#e7f5eb; --dim:#9cc9ab; --faint:#5f8f72;
+      --tile:#e9d9ac; --tile-hi:#f5c53a; --tile-ink:#42301a; --tile-edge:#a98d4e;
+      --panel:rgba(0,0,0,.35); --gold:#f5c53a; --delta:#a9e8bd;
+      --chrome:#0c2418;
+    }
+  }
+  *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  html{background:#153823}
+  @media (prefers-color-scheme: dark){ html{background:#060f0a} }
+  body{
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+    color:var(--ink); max-width:430px; margin:0 auto; min-height:100vh;
+    background:
+      repeating-linear-gradient(90deg, transparent 0 25px, var(--felt-line) 25px 26px),
+      repeating-linear-gradient(0deg, transparent 0 25px, var(--felt-line) 25px 26px),
+      radial-gradient(120% 90% at 50% 0%, var(--felt), var(--felt-dk));
+    box-shadow:0 0 60px rgba(0,0,0,.5);
+  }
+  .topbar{display:flex; justify-content:space-between; align-items:center; padding:8px 14px;
+    font-size:12px; color:var(--dim); background:var(--chrome)}
+  .topbar a{color:var(--dim); text-decoration:none; padding:6px 8px 6px 0}
+  header{padding:16px 16px 0; text-align:center}
+  h1{font-size:20px; font-weight:800; letter-spacing:.14em; text-transform:uppercase;
+     text-shadow:0 2px 6px rgba(0,0,0,.4)}
+  .sub{font-size:12.5px; color:var(--dim); margin-top:3px}
+
+  .controls{display:flex; gap:8px; padding:14px 16px 0}
+  .controls input{
+    flex:1; min-height:48px; border-radius:10px; border:2px solid var(--tile-edge);
+    background:var(--tile); color:var(--tile-ink); font-size:19px; font-weight:800;
+    letter-spacing:.3em; text-align:center; text-transform:uppercase; outline:none;
+    font-family:inherit;
+  }
+  .controls button{
+    min-width:64px; min-height:48px; border-radius:10px; border:none; background:var(--gold);
+    color:#3d2f10; font-size:14px; font-weight:800; letter-spacing:.08em; cursor:pointer;
+    box-shadow:0 3px 0 rgba(0,0,0,.3);
+  }
+  .controls button:active{transform:translateY(2px); box-shadow:none}
+  .dicts{display:flex; justify-content:center; gap:6px; padding:10px 16px 0}
+  .dicts button{min-height:34px; padding:0 14px; border-radius:999px; border:1px solid var(--faint);
+    background:transparent; color:var(--dim); font-size:11.5px; font-weight:700; letter-spacing:.06em; cursor:pointer}
+  .dicts button.on{background:var(--ink); color:var(--felt-dk); border-color:var(--ink)}
+  .try{text-align:center; font-size:11px; color:var(--faint); padding-top:8px}
+  .try b{color:var(--dim)}
+
+  .tree{padding:20px 16px 8px; position:relative}
+  .zone{position:relative}
+  .zonelabel{font-size:10px; font-weight:800; letter-spacing:.22em; text-transform:uppercase;
+    color:var(--faint); text-align:center; margin:6px 0}
+  .spine{position:absolute; left:50%; top:0; bottom:0; width:2px; background:var(--felt-line);
+    transform:translateX(-1px)}
+  .hookrow{
+    display:flex; align-items:center; justify-content:center; gap:10px; padding:5px 0;
+    position:relative; min-height:50px;
+  }
+  .tiles{display:flex; gap:3px}
+  .t{
+    width:32px; height:35px; border-radius:5px; background:linear-gradient(180deg,#fdf2d3,var(--tile));
+    color:var(--tile-ink); font-weight:800; font-size:16px; display:flex; align-items:center;
+    justify-content:center; position:relative; box-shadow:0 2px 0 var(--tile-edge), 0 3px 6px rgba(0,0,0,.35);
+    text-transform:uppercase;
+  }
+  .t sub{position:absolute; right:2px; bottom:1px; font-size:7.5px; font-weight:700}
+  .t.hook{background:linear-gradient(180deg,#ffe28a,var(--tile-hi)); outline:2px solid rgba(255,255,255,.55)}
+  .t.ghost{opacity:.55}
+  .base .t{width:44px; height:48px; font-size:24px; border-radius:7px}
+  .base .t sub{font-size:9px; right:3px; bottom:2px}
+  .base{display:flex; justify-content:center; gap:4px; padding:10px 0}
+  .baseplate{
+    margin:8px 14px; background:var(--panel); border-radius:14px; padding:10px 0 12px; position:relative;
+    border:1px solid var(--felt-line);
+  }
+  .basescore{text-align:center; font-size:12px; color:var(--dim)}
+  .basescore b{color:var(--gold); font-size:15px}
+  .delta{
+    font-size:12px; font-weight:800; color:var(--delta); background:var(--panel);
+    border-radius:999px; padding:4px 9px; min-width:52px; text-align:center;
+    font-variant-numeric:tabular-nums;
+  }
+  .cswonly{font-size:8.5px; font-weight:800; letter-spacing:.06em; color:var(--felt-dk);
+    background:var(--dim); border-radius:4px; padding:2px 4px; margin-left:2px}
+  .nohooks{text-align:center; color:var(--faint); font-size:12.5px; font-style:italic; padding:10px 0}
+
+  .extpanel{margin:16px 14px 44px; background:var(--panel); border:1px solid var(--felt-line);
+    border-radius:14px; padding:14px}
+  .extpanel h2{font-size:10px; font-weight:800; letter-spacing:.22em; text-transform:uppercase;
+    color:var(--faint); margin-bottom:12px; text-align:center}
+  .ext{display:flex; align-items:center; gap:10px; padding:7px 0; min-height:44px}
+  .ext .tiles .t{width:26px; height:29px; font-size:13px}
+  .ext .tiles .t sub{font-size:6.5px}
+  .ext .delta{margin-left:auto}
+  .toast{position:fixed; left:50%; bottom:30px; transform:translateX(-50%) translateY(80px);
+    background:#111; color:#fff; font-size:13px; padding:10px 18px; border-radius:999px;
+    transition:transform .3s, opacity .3s; z-index:20; white-space:nowrap;
+    box-shadow:0 6px 20px rgba(0,0,0,.4); opacity:0; visibility:hidden}
+  .toast.show{transform:translateX(-50%) translateY(0); opacity:1; visibility:visible}
+</style>
+
+<div class="topbar">
+  <a href="./index.html">‹ Gallery</a>
+  <span>19 · Hooks &amp; Extensions</span>
+</div>
+
+<header>
+  <h1>Hooks &amp; Extensions</h1>
+  <div class="sub">Build on what's already on the board</div>
+</header>
+
+<div class="controls">
+  <input id="w" value="LOUR" maxlength="8" autocomplete="off" autocapitalize="characters"
+    aria-label="Word on the board" enterkeyhint="go">
+  <button id="go">HOOK</button>
+</div>
+<div class="dicts" id="dicts">
+  <button data-d="nwl">NWL2023</button>
+  <button data-d="csw" class="on">CSW21</button>
+</div>
+<div class="try">Demo words: <b>LOUR</b> · <b>RAT</b> · <b>VEX</b></div>
+
+<div id="app"></div>
+<div class="toast" id="toast"></div>
+
+<script>
+const VALS = {a:1,b:3,c:3,d:2,e:1,f:4,g:2,h:4,i:1,j:8,k:5,l:1,m:3,n:1,o:1,p:3,q:10,r:1,s:1,t:1,u:1,v:4,w:4,x:8,y:4,z:10};
+// Verified against nwl2023-words.txt / csw21-words.txt. n = in NWL, c = in CSW.
+const DATA = {
+  lour: {
+    front:[{l:"c",w:"clour",n:1,c:1},{l:"f",w:"flour",n:1,c:1}],
+    back: [{l:"e",w:"loure",n:0,c:1},{l:"s",w:"lours",n:1,c:1},{l:"y",w:"loury",n:1,c:1}],
+    ext:  [{w:"loured",n:1,c:1},{w:"louring",n:1,c:1},{w:"flours",n:1,c:1},{w:"floury",n:1,c:1},
+           {w:"floured",n:1,c:1},{w:"cloured",n:1,c:1},{w:"dolour",n:1,c:1},{w:"colour",n:1,c:1}]
+  },
+  rat: {
+    front:[{l:"b",w:"brat",n:1,c:1},{l:"d",w:"drat",n:1,c:1},{l:"f",w:"frat",n:1,c:1},
+           {l:"g",w:"grat",n:1,c:1},{l:"p",w:"prat",n:1,c:1},{l:"t",w:"trat",n:0,c:1}],
+    back: [{l:"a",w:"rata",n:0,c:1},{l:"e",w:"rate",n:1,c:1},{l:"h",w:"rath",n:1,c:1},
+           {l:"o",w:"rato",n:1,c:1},{l:"s",w:"rats",n:1,c:1},{l:"u",w:"ratu",n:0,c:1}],
+    ext:  [{w:"ratted",n:1,c:1},{w:"ratter",n:1,c:1},{w:"rating",n:1,c:1},{w:"ration",n:1,c:1},
+           {w:"sprat",n:1,c:1},{w:"pratie",n:1,c:1}]
+  },
+  vex: {
+    front:[],
+    back: [{l:"t",w:"vext",n:1,c:1}],
+    ext:  [{w:"vexed",n:1,c:1},{w:"vexes",n:1,c:1},{w:"vexer",n:1,c:1},{w:"vexing",n:1,c:1},
+           {w:"vexedly",n:1,c:1},{w:"convex",n:1,c:1},{w:"unvexed",n:1,c:1}]
+  }
+};
+let dict = "csw";
+let word = "lour";
+const score = w => [...w].reduce((s,ch)=>s+VALS[ch],0);
+const inDict = e => dict==="nwl" ? e.n : e.c;
+
+function tiles(w, hiSet, ghostBase){
+  return `<div class="tiles">` + [...w].map((ch,i)=>{
+    let cls = "t";
+    if (hiSet && hiSet.has(i)) cls += " hook";
+    else if (ghostBase) cls += " ghost";
+    return `<div class="${cls}">${ch}<sub>${VALS[ch]}</sub></div>`;
+  }).join("") + `</div>`;
+}
+function hookRow(e, side, base){
+  const hi = new Set(side==="front" ? [0] : [e.w.length-1]);
+  const d = score(e.w) - score(base);
+  return `<div class="hookrow">
+    ${tiles(e.w, hi, true)}
+    <span class="delta">${score(e.w)} <span style="opacity:.7">+${d}</span></span>
+    ${dict==="csw" && !e.n ? '<span class="cswonly">CSW</span>' : ''}
+  </div>`;
+}
+function extRow(e, base){
+  const idx = e.w.indexOf(base);
+  const hi = new Set([...e.w].map((_,i)=>i).filter(i=> i<idx || i>=idx+base.length));
+  return `<div class="ext">
+    ${tiles(e.w, hi, true)}
+    ${dict==="csw" && !e.n ? '<span class="cswonly">CSW</span>' : ''}
+    <span class="delta">${score(e.w)} <span style="opacity:.7">+${score(e.w)-score(base)}</span></span>
+  </div>`;
+}
+function render(){
+  const d = DATA[word];
+  const front = d.front.filter(inDict), back = d.back.filter(inDict), ext = d.ext.filter(inDict);
+  document.getElementById("app").innerHTML = `
+    <div class="tree">
+      <div class="zone">
+        <div class="spine"></div>
+        <div class="zonelabel">▲ front hooks</div>
+        ${front.length ? front.map(e=>hookRow(e,"front",word)).join("") : `<div class="nohooks">no front hooks — nothing hangs off the front</div>`}
+      </div>
+      <div class="baseplate">
+        <div class="base">${tiles(word)}</div>
+        <div class="basescore">on the board · <b>${score(word)} pts</b> raw</div>
+      </div>
+      <div class="zone">
+        <div class="spine"></div>
+        ${back.length ? back.map(e=>hookRow(e,"back",word)).join("") : `<div class="nohooks">no back hooks</div>`}
+        <div class="zonelabel">▼ back hooks</div>
+      </div>
+    </div>
+    <div class="extpanel">
+      <h2>Longer extensions</h2>
+      ${ext.map(e=>extRow(e,word)).join("")}
+    </div>`;
+}
+function toast(msg){
+  const t = document.getElementById("toast");
+  t.textContent = msg; t.classList.add("show");
+  clearTimeout(t._h); t._h = setTimeout(()=>t.classList.remove("show"), 2200);
+}
+function go(){
+  const v = document.getElementById("w").value.trim().toLowerCase();
+  if (DATA[v]){ word = v; render(); }
+  else toast("Demo knows LOUR, RAT & VEX — try one of those");
+}
+document.getElementById("go").addEventListener("click", go);
+document.getElementById("w").addEventListener("keydown", e=>{ if(e.key==="Enter"){ e.target.blur(); go(); } });
+document.querySelectorAll("#dicts button").forEach(b=>b.addEventListener("click", ()=>{
+  dict = b.dataset.d;
+  document.querySelectorAll("#dicts button").forEach(x=>x.classList.toggle("on", x===b));
+  render();
+}));
+render();
+</script>

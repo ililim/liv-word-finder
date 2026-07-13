@@ -1,0 +1,362 @@
+<!--
+  Mockup 05 · Wordle Assistant
+  A faithful Wordle-style helper: type guesses on an embedded mini keyboard, then tap
+  each tile to cycle gray → yellow → green. Below the grid, live candidate words that
+  match all constraints (real filtering over a built-in word list) and a "best next
+  guess" chip with reasoning. Uses Wordle's exact visual language in light and dark.
+-->
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<title>05 · Wordle Assistant — Liv Word Finder</title>
+<style>
+  :root {
+    --bg: #ffffff;
+    --ink: #121213;
+    --muted: #787c7e;
+    --tile-edge: #d3d6da;
+    --tile-filled-edge: #878a8c;
+    --key: #d3d6da;
+    --key-ink: #121213;
+    --green: #6aaa64;
+    --yellow: #c9b458;
+    --gray: #787c7e;
+    --card: #f6f7f8;
+    --edge: rgba(0,0,0,.08);
+    --chip: #e7f0e6;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #121213;
+      --ink: #ffffff;
+      --muted: #818384;
+      --tile-edge: #3a3a3c;
+      --tile-filled-edge: #565758;
+      --key: #818384;
+      --key-ink: #ffffff;
+      --green: #538d4e;
+      --yellow: #b59f3b;
+      --gray: #3a3a3c;
+      --card: #1e1e1f;
+      --edge: rgba(255,255,255,.1);
+      --chip: #1e2b1d;
+    }
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html { background: #e8e8e8; }
+  @media (prefers-color-scheme: dark) { html { background: #000; } }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    background: var(--bg); color: var(--ink);
+    max-width: 430px; margin: 0 auto; min-height: 100vh;
+    box-shadow: 0 0 40px rgba(0,0,0,.2);
+  }
+  .topbar {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 8px 14px; font-size: 12px; color: var(--muted);
+    border-bottom: 1px solid var(--edge);
+  }
+  .topbar a { color: var(--muted); text-decoration: none; font-weight: 600; }
+
+  header.app {
+    text-align: center; padding: 12px 16px 8px;
+    border-bottom: 1px solid var(--edge);
+  }
+  header.app h1 {
+    font-size: 22px; font-weight: 800; letter-spacing: .04em;
+  }
+  header.app p { font-size: 12px; color: var(--muted); margin-top: 2px; }
+
+  .grid { display: grid; gap: 5px; justify-content: center; padding: 16px 0 8px; }
+  .row { display: grid; grid-template-columns: repeat(5, 56px); gap: 5px; }
+  .tile {
+    width: 56px; height: 56px;
+    display: grid; place-items: center;
+    font-size: 28px; font-weight: 800; text-transform: uppercase;
+    border: 2px solid var(--tile-edge);
+    color: var(--ink);
+    user-select: none; -webkit-user-select: none;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .tile.filled { border-color: var(--tile-filled-edge); animation: pop .1s; }
+  .tile.locked { border-color: transparent; color: #fff; cursor: pointer; }
+  .tile.s-gray   { background: var(--gray); }
+  .tile.s-yellow { background: var(--yellow); }
+  .tile.s-green  { background: var(--green); }
+  @keyframes pop { 50% { transform: scale(1.08); } }
+
+  .hint { text-align: center; font-size: 12px; color: var(--muted); padding: 2px 16px 10px; }
+
+  /* candidates */
+  .panel { padding: 8px 16px 4px; }
+  .panel h2 {
+    font-size: 12px; text-transform: uppercase; letter-spacing: .1em;
+    color: var(--muted); margin-bottom: 8px;
+    display: flex; justify-content: space-between; align-items: baseline;
+  }
+  .panel h2 b { color: var(--ink); font-size: 13px; }
+  .chips { display: flex; flex-wrap: wrap; gap: 8px; min-height: 40px; }
+  .word-chip {
+    background: var(--card); border: 1px solid var(--edge);
+    border-radius: 8px; padding: 9px 13px;
+    font-weight: 700; font-size: 15px; letter-spacing: .08em;
+    text-transform: uppercase;
+  }
+  .empty-note { color: var(--muted); font-size: 14px; padding: 6px 0; }
+
+  .best {
+    margin: 12px 16px; padding: 12px 14px;
+    background: var(--chip); border: 1px solid var(--green);
+    border-radius: 12px; display: flex; align-items: center; gap: 12px;
+  }
+  .best .star { font-size: 22px; }
+  .best .word { font-weight: 800; font-size: 18px; letter-spacing: .1em; }
+  .best .why { font-size: 12px; color: var(--muted); margin-top: 2px; }
+
+  /* keyboard */
+  .kb { padding: 8px 4px calc(14px + env(safe-area-inset-bottom)); user-select: none; -webkit-user-select: none; }
+  .kb-row { display: flex; justify-content: center; gap: 5px; margin-bottom: 6px; }
+  .key {
+    flex: 1; max-width: 38px; min-height: 50px;
+    background: var(--key); color: var(--key-ink);
+    border: none; border-radius: 5px;
+    font-family: inherit; font-size: 14px; font-weight: 700; text-transform: uppercase;
+    cursor: pointer; -webkit-tap-highlight-color: transparent;
+  }
+  .key:active { opacity: .7; }
+  .key.wide { max-width: 60px; font-size: 11px; }
+</style>
+
+<div class="topbar">
+  <a href="./index.html">‹ Gallery</a>
+  <span>05 · Wordle Assistant</span>
+</div>
+
+<header class="app">
+  <h1>WORDLE ASSISTANT</h1>
+  <p>Type a guess · then tap tiles to set colors</p>
+</header>
+
+<div class="grid" id="grid"></div>
+<p class="hint" id="hint">Tap tiles: gray → yellow → green</p>
+
+<div class="best" id="best" hidden>
+  <span class="star">✦</span>
+  <div>
+    <div class="word" id="bestWord">SPARE</div>
+    <div class="why" id="bestWhy">tests 4 new common letters</div>
+  </div>
+</div>
+
+<div class="panel">
+  <h2><span>Possible answers</span><b id="count">—</b></h2>
+  <div class="chips" id="chips"></div>
+</div>
+
+<div class="kb" id="kb"></div>
+
+<script>
+  const WORDS = ("aware spare stare flare glare share blare crane slate irate adieu audio stone about " +
+    "their there would could sound great small place right think three water house plant light " +
+    "still found might along thing world every start again never under while stand being where " +
+    "aisle ratio ourie roate least steal tales stale slant plaid pride prime prone brine dwelt " +
+    "chore whale quilt gumbo fjord vixen zebra jumbo pique waltz nymph epoxy crwth blitz " +
+    "amber ample angel apple arbor argue arise armor aroma aside atlas award badge baker basil " +
+    "beach began begin belly bench berry birth black blame bland blend bliss board bonus brave " +
+    "bread break brick bride brief bring broad brook brown brush build burst cabin cable candy " +
+    "cargo carve cause chain chair chalk charm chase cheap check cheek cheer chess chest chief " +
+    "child chill china choir civic claim clean clear clerk click cliff climb clock close cloud " +
+    "coach coast color comet coral couch count court cover craft crash cream creek crisp cross " +
+    "crowd crown curve cycle daily dance depth diary dodge doubt dozen draft drama dream dress " +
+    "drift drink drive eager eagle early earth eight elbow elder email empty enjoy enter equal " +
+    "error event exact exist extra faith false fancy fault feast fence fever field fifty fight " +
+    "final first flash fleet flesh float flood floor flour fluid flute focus force forge forth " +
+    "forty forum found frame fresh front frost fruit funny giant given glass globe glory grace " +
+    "grade grain grand grant grape grass grave green greet grief gross group grove guard guess " +
+    "guest guide habit happy harsh haste heart heavy hedge hello hence hobby honey honor horse " +
+    "hotel hound human humor hurry ideal image imply index inner input issue ivory jelly joint " +
+    "judge juice knife knock known label labor large laser later laugh layer learn lease leave " +
+    "legal lemon level lever limit linen liver local lodge logic loose lower loyal lucky lunar " +
+    "lunch lyric magic major maple march match maybe mayor medal media mercy merge merit metal " +
+    "meter midst might minor minus mixed model money month moral motor mound mount mouse mouth " +
+    "movie music naive nerve niche night noble noise north novel nurse ocean offer often olive " +
+    "onion opera orbit order organ other ought ounce outer owner oxide paint panel panic paper " +
+    "party pasta patch pause peace pearl penny phase phone photo piano piece pilot pinch pitch " +
+    "plain plane plate plaza point pound power press price pupil queen quick quiet quite radar " +
+    "radio raise rally ranch range rapid reach react ready realm rebel refer reign relax reply " +
+    "rider ridge rifle rigid rival river robot rocky rough round route royal rural salad sauce " +
+    "scale scene scent scope score scout screw sense serve seven shade shaft shake shall shame " +
+    "shape sharp sheep sheet shelf shell shift shine shirt shock shoot shore short shout showy " +
+    "sight silky since sixty skill skirt sleep slice slide slope smart smell smile smoke snack " +
+    "solar solid solve sorry south space spark speak speed spend spice spike spine spite split " +
+    "spoke sport spray squad staff stage stain stake stamp steam steel steep steer stern stick " +
+    "stiff stock stomp storm story stout stove strap straw strip stuck study stuff style sugar " +
+    "suite sunny super surge swear sweet swift swing sword table taste teach tempo tense tenth " +
+    "thank theme thick thief thigh thorn throw thumb tiger tight title toast today token topic " +
+    "torch total touch tough tower trace track trade trail train trait treat trend trial tribe " +
+    "trick troop truck truly trunk trust truth twice uncle union unity upper upset urban usage " +
+    "usual vague valid value vapor verse video villa virus vital vivid vocal voice voter wagon " +
+    "waist watch weary weigh wheat wheel whole widow width witty woman world worry worth woven " +
+    "wrist write wrong yacht yield young youth").split(/\s+/);
+
+  const LETTER_FREQ = {}; // filled per-candidates dynamically
+
+  // --- state ---
+  // rows: array of { letters: "crane", states: ["gray","yellow","green","gray","green"] }
+  const rows = [
+    { letters: "crane", states: ["s-gray","s-yellow","s-green","s-gray","s-green"] }
+  ];
+  let current = ""; // letters typed into next row
+
+  const gridEl = document.getElementById('grid');
+
+  function render() {
+    gridEl.innerHTML = "";
+    const totalRows = 6;
+    for (let r = 0; r < totalRows; r++) {
+      const row = document.createElement('div');
+      row.className = 'row';
+      for (let c = 0; c < 5; c++) {
+        const t = document.createElement('div');
+        t.className = 'tile';
+        if (r < rows.length) {
+          t.textContent = rows[r].letters[c];
+          t.classList.add('locked', rows[r].states[c]);
+          t.onclick = () => cycle(r, c);
+        } else if (r === rows.length && current[c]) {
+          t.textContent = current[c];
+          t.classList.add('filled');
+        }
+        row.appendChild(t);
+      }
+      gridEl.appendChild(row);
+    }
+    update();
+  }
+
+  function cycle(r, c) {
+    const order = ['s-gray', 's-yellow', 's-green'];
+    const cur = rows[r].states[c];
+    rows[r].states[c] = order[(order.indexOf(cur) + 1) % 3];
+    render();
+  }
+
+  function key(k) {
+    if (k === 'enter') {
+      if (current.length === 5 && rows.length < 6) {
+        rows.push({ letters: current, states: ['s-gray','s-gray','s-gray','s-gray','s-gray'] });
+        current = "";
+      }
+    } else if (k === 'back') {
+      current = current.slice(0, -1);
+    } else if (current.length < 5 && rows.length < 6) {
+      current += k;
+    }
+    render();
+  }
+
+  // --- constraint filtering ---
+  function matches(word, guess) {
+    const g = guess.letters, s = guess.states;
+    // count required copies of each letter (yellow+green), and whether capped (a gray exists)
+    const minCount = {}, capped = {};
+    for (let i = 0; i < 5; i++) {
+      if (s[i] !== 's-gray') minCount[g[i]] = (minCount[g[i]] || 0) + 1;
+    }
+    for (let i = 0; i < 5; i++) {
+      if (s[i] === 's-gray') capped[g[i]] = true;
+    }
+    for (let i = 0; i < 5; i++) {
+      if (s[i] === 's-green'  && word[i] !== g[i]) return false;
+      if (s[i] === 's-yellow' && word[i] === g[i]) return false;
+      if (s[i] === 's-gray'   && word[i] === g[i]) return false;
+    }
+    const count = {};
+    for (const ch of word) count[ch] = (count[ch] || 0) + 1;
+    for (const ch in minCount) {
+      if ((count[ch] || 0) < minCount[ch]) return false;
+      if (capped[ch] && (count[ch] || 0) > minCount[ch]) return false;
+    }
+    for (const ch in capped) {
+      if (!minCount[ch] && count[ch]) return false;
+    }
+    return true;
+  }
+
+  function update() {
+    let cands = WORDS;
+    for (const guess of rows) cands = cands.filter(w => matches(w, guess));
+    cands = [...new Set(cands)];
+
+    document.getElementById('count').textContent = cands.length;
+    const chips = document.getElementById('chips');
+    chips.innerHTML = "";
+    if (cands.length === 0) {
+      chips.innerHTML = '<p class="empty-note">No matches — check your tile colors.</p>';
+    }
+    cands.slice(0, 24).forEach(w => {
+      const c = document.createElement('span');
+      c.className = 'word-chip';
+      c.textContent = w;
+      chips.appendChild(c);
+    });
+    if (cands.length > 24) {
+      const c = document.createElement('span');
+      c.className = 'word-chip';
+      c.style.opacity = .6;
+      c.textContent = "+" + (cands.length - 24) + " more";
+      chips.appendChild(c);
+    }
+
+    // best next guess: maximize coverage of frequent letters among candidates
+    const best = document.getElementById('best');
+    if (cands.length > 1) {
+      const freq = {};
+      for (const w of cands) for (const ch of new Set(w)) freq[ch] = (freq[ch] || 0) + 1;
+      const known = new Set();
+      for (const g of rows) for (const ch of g.letters) known.add(ch);
+      let top = null, topScore = -1, topNew = [];
+      for (const w of WORDS) {
+        const uniq = [...new Set(w)];
+        const fresh = uniq.filter(ch => !known.has(ch) && freq[ch]);
+        const score = fresh.reduce((s, ch) => s + freq[ch], 0) + (cands.includes(w) ? 0.5 : 0);
+        if (score > topScore) { topScore = score; top = w; topNew = fresh; }
+      }
+      best.hidden = false;
+      document.getElementById('bestWord').textContent = top.toUpperCase();
+      document.getElementById('bestWhy').textContent =
+        "best next guess — tests " + topNew.length + " new common letter" + (topNew.length === 1 ? "" : "s") +
+        " (" + topNew.join(" ").toUpperCase() + ")";
+    } else if (cands.length === 1) {
+      best.hidden = false;
+      document.getElementById('bestWord').textContent = cands[0].toUpperCase();
+      document.getElementById('bestWhy').textContent = "only one word left — play it!";
+    } else {
+      best.hidden = true;
+    }
+  }
+
+  // --- keyboard ---
+  const kb = document.getElementById('kb');
+  [["q","w","e","r","t","y","u","i","o","p"],
+   ["a","s","d","f","g","h","j","k","l"],
+   ["enter","z","x","c","v","b","n","m","back"]].forEach(rowKeys => {
+    const div = document.createElement('div');
+    div.className = 'kb-row';
+    rowKeys.forEach(k => {
+      const b = document.createElement('button');
+      b.className = 'key' + (k.length > 1 ? ' wide' : '');
+      b.textContent = k === 'back' ? '⌫' : k;
+      b.onclick = () => key(k);
+      div.appendChild(b);
+    });
+    kb.appendChild(div);
+  });
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Enter') key('enter');
+    else if (e.key === 'Backspace') key('back');
+    else if (/^[a-z]$/i.test(e.key)) key(e.key.toLowerCase());
+  });
+
+  render();
+</script>

@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#f4f4f0" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#0e0e0c" media="(prefers-color-scheme: dark)">
+<title>Liv Word Finder</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🔤</text></svg>">
+<link rel="stylesheet" href="css/app.css">
+</head>
+<body>
+<div id="app">
+  <header class="brand-row">
+    <div class="brand">LIV<em>·</em>WORDS</div>
+    <div class="head-btns">
+      <button class="icon-btn" id="help-btn">?</button>
+      <button class="icon-btn" id="settings-btn">⚙</button>
+    </div>
+  </header>
+
+  <nav class="seg" id="seg">
+    <button data-app="slots" class="active">SLOTS</button>
+    <button data-app="pattern">PATTERN</button>
+    <button data-app="lab">LADDER</button>
+  </nav>
+
+  <!-- SLOTS — exact-length positional search -->
+  <section class="view active" id="view-slots">
+    <div class="slots-wrap"><div class="slots" id="slots"></div></div>
+    <div class="slots-tools">
+      <div class="hint">WORD LENGTH</div>
+      <div class="stepper">
+        <button id="len-minus">−</button>
+        <div class="len" id="len-label">5</div>
+        <button id="len-plus">+</button>
+      </div>
+    </div>
+    <div class="board" id="board"></div>
+    <div class="chips">
+      <div class="hint">TAP ONCE <b>MAY</b> · TWICE <b>MUST ✱</b></div>
+      <div class="grow"></div>
+      <button class="tchip" id="slots-nodoubles"><span class="ic">◇</span>NO DOUBLES</button>
+    </div>
+    <div class="results" id="slots-results"></div>
+  </section>
+
+  <!-- PATTERN — free-typed, open or anchored ends -->
+  <section class="view" id="view-pattern">
+    <div class="pat-row">
+      <button class="anchor" id="anchor-start">START<br>WITH</button>
+      <input class="pat-input" id="pat-input" placeholder="B_TT*Y" autocomplete="off"
+             autocorrect="off" autocapitalize="characters" spellcheck="false" enterkeyhint="done">
+      <button class="anchor" id="anchor-end">END<br>WITH</button>
+    </div>
+    <div class="lenchips" id="lenchips"></div>
+    <div class="chips">
+      <button class="tchip" id="pat-nodoubles"><span class="ic">◇</span>NO DOUBLES</button>
+    </div>
+    <div class="results" id="pattern-results"></div>
+  </section>
+
+  <!-- ±1 — words one letter away; tap a word to walk -->
+  <section class="view" id="view-lab">
+    <input class="lab-input" id="lab-input" placeholder="TYPE A WORD" autocomplete="off"
+           autocorrect="off" autocapitalize="characters" spellcheck="false" enterkeyhint="done">
+    <div class="chips">
+      <button class="tchip" id="lab-shuffle"><span class="ic">⇄</span>SHUFFLE</button>
+      <button class="tchip" id="lab-nodoubles"><span class="ic">◇</span>NO DOUBLES</button>
+      <button class="tchip" id="lab-nos"><span class="ic">S̶</span>HIDE +S</button>
+    </div>
+    <div class="trail" id="trail"></div>
+    <div class="results" id="lab-results"></div>
+  </section>
+
+  <!-- sheets -->
+  <div class="scrim" id="scrim"></div>
+  <div class="sheet" id="def-sheet">
+    <div class="sheet-word" id="def-word"></div>
+    <div class="sheet-flags" id="def-flags"></div>
+    <div class="sheet-def" id="def-text"></div>
+  </div>
+  <div class="sheet" id="set-sheet">
+    <div class="set-h">DICTIONARY</div>
+    <div id="dict-radios"></div>
+  </div>
+  <div class="sheet" id="help-sheet">
+    <div class="set-h">SLOTS</div>
+    <div class="help-row"><b>TYPE</b> to fill slots · <b>SPACE</b> = any letter</div>
+    <div class="help-row">board: tap once <b>MAY</b> use · twice <b>MUST ✱</b> use — once any letter is tapped, untapped letters are excluded</div>
+    <div class="set-h">PATTERN</div>
+    <div class="help-row"><b>_</b> any one letter — SPACE types it · <b>*</b> any run</div>
+    <div class="help-row"><b>START WITH</b> / <b>END WITH</b> pin the pattern to the word's edges. Both off = anywhere in the word.</div>
+    <div class="help-row ex">B_TT*Y → BATTERY · BUTTERY · BITTERLY</div>
+    <div class="set-h">LADDER</div>
+    <div class="help-row"><b>TAP</b> a word to walk to it · <b>HOLD</b> for meaning</div>
+    <div class="help-row"><b>⇄ SHUFFLE</b> also allows rearranged letters · typing resets the trail</div>
+  </div>
+
+  <input class="ghost-input" id="ghost" autocomplete="off" autocorrect="off"
+         autocapitalize="off" spellcheck="false">
+</div>
+<script type="module" src="js/app.js"></script>
+</body>
+</html>

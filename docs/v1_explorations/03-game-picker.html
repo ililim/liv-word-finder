@@ -1,0 +1,307 @@
+<!--
+  Mockup 03 · Game Picker Home
+  Organizes the app by GAME rather than by tool: a home screen of big tappable cards,
+  one per game (Scrabble, Wordle, Spelling Bee, Letter Boxed, Crossword, Anagrams),
+  each with its signature color/motif. Tapping a card slides to a stub tool screen
+  (Scrabble rack solver faked here) with a back button.
+-->
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<title>03 · Game Picker — Liv Word Finder</title>
+<style>
+  :root {
+    --bg: #f6f4ef;
+    --card: #ffffff;
+    --ink: #1c1b18;
+    --muted: #6f6b60;
+    --bar: #ffffffcc;
+    --shadow: 0 2px 8px rgba(40,35,20,.08), 0 8px 24px rgba(40,35,20,.06);
+    --edge: rgba(0,0,0,.06);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #17161a;
+      --card: #232228;
+      --ink: #f2f0ea;
+      --muted: #9c98a3;
+      --bar: #17161acc;
+      --shadow: 0 2px 8px rgba(0,0,0,.4), 0 8px 24px rgba(0,0,0,.3);
+      --edge: rgba(255,255,255,.08);
+    }
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html { background: #d9d5cc; }
+  @media (prefers-color-scheme: dark) { html { background: #0c0b0e; } }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    color: var(--ink);
+    max-width: 430px;
+    margin: 0 auto;
+    min-height: 100vh;
+    background: var(--bg);
+    box-shadow: 0 0 40px rgba(0,0,0,.15);
+    position: relative;
+    overflow-x: hidden;
+  }
+  .topbar {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 8px 14px;
+    font-size: 12px;
+    color: var(--muted);
+    background: var(--bar);
+    backdrop-filter: blur(8px);
+    border-bottom: 1px solid var(--edge);
+    position: sticky; top: 0; z-index: 50;
+  }
+  .topbar a { color: var(--muted); text-decoration: none; font-weight: 600; }
+
+  .screens { position: relative; overflow: hidden; }
+  .screen {
+    width: 100%;
+    transition: transform .35s cubic-bezier(.32,.72,.3,1);
+  }
+  #home { transform: translateX(0); }
+  #home.away { transform: translateX(-24%); position: absolute; top: 0; }
+  #tool {
+    position: absolute; top: 0; left: 0;
+    transform: translateX(100%);
+    background: var(--bg);
+    min-height: 100vh;
+    z-index: 10;
+  }
+  #tool.in { transform: translateX(0); position: relative; }
+
+  header.app {
+    padding: 26px 20px 6px;
+  }
+  header.app h1 { font-size: 30px; font-weight: 800; letter-spacing: -.5px; }
+  header.app p { color: var(--muted); font-size: 14px; margin-top: 4px; }
+
+  .cards { padding: 16px 16px 40px; display: grid; gap: 14px; }
+  .gamecard {
+    display: flex; align-items: center; gap: 16px;
+    padding: 18px 16px;
+    border-radius: 20px;
+    background: var(--card);
+    box-shadow: var(--shadow);
+    border: 1px solid var(--edge);
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+    transition: transform .12s ease;
+    min-height: 88px;
+    text-align: left;
+    width: 100%;
+    font: inherit;
+    color: inherit;
+  }
+  .gamecard:active { transform: scale(.975); }
+  .motif {
+    width: 62px; height: 62px; border-radius: 14px;
+    flex: none;
+    display: grid; place-items: center;
+    overflow: hidden;
+  }
+  .gc-text { flex: 1; min-width: 0; }
+  .gc-text h2 { font-size: 18px; font-weight: 700; letter-spacing: -.2px; }
+  .gc-text p { font-size: 13px; color: var(--muted); margin-top: 3px; line-height: 1.35; }
+  .chev { color: var(--muted); font-size: 20px; opacity: .5; }
+
+  /* --- motifs --- */
+  .m-scrabble { background: #b02b2b; }
+  .m-scrabble .tile {
+    width: 34px; height: 34px; background: #f3e3c3; border-radius: 5px;
+    display: grid; place-items: center; font-weight: 800; font-size: 20px; color: #3c2f1a;
+    box-shadow: inset 0 -3px 0 rgba(0,0,0,.18);
+    position: relative;
+  }
+  .m-scrabble .tile small { position: absolute; bottom: 1px; right: 3px; font-size: 8px; font-weight: 700; }
+
+  .m-wordle { background: #121213; display: grid; grid-template-columns: repeat(3, 14px); grid-template-rows: repeat(3, 14px); gap: 3px; place-content: center; }
+  .m-wordle i { width: 14px; height: 14px; border-radius: 2px; }
+  .w-g { background: #6aaa64; } .w-y { background: #c9b458; } .w-x { background: #3a3a3c; }
+
+  .m-bee { background: #f7da21; position: relative; }
+  .m-bee .hex {
+    width: 34px; height: 30px; background: #1c1b18;
+    clip-path: polygon(25% 0, 75% 0, 100% 50%, 75% 100%, 25% 100%, 0 50%);
+    display: grid; place-items: center; color: #f7da21; font-weight: 800; font-size: 15px;
+  }
+  .m-boxed { background: #fa8282; position: relative; }
+  .m-boxed svg { display: block; }
+
+  .m-cross { background: #fdfdfd; border: 1px solid var(--edge); display: grid; grid-template-columns: repeat(3, 16px); grid-template-rows: repeat(3, 16px); }
+  .m-cross i { width: 16px; height: 16px; border: 1px solid #cfcfcf; background: #fff; }
+  .m-cross i.b { background: #121213; }
+
+  .m-ana { background: linear-gradient(135deg, #7c5cff, #4d9dff); color: #fff; font-weight: 800; font-size: 15px; letter-spacing: 1px; }
+  .m-ana span { display: block; transform: rotate(-8deg); }
+
+  /* --- tool stub screen (Scrabble) --- */
+  .toolhead {
+    display: flex; align-items: center; gap: 8px;
+    padding: 14px 12px 10px;
+  }
+  .backbtn {
+    border: none; background: none; color: #b02b2b; font-size: 17px; font-weight: 600;
+    padding: 10px 8px; cursor: pointer; font-family: inherit;
+    min-height: 44px;
+  }
+  @media (prefers-color-scheme: dark) { .backbtn { color: #ff8a80; } }
+  .toolhead h2 { font-size: 20px; font-weight: 800; }
+  .toolbody { padding: 4px 16px 48px; }
+  .rack {
+    display: flex; gap: 6px; justify-content: center; margin: 10px 0 4px;
+  }
+  .rack .tile {
+    width: 44px; height: 48px; background: #f3e3c3; border-radius: 7px;
+    display: grid; place-items: center; font-weight: 800; font-size: 24px; color: #3c2f1a;
+    box-shadow: inset 0 -4px 0 rgba(0,0,0,.15), 0 2px 4px rgba(0,0,0,.15);
+    position: relative; cursor: pointer;
+    transition: transform .1s;
+  }
+  .rack .tile:active { transform: translateY(-6px); }
+  .rack .tile small { position: absolute; bottom: 2px; right: 4px; font-size: 9px; font-weight: 700; }
+  .rack-hint { text-align: center; color: var(--muted); font-size: 12px; margin-bottom: 16px; }
+  .findbtn {
+    display: block; width: 100%; min-height: 50px;
+    background: #b02b2b; color: #fff; border: none; border-radius: 14px;
+    font-size: 17px; font-weight: 700; font-family: inherit; cursor: pointer;
+    margin-bottom: 20px;
+  }
+  .findbtn:active { opacity: .85; }
+  .results h3 { font-size: 13px; text-transform: uppercase; letter-spacing: .08em; color: var(--muted); margin: 18px 0 10px; }
+  .wordrow {
+    display: flex; justify-content: space-between; align-items: center;
+    background: var(--card); border: 1px solid var(--edge); border-radius: 12px;
+    padding: 12px 14px; margin-bottom: 8px; min-height: 48px;
+    box-shadow: var(--shadow);
+  }
+  .wordrow .w { font-weight: 700; font-size: 17px; letter-spacing: .04em; }
+  .wordrow .def { font-size: 12px; color: var(--muted); margin-top: 2px; }
+  .pts {
+    background: #b02b2b; color: #fff; font-weight: 800; font-size: 14px;
+    border-radius: 999px; padding: 5px 11px; flex: none; margin-left: 12px;
+  }
+</style>
+
+<div class="topbar">
+  <a href="./index.html">‹ Gallery</a>
+  <span>03 · Game Picker</span>
+</div>
+
+<div class="screens">
+  <div class="screen" id="home">
+    <header class="app">
+      <h1>Liv Word Finder</h1>
+      <p>What are you playing today?</p>
+    </header>
+    <div class="cards">
+      <button class="gamecard" onclick="openTool()">
+        <span class="motif m-scrabble"><span class="tile">S<small>1</small></span></span>
+        <span class="gc-text"><h2>Scrabble</h2><p>Best plays from your rack &amp; board letters</p></span>
+        <span class="chev">›</span>
+      </button>
+
+      <button class="gamecard" onclick="openTool()">
+        <span class="motif m-wordle">
+          <i class="w-x"></i><i class="w-y"></i><i class="w-x"></i>
+          <i class="w-g"></i><i class="w-g"></i><i class="w-y"></i>
+          <i class="w-g"></i><i class="w-g"></i><i class="w-g"></i>
+        </span>
+        <span class="gc-text"><h2>Wordle</h2><p>Narrow it down from greens, yellows &amp; grays</p></span>
+        <span class="chev">›</span>
+      </button>
+
+      <button class="gamecard" onclick="openTool()">
+        <span class="motif m-bee"><span class="hex">B</span></span>
+        <span class="gc-text"><h2>Spelling Bee</h2><p>Find pangrams &amp; climb to Genius</p></span>
+        <span class="chev">›</span>
+      </button>
+
+      <button class="gamecard" onclick="openTool()">
+        <span class="motif m-boxed">
+          <svg width="40" height="40" viewBox="0 0 40 40">
+            <rect x="6" y="6" width="28" height="28" fill="#fff" stroke="#1c1b18" stroke-width="2"/>
+            <path d="M12 6 L34 22 L14 34 L28 6" fill="none" stroke="#fa5c5c" stroke-width="2"/>
+            <circle cx="12" cy="6" r="3" fill="#1c1b18"/>
+            <circle cx="34" cy="22" r="3" fill="#1c1b18"/>
+            <circle cx="14" cy="34" r="3" fill="#1c1b18"/>
+            <circle cx="28" cy="6" r="3" fill="#fff" stroke="#1c1b18" stroke-width="2"/>
+          </svg>
+        </span>
+        <span class="gc-text"><h2>Letter Boxed</h2><p>Two-word solutions around the square</p></span>
+        <span class="chev">›</span>
+      </button>
+
+      <button class="gamecard" onclick="openTool()">
+        <span class="motif m-cross">
+          <i></i><i class="b"></i><i></i>
+          <i></i><i></i><i></i>
+          <i class="b"></i><i></i><i class="b"></i>
+        </span>
+        <span class="gc-text"><h2>Crossword</h2><p>Fill the blanks: C__SS_O_D → pattern search</p></span>
+        <span class="chev">›</span>
+      </button>
+
+      <button class="gamecard" onclick="openTool()">
+        <span class="motif m-ana"><span>A→N</span></span>
+        <span class="gc-text"><h2>Anagrams</h2><p>Every word hiding in any set of letters</p></span>
+        <span class="chev">›</span>
+      </button>
+    </div>
+  </div>
+
+  <div class="screen" id="tool">
+    <div class="toolhead">
+      <button class="backbtn" onclick="closeTool()">‹ Games</button>
+      <h2>Scrabble</h2>
+    </div>
+    <div class="toolbody">
+      <div class="rack">
+        <span class="tile">A<small>1</small></span>
+        <span class="tile">E<small>1</small></span>
+        <span class="tile">Q<small>10</small></span>
+        <span class="tile">T<small>1</small></span>
+        <span class="tile">U<small>1</small></span>
+        <span class="tile">R<small>1</small></span>
+        <span class="tile">S<small>1</small></span>
+      </div>
+      <p class="rack-hint">Your rack · tap tiles to edit</p>
+      <button class="findbtn" onclick="shuffleResults()">Find best plays</button>
+      <div class="results" id="results">
+        <h3>Best plays · 7 letters</h3>
+        <div class="wordrow"><div><div class="w">QUARTES</div><div class="def">plural of quarte, a fencing parry</div></div><span class="pts">66</span></div>
+        <div class="wordrow"><div><div class="w">QUATRES</div><div class="def">playing cards or dice showing four</div></div><span class="pts">66</span></div>
+        <h3>Also strong</h3>
+        <div class="wordrow"><div><div class="w">QUATE</div><div class="def">(dialect) fortune, luck</div></div><span class="pts">14</span></div>
+        <div class="wordrow"><div><div class="w">URATES</div><div class="def">salts of uric acid</div></div><span class="pts">6</span></div>
+        <div class="wordrow"><div><div class="w">STATURE</div><div class="def">a person's natural height</div></div><span class="pts">7</span></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  const home = document.getElementById('home');
+  const tool = document.getElementById('tool');
+  function openTool() {
+    home.classList.add('away');
+    tool.classList.add('in');
+    window.scrollTo({ top: 0 });
+  }
+  function closeTool() {
+    home.classList.remove('away');
+    tool.classList.remove('in');
+  }
+  function shuffleResults() {
+    const rows = Array.from(document.querySelectorAll('#results .wordrow'));
+    rows.forEach((r, i) => {
+      r.style.transition = 'none'; r.style.opacity = '0'; r.style.transform = 'translateY(6px)';
+      setTimeout(() => {
+        r.style.transition = 'opacity .25s, transform .25s';
+        r.style.opacity = '1'; r.style.transform = 'translateY(0)';
+      }, 60 * i + 30);
+    });
+  }
+</script>

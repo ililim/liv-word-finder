@@ -1,0 +1,128 @@
+<!-- Gallery index for the 10 v3 design-language skins of Liv Word Finder.
+     Every skin styles the SAME locked component specimen (_template.html) —
+     identical sizes/layout, only colors/radii/borders/shadows/type differ. -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<title>Liv Word Finder — v3 Design Languages</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🔤</text></svg>">
+<style>
+  :root {
+    --bg: #f4f2ee;
+    --card: #ffffff;
+    --ink: #1c1b18;
+    --muted: #77726a;
+    --accent: #93c400;
+    --line: rgba(0,0,0,.08);
+    color-scheme: light dark;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #141312;
+      --card: #201f1d;
+      --ink: #f0ede8;
+      --muted: #9b958c;
+      --accent: #b8e62e;
+      --line: rgba(255,255,255,.09);
+    }
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    background: var(--bg);
+    color: var(--ink);
+    padding: max(20px, env(safe-area-inset-top)) 16px 48px;
+  }
+  .wrap { max-width: 1200px; margin: 0 auto; }
+  header { margin: 16px 4px 8px; }
+  h1 { font-size: 28px; letter-spacing: -.02em; }
+  h1 .v { color: var(--accent); }
+  .sub { color: var(--muted); margin-top: 6px; font-size: 15px; line-height: 1.45; max-width: 640px; }
+  .backlink { display: inline-block; margin-top: 10px; margin-right: 16px; font-size: 13px; color: var(--muted); text-decoration: none; }
+  .backlink:hover { color: var(--accent); }
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: 16px;
+    margin-top: 24px;
+  }
+  a.card {
+    display: block; text-decoration: none; color: inherit;
+    background: var(--card); border: 1px solid var(--line);
+    border-radius: 18px; overflow: hidden;
+    transition: transform .15s ease, box-shadow .15s ease;
+  }
+  a.card:active { transform: scale(.97); }
+  @media (hover: hover) {
+    a.card:hover { transform: translateY(-3px); box-shadow: 0 10px 30px rgba(0,0,0,.12); }
+  }
+  .preview {
+    height: 340px; overflow: hidden; position: relative;
+    background: var(--bg); border-bottom: 1px solid var(--line);
+  }
+  .preview iframe {
+    width: 390px; height: 844px; border: 0;
+    transform: scale(.5); transform-origin: top center;
+    position: absolute; left: 50%; margin-left: -195px; top: 0;
+    pointer-events: none;
+  }
+  .meta { padding: 12px 14px 14px; }
+  .num {
+    font-size: 11px; font-weight: 700; color: var(--accent);
+    letter-spacing: .06em;
+  }
+  .name { font-size: 17px; font-weight: 650; margin: 2px 0 3px; }
+  .tag { font-size: 13px; color: var(--muted); line-height: 1.4; }
+  footer { margin-top: 48px; color: var(--muted); font-size: 13px; text-align: center; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>Liv Word Finder <span class="v">· v3 design languages</span></h1>
+    <p class="sub">15 skins of the exact same component specimen — identical sizes and layout,
+    only the design language changes: color, radius, borders, shadows, type. Skins 11–15 (⊕)
+    are the anti-slop batch: crisp, flat, each rooted in a real print/graphic tradition —
+    no blur, no glow, no gradients.</p>
+    <a class="backlink" href="../v2_explorations/index.html">← round 2 (10 concepts)</a>
+    <a class="backlink" href="../v1_explorations/index.html">← round 1 (20 mockups)</a>
+  </header>
+
+  <div class="grid" id="grid"></div>
+
+  <footer>Round 3 · same bones, ten outfits 💜</footer>
+</div>
+
+<script>
+  const items = [
+    ["01-chartreuse.html", "01", "Chartreuse", "The v2 baseline refined — near-monochrome, black pills, one loud lime accent."],
+    ["02-ink-editorial.html", "02", "Ink & Paper", "Editorial: warm paper, hairline rules, serif display, one deep-red accent."],
+    ["03-neo-brutal.html", "03", "Neo-Brutal", "Thick borders, hard offset shadows, flat sunny yellow — poster-loud."],
+    ["04-terminal.html", "04", "Terminal", "Committed dark: phosphor green on CRT black, monospace, subtle scanlines."],
+    ["05-pastel-pop.html", "05", "Pastel Pop", "Candy pastels, no borders, fully rounded — color does the separation."],
+    ["06-frosted-glass.html", "06", "Frosted", "Glassmorphism: translucent blurred surfaces floating over a soft gradient."],
+    ["07-nordic.html", "07", "Nordic Calm", "Muted cool grays, one ice-blue accent, hairlines — the quiet professional."],
+    ["08-midnight-neon.html", "08", "Midnight Neon", "Navy-black with restrained cyan + magenta glow only where it matters."],
+    ["09-sunset.html", "09", "Sunset Warm", "Terracotta and espresso with ember accents — cozy evening-play energy."],
+    ["10-tile-flat.html", "10", "Tile Flat", "Flat-graphic homage to game tiles: cream tiles, coral & blue score colors, board teal."],
+    ["11-gridline.html", "11", "Gridline ⊕", "Swiss International Style: black Helvetica on white, one Swiss red, radius 0, zero shadows."],
+    ["12-departures.html", "12", "Departures ⊕", "Split-flap airport board: matte flaps with a crisp midline, cream letters, amber signal. Dark only."],
+    ["13-riso.html", "13", "Riso ⊕", "Two flat zine inks — press blue + fluoro red — with overprint misregistration shadows."],
+    ["14-marker.html", "14", "Marker ⊕", "Charcoal on paper; results are a plain word list, matches swiped with a flat highlighter."],
+    ["15-ledger.html", "15", "Ledger ⊕", "Readable brutalism: black ink always, acid yellow only ever behind black text, 2px rules."]
+  ];
+  document.getElementById("grid").innerHTML = items.map(([file, num, name, tag]) => `
+    <a class="card" href="${file}">
+      <div class="preview"><iframe src="${file}" loading="lazy" tabindex="-1" title="${name} preview"></iframe></div>
+      <div class="meta">
+        <div class="num">SKIN ${num}</div>
+        <div class="name">${name}</div>
+        <div class="tag">${tag}</div>
+      </div>
+    </a>`).join("");
+</script>
+</body>
+</html>
