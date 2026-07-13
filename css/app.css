@@ -64,9 +64,10 @@ button { font: inherit; color: inherit; background: none; border: none; cursor: 
 .icon-btn {
   width: 36px; height: 36px;
   display: grid; place-items: center;
-  font-size: 15px; font-weight: 850;
+  font-size: 16px; font-weight: 850; line-height: 1;
   border: 2px solid var(--ink); border-radius: var(--r-pill);
 }
+.icon-btn span { transform: translateY(-0.5px); }
 
 /* app switcher — bordered pill, white active segment (mockup 14) */
 .seg {
@@ -133,7 +134,7 @@ button { font: inherit; color: inherit; background: none; border: none; cursor: 
 .bkey.may { background: var(--ink); color: var(--bg); border-color: var(--ink); }
 .bkey.must { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); font-weight: 850; }
 .bkey.must::after {
-  content: "✱"; position: absolute; top: 2px; right: 3px;
+  content: "✱"; position: absolute; top: 6px; right: 3px;
   font-size: 9px; line-height: 1;
 }
 .board.active .bkey:not(.may):not(.must):not(.fn) { opacity: 0.3; }
@@ -191,7 +192,9 @@ button { font: inherit; color: inherit; background: none; border: none; cursor: 
 .lchip.on { background: var(--ink); color: var(--bg); border-color: var(--ink); }
 
 /* ---- ±1 LAB ---- */
-.trail { display: flex; gap: 6px; flex-wrap: wrap; align-items: center; }
+.trail { display: flex; gap: 6px; flex-wrap: nowrap; align-items: center; overflow-x: auto; scrollbar-width: none; }
+.trail::-webkit-scrollbar { display: none; }
+.trail .crumb { flex: 0 0 auto; }
 .trail:empty { display: none; }
 .crumb {
   height: 28px; padding: 0 11px;
@@ -200,7 +203,8 @@ button { font: inherit; color: inherit; background: none; border: none; cursor: 
 }
 .crumb::after { content: " ›"; color: var(--line); }
 .trail-clear {
-  height: 28px; padding: 0 10px; margin-left: auto;
+  height: 28px; padding: 0 10px; margin-left: auto; flex: 0 0 auto;
+  position: sticky; right: 0; background: var(--bg);
   font-size: 11px; font-weight: 850; color: var(--muted);
   border: 2px solid var(--line); border-radius: var(--r);
 }
@@ -257,7 +261,8 @@ button { font: inherit; color: inherit; background: none; border: none; cursor: 
   border: 2px solid var(--ink); border-bottom: none;
   padding: 20px 18px max(24px, env(safe-area-inset-bottom));
   transition: transform 0.22s cubic-bezier(0.2, 0.8, 0.2, 1); z-index: 9;
-  display: flex; flex-direction: column; gap: 14px;
+  display: flex; flex-direction: column; gap: 18px;
+  max-height: 85dvh; overflow-y: auto;
 }
 .sheet.open { transform: translate(-50%, 0); }
 .sheet-word { font-size: 30px; font-weight: 850; letter-spacing: 0.1em; text-transform: uppercase; }
@@ -270,9 +275,39 @@ button { font: inherit; color: inherit; background: none; border: none; cursor: 
 .flag.yes { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); }
 .sheet-def { font-size: 15px; line-height: 1.5; }
 .sheet-def .tag { color: var(--muted); font-size: 12px; }
-.help-row { font-size: 14px; line-height: 1.5; }
-.help-row b { letter-spacing: 0.05em; }
-.help-row .ex { color: var(--muted); font-size: 12px; }
+/* help — rulebook style: every rule shows the real component it talks about */
+.help-sec { display: flex; flex-direction: column; gap: 12px; padding-left: 12px; border-left: 4px solid var(--hc); }
+.help-sec[data-mode="slots"]   { --hc: #d93334; --hc-ink: #ffffff; --hc-text: #c22a2b; }
+.help-sec[data-mode="pattern"] { --hc: #c8f04a; --hc-ink: #101010; --hc-text: #7a9a00; }
+.help-sec[data-mode="lab"]     { --hc: #ffb000; --hc-ink: #101010; --hc-text: #9a6b00; }
+@media (prefers-color-scheme: dark) {
+  .help-sec[data-mode="slots"]   { --hc: #e5484d; --hc-text: #e5484d; }
+  .help-sec[data-mode="pattern"] { --hc: #cdf556; --hc-text: #cdf556; }
+  .help-sec[data-mode="lab"]     { --hc-text: #ffb000; }
+}
+.help-h { font-size: 12px; font-weight: 850; letter-spacing: 0.14em; color: var(--hc-text); }
+.help-row { display: flex; gap: 14px; align-items: center; }
+.help-demo { flex: 0 0 118px; display: flex; gap: 4px; align-items: center; flex-wrap: wrap; }
+.help-t { flex: 1; font-size: 13px; line-height: 1.5; color: var(--muted); font-weight: 650; }
+.help-t b { color: var(--ink); font-weight: 850; }
+
+/* mini replicas of the real components */
+.d-slot { width: 24px; height: 30px; display: inline-grid; place-items: center; font-size: 13px; font-weight: 850; background: var(--ink); color: var(--bg); border: 2px solid var(--ink); }
+.d-slot.empty { background: var(--surface); color: var(--muted); border-color: var(--line); }
+.d-key { width: 24px; height: 30px; display: inline-grid; place-items: center; font-size: 12px; font-weight: 800; background: var(--surface); border: 2px solid var(--line); position: relative; }
+.d-key.dim { opacity: 0.3; }
+.d-key.may { background: var(--ink); color: var(--bg); border-color: var(--ink); }
+.d-key.must { background: var(--hc); color: var(--hc-ink); border-color: var(--hc); }
+.d-key.must i { position: absolute; top: 0; right: 1px; font-size: 8px; font-style: normal; }
+.d-input { height: 30px; padding: 0 8px; display: inline-grid; place-items: center; font-size: 13px; font-weight: 850; letter-spacing: 0.1em; background: var(--surface); border: 2px solid var(--line); }
+.d-word { height: 28px; padding: 0 7px; display: inline-grid; place-items: center; font-size: 11px; font-weight: 800; background: var(--surface); border: 2px solid var(--line); }
+.d-word.hot { background: var(--hc); color: var(--hc-ink); border-color: var(--hc); }
+.d-anchor { width: 42px; height: 34px; display: inline-grid; place-items: center; font-size: 8px; font-weight: 850; line-height: 1.4; text-align: center; color: var(--muted); background: var(--surface); border: 2px solid var(--line); }
+.d-anchor.on { background: var(--ink); color: var(--bg); border-color: var(--ink); }
+.d-chip { height: 28px; padding: 0 9px; display: inline-flex; align-items: center; font-size: 10px; font-weight: 850; border: 2px solid var(--line); color: var(--muted); }
+.d-chip.on { background: var(--hc); color: var(--hc-ink); border-color: var(--hc); }
+.d-crumb { height: 26px; padding: 0 8px; display: inline-flex; align-items: center; font-size: 10px; font-weight: 850; border: 2px solid var(--line); color: var(--muted); }
+.d-arrow { color: var(--muted); font-size: 13px; }
 
 /* settings */
 .set-h { font-size: 12px; font-weight: 850; letter-spacing: 0.14em; color: var(--muted); }

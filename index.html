@@ -16,8 +16,8 @@
   <header class="brand-row">
     <div class="brand">LIV<em>·</em>WORDS</div>
     <div class="head-btns">
-      <button class="icon-btn" id="help-btn">?</button>
-      <button class="icon-btn" id="settings-btn">⚙</button>
+      <button class="icon-btn" id="help-btn"><span>?</span></button>
+      <button class="icon-btn" id="settings-btn"><span>⋯</span></button>
     </div>
   </header>
 
@@ -87,16 +87,47 @@
     <div id="dict-radios"></div>
   </div>
   <div class="sheet" id="help-sheet">
-    <div class="set-h">SLOTS</div>
-    <div class="help-row"><b>TYPE</b> to fill slots · <b>SPACE</b> = any letter</div>
-    <div class="help-row">board: tap once <b>MAY</b> use · twice <b>MUST ✱</b> use — once any letter is tapped, untapped letters are excluded</div>
-    <div class="set-h">PATTERN</div>
-    <div class="help-row"><b>_</b> any one letter — SPACE types it · <b>*</b> any run</div>
-    <div class="help-row"><b>START WITH</b> / <b>END WITH</b> pin the pattern to the word's edges. Both off = anywhere in the word.</div>
-    <div class="help-row ex">B_TT*Y → BATTERY · BUTTERY · BITTERLY</div>
-    <div class="set-h">LADDER</div>
-    <div class="help-row"><b>TAP</b> a word to walk to it · <b>HOLD</b> for meaning</div>
-    <div class="help-row"><b>⇄ SHUFFLE</b> also allows rearranged letters · typing resets the trail</div>
+    <div class="help-sec" data-mode="slots">
+      <div class="help-h">SLOTS</div>
+      <div class="help-row">
+        <span class="help-demo"><span class="d-slot">S</span><span class="d-slot empty">·</span><span class="d-slot">A</span><span class="d-slot empty">·</span></span>
+        <span class="help-t">type letters into slots<br><b>SPACE</b> leaves one open</span>
+      </div>
+      <div class="help-row">
+        <span class="help-demo"><span class="d-key dim">Q</span><span class="d-key may">A</span><span class="d-key must">R<i>✱</i></span></span>
+        <span class="help-t">tap once: <b>may</b> use it<br>twice: <b>must ✱</b> · rest can't</span>
+      </div>
+    </div>
+    <div class="help-sec" data-mode="pattern">
+      <div class="help-h">PATTERN</div>
+      <div class="help-row">
+        <span class="help-demo"><span class="d-input">B_TT*Y</span></span>
+        <span class="help-t"><b>_</b> one unknown letter (SPACE)<br><b>*</b> any stretch, even none</span>
+      </div>
+      <div class="help-row">
+        <span class="help-demo"><span class="d-word">BATTERY</span><span class="d-word">BITTERLY</span></span>
+        <span class="help-t">…both fit B_TT*Y</span>
+      </div>
+      <div class="help-row">
+        <span class="help-demo"><span class="d-anchor on">START<br>WITH</span><span class="d-anchor">END<br>WITH</span></span>
+        <span class="help-t">pin the pattern to an edge<br>both off: anywhere inside</span>
+      </div>
+    </div>
+    <div class="help-sec" data-mode="lab">
+      <div class="help-h">LADDER</div>
+      <div class="help-row">
+        <span class="help-demo"><span class="d-word">LOUR</span><span class="d-arrow">→</span><span class="d-word hot">FLOUR</span></span>
+        <span class="help-t"><b>tap</b> a word to step to it<br><b>hold</b> it for the meaning</span>
+      </div>
+      <div class="help-row">
+        <span class="help-demo"><span class="d-chip on">⇄ SHUFFLE</span></span>
+        <span class="help-t">allow rearranged letters too<br>FLUOR, not just FLOUR</span>
+      </div>
+      <div class="help-row">
+        <span class="help-demo"><span class="d-crumb">LOUR ›</span><span class="d-crumb">✕</span></span>
+        <span class="help-t">your path so far: typing a<br>fresh word clears it</span>
+      </div>
+    </div>
   </div>
 
   <input class="ghost-input" id="ghost" autocomplete="off" autocorrect="off"

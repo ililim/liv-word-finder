@@ -283,7 +283,7 @@ function paintPatternResults() {
   const p = state.pattern;
   const words = p.str ? queryPattern(state.dict, p.str, { ...p, rack: state.rack }) : [];
   const wrap = $("pattern-results");
-  paintGroups(wrap, words, p.str ? null : "type a pattern — try B_TT*Y");
+  paintGroups(wrap, words, p.str ? null : "type a pattern: try B_TT*Y");
   if (p.str && p.lengths.size) {
     const seen = new Set(words);
     const loose = queryPattern(state.dict, p.str, { ...p, lengths: null, rack: state.rack }).filter(w => !seen.has(w));
@@ -320,7 +320,7 @@ function labSection(sign, title, { inPlace, shuffled }) {
 function paintGroups(wrap, words, idleText) {
   wrap.innerHTML = "";
   if (idleText) return wrap.append(el(`<div class="idle">${idleText}</div>`));
-  if (!words.length) return wrap.append(el(`<div class="idle">no words — loosen something</div>`));
+  if (!words.length) return wrap.append(el(`<div class="idle">no words: loosen something</div>`));
   appendGroups(wrap, words);
 }
 
