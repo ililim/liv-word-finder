@@ -278,6 +278,7 @@ button { font: inherit; color: inherit; background: none; border: none; cursor: 
 .sheet-def .tag { color: var(--muted); font-size: 12px; }
 /* help — rulebook style: every rule shows the real component it talks about */
 .help-sec { display: flex; flex-direction: column; gap: 12px; padding-left: 12px; border-left: 4px solid var(--hc); }
+.help-sec[data-mode="any"]     { --hc: var(--ink); --hc-ink: var(--bg); --hc-text: var(--ink); }
 .help-sec[data-mode="slots"]   { --hc: #d93334; --hc-ink: #ffffff; --hc-text: #c22a2b; }
 .help-sec[data-mode="pattern"] { --hc: #c8f04a; --hc-ink: #101010; --hc-text: #7a9a00; }
 .help-sec[data-mode="lab"]     { --hc: #ffb000; --hc-ink: #101010; --hc-text: #9a6b00; }
@@ -303,6 +304,7 @@ button { font: inherit; color: inherit; background: none; border: none; cursor: 
 .d-input { height: 30px; padding: 0 8px; display: inline-grid; place-items: center; font-size: 13px; font-weight: 850; letter-spacing: 0.1em; background: var(--surface); border: 2px solid var(--line); }
 .d-word { height: 28px; padding: 0 7px; display: inline-grid; place-items: center; font-size: 11px; font-weight: 800; background: var(--surface); border: 2px solid var(--line); }
 .d-word.hot { background: var(--hc); color: var(--hc-ink); border-color: var(--hc); }
+.d-word b { color: var(--hc-text); }
 .d-anchor { width: 42px; height: 34px; display: inline-grid; place-items: center; font-size: 8px; font-weight: 850; line-height: 1.4; text-align: center; color: var(--muted); background: var(--surface); border: 2px solid var(--line); }
 .d-anchor.on { background: var(--ink); color: var(--bg); border-color: var(--ink); }
 .d-chip { height: 28px; padding: 0 9px; display: inline-flex; align-items: center; font-size: 10px; font-weight: 850; border: 2px solid var(--line); color: var(--muted); }

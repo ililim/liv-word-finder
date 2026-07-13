@@ -1,0 +1,317 @@
+<!-- 01 · Proofroom — Liv Word Finder v4.
+     COLOR LOGIC — an editor's desk: three pens, each with a real editorial job. SLOTS keeps
+     RED (#bf2b1e) because red is the proofreader's pen — strict, final, position-exact.
+     PATTERN gets the copyeditor's BLUE PENCIL (#2a55b0) — the query/suggestion mark, loose and
+     exploratory. LADDER gets the second-pass GREEN PEN (#1e7a3f) — the revision pass, where words
+     change step by step. Inside LADDER, +1 sections wear green (insert caret ‸, an insertion mark)
+     and −1 sections wear red (the dele/strike pen) — proofreading's own diff convention — and
+     SHUFFLED sub-groups are tagged "trs ⇄" (the transposition mark) with italic words on a dashed
+     rule. No other color exists; paper and ink do the rest. -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<title>01 · Proofroom — Liv Word Finder v4</title>
+<style>
+  :root {
+    --bg: #f7f2e7; --surface: #fffdf6; --ink: #211d15; --muted: #857b68;
+    --line: rgba(33, 29, 21, 0.2);
+    --red: #bf2b1e;   --red-ink: #ffffff;
+    --blue: #2a55b0;  --blue-ink: #ffffff;
+    --green: #1e7a3f; --green-ink: #ffffff;
+    color-scheme: light dark;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #17140d; --surface: #221e15; --ink: #f0e9d8; --muted: #9c9179;
+      --line: rgba(240, 233, 216, 0.2);
+      --red: #ff7663;   --red-ink: #17140d;
+      --blue: #8fabee;  --blue-ink: #17140d;
+      --green: #71c78f; --green-ink: #17140d;
+    }
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    background: var(--bg); color: var(--ink);
+    display: flex; flex-direction: column; align-items: center;
+    padding-bottom: 80px;
+  }
+  .serif { font-family: ui-serif, Georgia, "Times New Roman", serif; }
+  .topbar {
+    width: 100%; max-width: 430px;
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 10px 16px; font-size: 12px; font-weight: 700; color: var(--muted);
+  }
+  .topbar a { color: var(--muted); text-decoration: none; }
+  .phone { width: 100%; max-width: 430px; padding: 4px 16px 0; }
+
+  .brand-row { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 4px; }
+  .brand { font-family: ui-serif, Georgia, serif; font-size: 19px; font-weight: 800; letter-spacing: 0.12em; }
+  .brand em { font-style: normal; color: var(--muted); }
+  .icon-btns { display: flex; gap: 8px; }
+  .icon-btn {
+    width: 32px; height: 32px; display: grid; place-items: center;
+    font-size: 13px; font-weight: 800; border: 2px solid var(--ink); border-radius: 999px;
+    background: none; color: var(--ink);
+  }
+
+  /* mode switcher pill — the ONLY rounded thing */
+  .seg {
+    display: grid; grid-template-columns: 1fr 1fr 1fr;
+    height: 44px; padding: 4px; gap: 2px;
+    border: 2px solid var(--ink); border-radius: 999px; background: var(--bg);
+    margin: 10px 0 16px;
+  }
+  .seg span {
+    display: grid; place-items: center; border-radius: 999px;
+    font-size: 12px; font-weight: 850; letter-spacing: 0.08em; color: var(--muted);
+  }
+  .seg .on.slots   { background: var(--red);   color: var(--red-ink); }
+  .seg .on.pattern { background: var(--blue);  color: var(--blue-ink); }
+  .seg .on.ladder  { background: var(--green); color: var(--green-ink); }
+
+  /* section divider between modes */
+  .mode-break { margin: 44px 0 0; border-top: 3px solid var(--ink); padding-top: 8px; }
+  .mode-break .slug {
+    font-size: 10px; font-weight: 850; letter-spacing: 0.22em; color: var(--muted);
+  }
+
+  .hint { font-size: 11px; font-weight: 700; letter-spacing: 0.06em; color: var(--muted); }
+  .hint b { color: var(--ink); font-weight: 850; }
+
+  /* ---- SLOTS ---- */
+  .slots { display: flex; gap: 7px; justify-content: center; }
+  .slot {
+    width: 56px; height: 62px; display: grid; place-items: center;
+    font-family: ui-serif, Georgia, serif;
+    font-size: 28px; font-weight: 800;
+    background: var(--surface); border: 2px solid var(--line); position: relative;
+  }
+  .slot .idx { position: absolute; top: 3px; left: 6px; font-family: -apple-system, sans-serif; font-size: 9px; font-weight: 800; color: var(--muted); }
+  .slot.filled { background: var(--ink); color: var(--bg); border-color: var(--ink); }
+  .slot.filled .idx { color: var(--bg); opacity: 0.5; }
+  .slot.cursor { border-color: var(--red); }
+  .slots-tools { display: flex; align-items: center; justify-content: space-between; margin: 14px 0; }
+  .stepper { display: flex; border: 2px solid var(--ink); }
+  .stepper b { width: 40px; height: 32px; display: grid; place-items: center; font-size: 16px; font-weight: 850; }
+  .stepper .len { border-inline: 2px solid var(--ink); font-size: 13px; font-variant-numeric: tabular-nums; }
+
+  /* constraint board — pen marks: MAY = pencilled in (ink fill), MUST = red-pen box + caret */
+  .board { display: flex; flex-direction: column; gap: 6px; margin-bottom: 12px; }
+  .brow { display: flex; gap: 6px; justify-content: center; }
+  .bkey {
+    flex: 0 0 33px; height: 42px; display: grid; place-items: center;
+    font-size: 15px; font-weight: 800; background: var(--surface);
+    border: 2px solid var(--line); position: relative;
+  }
+  .bkey.dim { opacity: 0.28; }
+  .bkey.may { background: var(--ink); color: var(--bg); border-color: var(--ink); }
+  .bkey.must { border: 2.5px solid var(--red); color: var(--red); font-weight: 850; background: var(--surface); }
+  .bkey.must::after { content: "✱"; position: absolute; top: 1px; right: 3px; font-size: 9px; color: var(--red); }
+  .chips { display: flex; gap: 8px; align-items: center; margin-bottom: 16px; }
+  .chips .grow { flex: 1; }
+  .tchip {
+    height: 32px; padding: 0 12px; display: inline-flex; align-items: center; gap: 6px;
+    font-size: 11px; font-weight: 850; letter-spacing: 0.06em;
+    border: 2px solid var(--line); color: var(--muted); background: none;
+  }
+
+  /* results — manuscript rows: one word per ruled line, folio counter in pen color */
+  .galley-h {
+    display: flex; justify-content: space-between; align-items: baseline;
+    border-top: 2.5px solid var(--ink); padding-top: 7px; margin-top: 4px;
+    font-size: 11px; font-weight: 850; letter-spacing: 0.14em; color: var(--muted);
+  }
+  .galley-h .folio { font-family: ui-serif, Georgia, serif; font-size: 22px; font-weight: 800; letter-spacing: 0; }
+  .folio.r { color: var(--red); } .folio.b { color: var(--blue); } .folio.g { color: var(--green); }
+  .ms { margin-top: 2px; }
+  .ms .row {
+    display: flex; justify-content: space-between; align-items: baseline;
+    padding: 9px 2px 8px; border-bottom: 1px solid var(--line);
+  }
+  .ms .row .w {
+    font-family: ui-serif, Georgia, serif;
+    font-size: 19px; font-weight: 700; letter-spacing: 0.14em;
+  }
+  .ms .row .note { font-size: 10px; font-weight: 700; letter-spacing: 0.08em; color: var(--muted); }
+
+  /* ---- PATTERN ---- */
+  .pat-row { display: flex; gap: 8px; align-items: stretch; margin-bottom: 12px; }
+  .anchor {
+    flex: 0 0 60px; display: grid; place-items: center; text-align: center;
+    font-size: 10px; font-weight: 850; line-height: 1.4;
+    border: 2px solid var(--line); color: var(--muted); background: var(--surface);
+  }
+  .anchor.on { background: var(--blue); color: var(--blue-ink); border-color: var(--blue); }
+  .pat-input {
+    flex: 1; height: 56px; display: grid; place-items: center;
+    font-family: ui-serif, Georgia, serif; font-size: 25px; font-weight: 800; letter-spacing: 0.16em;
+    background: var(--surface); border: 2px solid var(--blue);
+  }
+  .lenchips { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 16px; }
+  .lchip {
+    height: 30px; min-width: 38px; padding: 0 10px; display: grid; place-items: center;
+    font-size: 12px; font-weight: 850; border: 2px solid var(--line); color: var(--muted);
+    font-variant-numeric: tabular-nums;
+  }
+  .lchip.on { background: var(--ink); color: var(--bg); border-color: var(--ink); }
+  /* matched literal letters carry a blue-pencil underline */
+  .ms .row .w u { text-decoration: none; border-bottom: 3px solid var(--blue); }
+
+  /* ---- LADDER ---- */
+  .lab-input {
+    width: 100%; height: 56px; display: grid; place-items: center;
+    font-family: ui-serif, Georgia, serif; font-size: 25px; font-weight: 800; letter-spacing: 0.16em;
+    background: var(--surface); border: 2px solid var(--green); margin-bottom: 12px;
+  }
+  .trail { display: flex; gap: 6px; align-items: center; margin-bottom: 14px; }
+  .crumb {
+    height: 28px; padding: 0 11px; display: inline-flex; align-items: center;
+    font-size: 11px; font-weight: 850; letter-spacing: 0.05em;
+    border: 2px solid var(--line); color: var(--muted);
+  }
+  .crumb::after { content: " ›"; color: var(--line); }
+  .trail .clear { margin-left: auto; height: 28px; padding: 0 10px; display: inline-flex; align-items: center; font-size: 11px; font-weight: 850; color: var(--muted); border: 2px solid var(--line); }
+
+  /* +1 = green insert pen · −1 = red dele pen — different colored rules (owner's idea) */
+  .lad-h {
+    display: flex; align-items: center; gap: 8px;
+    padding-top: 7px; margin-top: 18px;
+    font-size: 11px; font-weight: 850; letter-spacing: 0.12em; color: var(--muted);
+  }
+  .lad-h.add { border-top: 4px solid var(--green); }
+  .lad-h.del { border-top: 4px solid var(--red); }
+  .lad-h .sign {
+    height: 24px; padding: 0 10px; display: inline-flex; align-items: center; gap: 5px;
+    font-size: 12px; font-weight: 850;
+  }
+  .lad-h.add .sign { background: var(--green); color: var(--green-ink); }
+  .lad-h.del .sign { background: var(--red); color: var(--red-ink); }
+  .lad-h .n { margin-left: auto; font-family: ui-serif, Georgia, serif; font-size: 20px; font-weight: 800; }
+  .lad-h.add .n { color: var(--green); } .lad-h.del .n { color: var(--red); }
+  /* shuffled sub-group — "trs ⇄" transposition mark, dashed rule, italic words */
+  .sub-h {
+    display: flex; align-items: baseline; gap: 8px;
+    border-top: 2px dashed var(--line); padding-top: 6px; margin-top: 12px;
+    font-size: 10px; font-weight: 850; letter-spacing: 0.12em; color: var(--muted);
+  }
+  .sub-h i { font-family: ui-serif, Georgia, serif; font-size: 13px; font-weight: 700; }
+  .sub-h .n { margin-left: auto; font-size: 12px; }
+  .ms .row .w.trs { font-style: italic; letter-spacing: 0.1em; }
+  .ms .row .w b { font-weight: 800; }
+  .ms .row .w .caret { color: var(--green); }
+  .ms .row .w .dele { color: var(--red); text-decoration: line-through; text-decoration-thickness: 2px; }
+  .zero { padding: 10px 2px; font-size: 12px; font-weight: 700; color: var(--muted); font-style: italic; }
+</style>
+</head>
+<body>
+<div class="topbar"><a href="./index.html">‹ Gallery</a><span>01 · PROOFROOM</span></div>
+<div class="phone">
+
+  <div class="brand-row">
+    <div class="brand">LIV<em>·</em>WORDS</div>
+    <div class="icon-btns"><span class="icon-btn">?</span><span class="icon-btn">⚙</span></div>
+  </div>
+
+  <!-- ==================== SLOTS ==================== -->
+  <nav class="seg"><span class="on slots">SLOTS</span><span>PATTERN</span><span>LADDER</span></nav>
+
+  <div class="slots">
+    <div class="slot filled"><span class="idx">1</span>S</div>
+    <div class="slot cursor"><span class="idx">2</span></div>
+    <div class="slot filled"><span class="idx">3</span>A</div>
+    <div class="slot"><span class="idx">4</span></div>
+    <div class="slot filled"><span class="idx">5</span>E</div>
+  </div>
+  <div class="slots-tools">
+    <div class="hint">WORD LENGTH</div>
+    <div class="stepper"><b>−</b><b class="len">5</b><b>+</b></div>
+  </div>
+  <div class="board">
+    <div class="brow">
+      <div class="bkey dim">Q</div><div class="bkey dim">W</div><div class="bkey dim">E</div>
+      <div class="bkey may">R</div><div class="bkey may">T</div><div class="bkey dim">Y</div>
+      <div class="bkey dim">U</div><div class="bkey dim">I</div><div class="bkey dim">O</div><div class="bkey may">P</div>
+    </div>
+    <div class="brow">
+      <div class="bkey dim">A</div><div class="bkey dim">S</div><div class="bkey may">D</div>
+      <div class="bkey dim">F</div><div class="bkey dim">G</div><div class="bkey must">H</div>
+      <div class="bkey dim">J</div><div class="bkey may">K</div><div class="bkey may">L</div>
+    </div>
+    <div class="brow">
+      <div class="bkey dim">Z</div><div class="bkey dim">X</div><div class="bkey dim">C</div>
+      <div class="bkey may">V</div><div class="bkey dim">B</div><div class="bkey dim">N</div><div class="bkey may">M</div>
+    </div>
+  </div>
+  <div class="chips">
+    <div class="hint">TAP ONCE <b>MAY</b> · TWICE <b>MUST ✱</b></div>
+    <div class="grow"></div>
+    <span class="tchip">◇ NO DOUBLES</span>
+  </div>
+
+  <div class="galley-h"><span>MATCHES</span><span class="folio r serif">7</span></div>
+  <div class="ms">
+    <div class="row"><span class="w">SHADE</span><span class="note">NWL</span></div>
+    <div class="row"><span class="w">SHAKE</span><span class="note">NWL</span></div>
+    <div class="row"><span class="w">SHALE</span><span class="note">NWL</span></div>
+    <div class="row"><span class="w">SHAME</span><span class="note">NWL</span></div>
+    <div class="row"><span class="w">SHAPE</span><span class="note">NWL</span></div>
+    <div class="row"><span class="w">SHARE</span><span class="note">NWL</span></div>
+    <div class="row"><span class="w">SHAVE</span><span class="note">NWL</span></div>
+  </div>
+
+  <!-- ==================== PATTERN ==================== -->
+  <div class="mode-break"><div class="slug">MODE · PATTERN</div></div>
+  <nav class="seg"><span>SLOTS</span><span class="on pattern">PATTERN</span><span>LADDER</span></nav>
+
+  <div class="pat-row">
+    <div class="anchor on">START<br>WITH</div>
+    <div class="pat-input serif">B_TT*Y</div>
+    <div class="anchor">END<br>WITH</div>
+  </div>
+  <div class="lenchips">
+    <span class="lchip on">ALL</span><span class="lchip">5</span><span class="lchip">6</span>
+    <span class="lchip">7</span><span class="lchip">8</span><span class="lchip">9</span><span class="lchip">10+</span>
+  </div>
+
+  <div class="galley-h"><span>MATCHES</span><span class="folio b serif">4</span></div>
+  <div class="ms">
+    <div class="row"><span class="w"><u>B</u>A<u>TT</u>ER<u>Y</u></span><span class="note">7 · NWL</span></div>
+    <div class="row"><span class="w"><u>B</u>I<u>TT</u>ERL<u>Y</u></span><span class="note">8 · NWL</span></div>
+    <div class="row"><span class="w"><u>B</u>U<u>TT</u>ERFL<u>Y</u></span><span class="note">9 · NWL</span></div>
+    <div class="row"><span class="w"><u>B</u>U<u>TT</u>ER<u>Y</u></span><span class="note">7 · NWL</span></div>
+  </div>
+
+  <!-- ==================== LADDER ==================== -->
+  <div class="mode-break"><div class="slug">MODE · LADDER</div></div>
+  <nav class="seg"><span>SLOTS</span><span>PATTERN</span><span class="on ladder">LADDER</span></nav>
+
+  <div class="lab-input serif">LOUR</div>
+  <div class="trail"><span class="crumb">FLOUR</span><span class="clear">✕ CLEAR</span></div>
+
+  <div class="lad-h add"><span class="sign">‸ +1</span><span>INSERT A LETTER</span><span class="n serif">5</span></div>
+  <div class="ms">
+    <div class="row"><span class="w"><b class="caret">C</b>LOUR</span><span class="note">CSW</span></div>
+    <div class="row"><span class="w"><b class="caret">F</b>LOUR</span><span class="note">NWL</span></div>
+    <div class="row"><span class="w">LOUR<b class="caret">E</b></span><span class="note">CSW</span></div>
+    <div class="row"><span class="w">LOUR<b class="caret">S</b></span><span class="note">NWL</span></div>
+  </div>
+  <div class="sub-h"><i>trs</i><span>⇄ SHUFFLED</span><span class="n">1</span></div>
+  <div class="ms">
+    <div class="row"><span class="w trs">FLUOR</span><span class="note">NWL</span></div>
+  </div>
+
+  <div class="lad-h del"><span class="sign">−1</span><span>DELE A LETTER</span><span class="n serif">2</span></div>
+  <div class="ms">
+    <div class="row"><span class="w"><b class="dele">L</b>OUR</span><span class="note">NWL</span></div>
+    <div class="row"><span class="w">LO<b class="dele">U</b>R</span><span class="note">CSW</span></div>
+  </div>
+  <div class="sub-h"><i>trs</i><span>⇄ SHUFFLED</span><span class="n">0</span></div>
+  <div class="zero">no transpositions</div>
+
+</div>
+</body>
+</html>

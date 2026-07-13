@@ -57,6 +57,8 @@
     </div>
     <div class="lenchips" id="lenchips"></div>
     <div class="chips">
+      <div class="hint"><b>_</b> ONE LETTER · <b>*</b> ANY RUN</div>
+      <div class="grow"></div>
       <button class="tchip" id="pat-nodoubles"><span class="ic">◇</span>NO DOUBLES</button>
     </div>
     <div class="results" id="pattern-results"></div>
@@ -87,6 +89,13 @@
     <div id="dict-radios"></div>
   </div>
   <div class="sheet" id="help-sheet">
+    <div class="help-sec" data-mode="any">
+      <div class="help-h">ANY WORD</div>
+      <div class="help-row">
+        <span class="help-demo"><span class="d-word">SHADE</span><span class="d-arrow">→</span><span class="d-input">“shelter…”</span></span>
+        <span class="help-t"><b>tap</b> a word: its meaning<br>in LADDER: <b>hold</b> (tap steps)</span>
+      </div>
+    </div>
     <div class="help-sec" data-mode="slots">
       <div class="help-h">SLOTS</div>
       <div class="help-row">
@@ -101,23 +110,27 @@
     <div class="help-sec" data-mode="pattern">
       <div class="help-h">PATTERN</div>
       <div class="help-row">
-        <span class="help-demo"><span class="d-input">B_TT*Y</span></span>
-        <span class="help-t"><b>_</b> one unknown letter (SPACE)<br><b>*</b> any stretch, even none</span>
+        <span class="help-demo"><span class="d-input">S_NG</span><span class="d-word">SING</span><span class="d-word">SONG</span></span>
+        <span class="help-t"><b>_</b> holds exactly one letter<br><b>SPACE</b> types it</span>
       </div>
       <div class="help-row">
-        <span class="help-demo"><span class="d-word">BATTERY</span><span class="d-word">BITTERLY</span></span>
-        <span class="help-t">…both fit B_TT*Y</span>
+        <span class="help-demo"><span class="d-input">B*Y</span><span class="d-word">BUY</span><span class="d-word">BELLY</span></span>
+        <span class="help-t"><b>*</b> stretches: any number<br>of letters, even none</span>
       </div>
       <div class="help-row">
-        <span class="help-demo"><span class="d-anchor on">START<br>WITH</span><span class="d-anchor">END<br>WITH</span></span>
-        <span class="help-t">pin the pattern to an edge<br>both off: anywhere inside</span>
+        <span class="help-demo"><span class="d-input">CAT</span><span class="d-word">s<b>CAT</b>ter</span></span>
+        <span class="help-t">unpinned, the pattern can<br>sit anywhere in the word</span>
+      </div>
+      <div class="help-row">
+        <span class="help-demo"><span class="d-anchor on">START<br>WITH</span><span class="d-word"><b>CAT</b>NIP</span></span>
+        <span class="help-t">pinned, the word must<br>begin (or end) with it</span>
       </div>
     </div>
     <div class="help-sec" data-mode="lab">
       <div class="help-h">LADDER</div>
       <div class="help-row">
         <span class="help-demo"><span class="d-word">LOUR</span><span class="d-arrow">→</span><span class="d-word hot">FLOUR</span></span>
-        <span class="help-t"><b>tap</b> a word to step to it<br><b>hold</b> it for the meaning</span>
+        <span class="help-t"><b>tap</b> a word to step to it<br>+1 adds a letter · −1 removes</span>
       </div>
       <div class="help-row">
         <span class="help-demo"><span class="d-chip on">⇄ SHUFFLE</span></span>

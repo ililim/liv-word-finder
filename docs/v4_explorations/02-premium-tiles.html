@@ -1,0 +1,272 @@
+<!-- 02 · Premium Tiles — Liv Word Finder v4.
+     COLOR LOGIC — colors mean what they mean on a Scrabble board. SLOTS = TRIPLE-WORD RED
+     (#c2382c): the strictest square on the board, exact placement — red stays strict. PATTERN =
+     LETTER-PREMIUM BLUE (#2c66ae): blue squares are letter-level bonuses, and pattern works
+     letter-by-letter (_ and *). LADDER = BOARD GREEN (#157a55): the open board itself, the field
+     you walk words across. Words render as physical cream tiles (they stay cream in dark mode —
+     tiles are objects, not UI). In LADDER, +1 "DRAW" sections get a solid green rule with a
+     filled badge, −1 "RETURN" sections a hollow double rule with an outlined badge, and SHUFFLED
+     sub-groups a dashed rule + ⇄ with loose (dashed-border) tiles. -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<title>02 · Premium Tiles — Liv Word Finder v4</title>
+<style>
+  :root {
+    --bg: #f2eee3; --surface: #fbf8ef; --ink: #241f16; --muted: #837a67;
+    --line: rgba(36, 31, 22, 0.2);
+    --tile: #eed9a8; --tile-edge: #cdb47c; --tile-ink: #241f16;
+    --red: #c2382c;  --red-ink: #ffffff;  --red-text: #b02f24;
+    --blue: #2c66ae; --blue-ink: #ffffff; --blue-text: #275c9e;
+    --green: #157a55; --green-ink: #ffffff; --green-text: #116b4a;
+    color-scheme: light dark;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #0e1f1a; --surface: #172b24; --ink: #eaf2ec; --muted: #8ba396;
+      --line: rgba(234, 242, 236, 0.2);
+      --tile: #e8d29e; --tile-edge: #b89c66; --tile-ink: #241f16;
+      --red: #e0564a;  --red-ink: #160907;  --red-text: #f07d72;
+      --blue: #5f97d8; --blue-ink: #081524; --blue-text: #85b3e8;
+      --green: #3aa87c; --green-ink: #06110c; --green-text: #55c496;
+    }
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    background: var(--bg); color: var(--ink);
+    display: flex; flex-direction: column; align-items: center;
+    padding-bottom: 80px;
+  }
+  .topbar {
+    width: 100%; max-width: 430px;
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 10px 16px; font-size: 12px; font-weight: 700; color: var(--muted);
+  }
+  .topbar a { color: var(--muted); text-decoration: none; }
+  .phone { width: 100%; max-width: 430px; padding: 4px 16px 0; }
+
+  .brand-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
+  .brand { font-size: 15px; font-weight: 850; letter-spacing: 0.18em; }
+  .icon-btns { display: flex; gap: 8px; }
+  .icon-btn { width: 32px; height: 32px; display: grid; place-items: center; font-size: 13px; font-weight: 850; border: 2px solid var(--ink); border-radius: 999px; }
+
+  .seg {
+    display: grid; grid-template-columns: 1fr 1fr 1fr;
+    height: 44px; padding: 4px; gap: 2px;
+    border: 2px solid var(--ink); border-radius: 999px; background: var(--bg);
+    margin: 10px 0 16px;
+  }
+  .seg span { display: grid; place-items: center; border-radius: 999px; font-size: 12px; font-weight: 850; letter-spacing: 0.08em; color: var(--muted); }
+  .seg .on.slots   { background: var(--red);   color: var(--red-ink); }
+  .seg .on.pattern { background: var(--blue);  color: var(--blue-ink); }
+  .seg .on.ladder  { background: var(--green); color: var(--green-ink); }
+
+  .mode-break { margin-top: 44px; display: flex; align-items: center; gap: 10px; }
+  .mode-break .sq { width: 10px; height: 10px; background: var(--ink); }
+  .mode-break .slug { font-size: 10px; font-weight: 850; letter-spacing: 0.22em; color: var(--muted); }
+  .mode-break .rule { flex: 1; border-top: 2px solid var(--line); }
+
+  .hint { font-size: 11px; font-weight: 700; letter-spacing: 0.06em; color: var(--muted); }
+  .hint b { color: var(--ink); font-weight: 850; }
+
+  /* ---- SLOTS — slots are board squares; typed letters are tiles laid on them ---- */
+  .slots { display: flex; gap: 7px; justify-content: center; }
+  .slot {
+    width: 56px; height: 62px; display: grid; place-items: center;
+    font-size: 27px; font-weight: 850;
+    border: 2px solid var(--line); background: var(--surface); position: relative;
+  }
+  .slot.tile { background: var(--tile); color: var(--tile-ink); border-color: var(--tile-edge); box-shadow: 2px 2px 0 var(--tile-edge); }
+  .slot.cursor { border-color: var(--red); }
+  .slot .idx { position: absolute; top: 3px; left: 5px; font-size: 9px; font-weight: 800; color: var(--muted); }
+  .slot.tile .idx { color: var(--tile-ink); opacity: 0.45; }
+  .slots-tools { display: flex; align-items: center; justify-content: space-between; margin: 14px 0; }
+  .stepper { display: flex; border: 2px solid var(--ink); }
+  .stepper b { width: 40px; height: 32px; display: grid; place-items: center; font-size: 16px; font-weight: 850; }
+  .stepper .len { border-inline: 2px solid var(--ink); font-size: 13px; font-variant-numeric: tabular-nums; }
+
+  /* board — empty squares; MAY = tile in the rack; MUST = tile on a triple-word (red) square */
+  .board { display: flex; flex-direction: column; gap: 6px; margin-bottom: 12px; }
+  .brow { display: flex; gap: 6px; justify-content: center; }
+  .bkey {
+    flex: 0 0 33px; height: 42px; display: grid; place-items: center;
+    font-size: 15px; font-weight: 800;
+    border: 2px solid var(--line); background: var(--surface); position: relative;
+  }
+  .bkey.dim { opacity: 0.26; }
+  .bkey.may { background: var(--tile); color: var(--tile-ink); border-color: var(--tile-edge); box-shadow: 2px 2px 0 var(--tile-edge); }
+  .bkey.must { background: var(--red); color: var(--red-ink); border-color: var(--red); font-weight: 850; }
+  .bkey.must::after { content: "✱"; position: absolute; top: 1px; right: 3px; font-size: 9px; }
+  .chips { display: flex; gap: 8px; align-items: center; margin-bottom: 16px; }
+  .chips .grow { flex: 1; }
+  .tchip { height: 32px; padding: 0 12px; display: inline-flex; align-items: center; gap: 6px; font-size: 11px; font-weight: 850; letter-spacing: 0.06em; border: 2px solid var(--line); color: var(--muted); }
+  .tchip.on { background: var(--ink); color: var(--bg); border-color: var(--ink); }
+
+  /* results header — counter sits in a square badge, mode color */
+  .res-h {
+    display: flex; align-items: center; gap: 10px;
+    border-top: 2.5px solid var(--ink); padding-top: 8px; margin-bottom: 12px;
+    font-size: 11px; font-weight: 850; letter-spacing: 0.14em; color: var(--muted);
+  }
+  .res-h .count { margin-left: auto; min-width: 34px; height: 26px; padding: 0 8px; display: grid; place-items: center; font-size: 14px; font-variant-numeric: tabular-nums; }
+  .res-h .count.r { background: var(--red); color: var(--red-ink); }
+  .res-h .count.b { background: var(--blue); color: var(--blue-ink); }
+
+  /* words as racks of physical tiles */
+  .racks { display: flex; flex-direction: column; gap: 10px; }
+  .rack { display: flex; gap: 3px; }
+  .rack .t {
+    width: 34px; height: 38px; display: grid; place-items: center;
+    font-size: 17px; font-weight: 850;
+    background: var(--tile); color: var(--tile-ink);
+    border: 2px solid var(--tile-edge); box-shadow: 2px 2px 0 var(--tile-edge);
+  }
+  .rack .t.hit { border-bottom-width: 5px; border-bottom-color: var(--blue); }   /* pattern literals */
+  .rack .t.new { border-color: var(--green); box-shadow: 2px 2px 0 var(--green); } /* +1 added tile */
+  .rack .t.loose { border-style: dashed; box-shadow: none; }                       /* shuffled tiles */
+  .rack .t.gone { background: var(--surface); color: var(--muted); border: 2px dashed var(--line); box-shadow: none; text-decoration: line-through; } /* −1 returned tile */
+
+  /* ---- PATTERN ---- */
+  .pat-row { display: flex; gap: 8px; align-items: stretch; margin-bottom: 12px; }
+  .anchor { flex: 0 0 60px; display: grid; place-items: center; text-align: center; font-size: 10px; font-weight: 850; line-height: 1.4; border: 2px solid var(--line); color: var(--muted); background: var(--surface); }
+  .anchor.on { background: var(--blue); color: var(--blue-ink); border-color: var(--blue); }
+  .pat-input { flex: 1; height: 56px; display: grid; place-items: center; font-size: 24px; font-weight: 850; letter-spacing: 0.14em; background: var(--surface); border: 2px solid var(--blue); }
+  .lenchips { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 16px; }
+  .lchip { height: 30px; min-width: 38px; padding: 0 10px; display: grid; place-items: center; font-size: 12px; font-weight: 850; border: 2px solid var(--line); color: var(--muted); font-variant-numeric: tabular-nums; }
+  .lchip.on { background: var(--ink); color: var(--bg); border-color: var(--ink); }
+
+  /* ---- LADDER ---- */
+  .lab-input { width: 100%; height: 56px; display: grid; place-items: center; font-size: 24px; font-weight: 850; letter-spacing: 0.14em; background: var(--surface); border: 2px solid var(--green); margin-bottom: 12px; }
+  .trail { display: flex; gap: 6px; align-items: center; margin-bottom: 14px; }
+  .crumb { height: 28px; padding: 0 11px; display: inline-flex; align-items: center; font-size: 11px; font-weight: 850; border: 2px solid var(--line); color: var(--muted); }
+  .crumb::after { content: " ›"; color: var(--line); }
+  .trail .clear { margin-left: auto; height: 28px; padding: 0 10px; display: inline-flex; align-items: center; font-size: 11px; font-weight: 850; color: var(--muted); border: 2px solid var(--line); }
+
+  /* +1 DRAW = solid green rule + filled badge · −1 RETURN = hollow double rule + outlined badge */
+  .lad-h { display: flex; align-items: center; gap: 8px; padding-top: 8px; margin: 18px 0 12px; font-size: 11px; font-weight: 850; letter-spacing: 0.12em; color: var(--muted); }
+  .lad-h.add { border-top: 4px solid var(--green); }
+  .lad-h.del { border-top: 4px double var(--green); border-top-style: double; border-top-width: 7px; }
+  .lad-h .sign { height: 24px; padding: 0 10px; display: inline-flex; align-items: center; font-size: 13px; font-weight: 850; }
+  .lad-h.add .sign { background: var(--green); color: var(--green-ink); }
+  .lad-h.del .sign { border: 2px solid var(--green); color: var(--green-text); }
+  .lad-h .n { margin-left: auto; font-size: 16px; color: var(--green-text); font-variant-numeric: tabular-nums; }
+  .sub-h { display: flex; align-items: baseline; gap: 8px; border-top: 2px dashed var(--line); padding-top: 6px; margin: 14px 0 10px; font-size: 10px; font-weight: 850; letter-spacing: 0.12em; color: var(--muted); }
+  .sub-h .n { margin-left: auto; font-size: 12px; }
+  .zero { font-size: 12px; font-weight: 700; color: var(--muted); font-style: italic; padding: 2px 0 6px; }
+</style>
+</head>
+<body>
+<div class="topbar"><a href="./index.html">‹ Gallery</a><span>02 · PREMIUM TILES</span></div>
+<div class="phone">
+
+  <div class="brand-row">
+    <div class="brand">LIV·WORDS</div>
+    <div class="icon-btns"><span class="icon-btn">?</span><span class="icon-btn">⚙</span></div>
+  </div>
+
+  <!-- ==================== SLOTS ==================== -->
+  <nav class="seg"><span class="on slots">SLOTS</span><span>PATTERN</span><span>LADDER</span></nav>
+
+  <div class="slots">
+    <div class="slot tile"><span class="idx">1</span>S</div>
+    <div class="slot cursor"><span class="idx">2</span></div>
+    <div class="slot tile"><span class="idx">3</span>A</div>
+    <div class="slot"><span class="idx">4</span></div>
+    <div class="slot tile"><span class="idx">5</span>E</div>
+  </div>
+  <div class="slots-tools">
+    <div class="hint">WORD LENGTH</div>
+    <div class="stepper"><b>−</b><b class="len">5</b><b>+</b></div>
+  </div>
+  <div class="board">
+    <div class="brow">
+      <div class="bkey dim">Q</div><div class="bkey dim">W</div><div class="bkey dim">E</div>
+      <div class="bkey may">R</div><div class="bkey may">T</div><div class="bkey dim">Y</div>
+      <div class="bkey dim">U</div><div class="bkey dim">I</div><div class="bkey dim">O</div><div class="bkey may">P</div>
+    </div>
+    <div class="brow">
+      <div class="bkey dim">A</div><div class="bkey dim">S</div><div class="bkey may">D</div>
+      <div class="bkey dim">F</div><div class="bkey dim">G</div><div class="bkey must">H</div>
+      <div class="bkey dim">J</div><div class="bkey may">K</div><div class="bkey may">L</div>
+    </div>
+    <div class="brow">
+      <div class="bkey dim">Z</div><div class="bkey dim">X</div><div class="bkey dim">C</div>
+      <div class="bkey may">V</div><div class="bkey dim">B</div><div class="bkey dim">N</div><div class="bkey may">M</div>
+    </div>
+  </div>
+  <div class="chips">
+    <div class="hint">TILE = <b>MAY</b> · RED SQUARE = <b>MUST ✱</b></div>
+    <div class="grow"></div>
+    <span class="tchip">◇ NO DOUBLES</span>
+  </div>
+
+  <div class="res-h"><span>MATCHES</span><span class="count r">7</span></div>
+  <div class="racks">
+    <div class="rack"><span class="t">S</span><span class="t">H</span><span class="t">A</span><span class="t">D</span><span class="t">E</span></div>
+    <div class="rack"><span class="t">S</span><span class="t">H</span><span class="t">A</span><span class="t">K</span><span class="t">E</span></div>
+    <div class="rack"><span class="t">S</span><span class="t">H</span><span class="t">A</span><span class="t">L</span><span class="t">E</span></div>
+    <div class="rack"><span class="t">S</span><span class="t">H</span><span class="t">A</span><span class="t">M</span><span class="t">E</span></div>
+    <div class="rack"><span class="t">S</span><span class="t">H</span><span class="t">A</span><span class="t">P</span><span class="t">E</span></div>
+    <div class="rack"><span class="t">S</span><span class="t">H</span><span class="t">A</span><span class="t">R</span><span class="t">E</span></div>
+    <div class="rack"><span class="t">S</span><span class="t">H</span><span class="t">A</span><span class="t">V</span><span class="t">E</span></div>
+  </div>
+
+  <!-- ==================== PATTERN ==================== -->
+  <div class="mode-break"><span class="sq"></span><span class="slug">MODE · PATTERN</span><span class="rule"></span></div>
+  <nav class="seg"><span>SLOTS</span><span class="on pattern">PATTERN</span><span>LADDER</span></nav>
+
+  <div class="pat-row">
+    <div class="anchor on">START<br>WITH</div>
+    <div class="pat-input">B_TT*Y</div>
+    <div class="anchor">END<br>WITH</div>
+  </div>
+  <div class="lenchips">
+    <span class="lchip on">ALL</span><span class="lchip">5</span><span class="lchip">6</span>
+    <span class="lchip">7</span><span class="lchip">8</span><span class="lchip">9</span><span class="lchip">10+</span>
+  </div>
+
+  <div class="res-h"><span>MATCHES · BLUE EDGE = YOUR LETTERS</span><span class="count b">4</span></div>
+  <div class="racks">
+    <div class="rack"><span class="t hit">B</span><span class="t">A</span><span class="t hit">T</span><span class="t hit">T</span><span class="t">E</span><span class="t">R</span><span class="t hit">Y</span></div>
+    <div class="rack"><span class="t hit">B</span><span class="t">I</span><span class="t hit">T</span><span class="t hit">T</span><span class="t">E</span><span class="t">R</span><span class="t">L</span><span class="t hit">Y</span></div>
+    <div class="rack"><span class="t hit">B</span><span class="t">U</span><span class="t hit">T</span><span class="t hit">T</span><span class="t">E</span><span class="t">R</span><span class="t">F</span><span class="t">L</span><span class="t hit">Y</span></div>
+    <div class="rack"><span class="t hit">B</span><span class="t">U</span><span class="t hit">T</span><span class="t hit">T</span><span class="t">E</span><span class="t">R</span><span class="t hit">Y</span></div>
+  </div>
+
+  <!-- ==================== LADDER ==================== -->
+  <div class="mode-break"><span class="sq"></span><span class="slug">MODE · LADDER</span><span class="rule"></span></div>
+  <nav class="seg"><span>SLOTS</span><span>PATTERN</span><span class="on ladder">LADDER</span></nav>
+
+  <div class="lab-input">LOUR</div>
+  <div class="trail"><span class="crumb">FLOUR</span><span class="clear">✕ CLEAR</span></div>
+  <div class="chips">
+    <span class="tchip on">⇄ SHUFFLE</span><span class="tchip">◇ NO DOUBLES</span><span class="tchip">S̶ HIDE +S</span>
+  </div>
+
+  <div class="lad-h add"><span class="sign">+1</span><span>DRAW A TILE</span><span class="n">5</span></div>
+  <div class="racks">
+    <div class="rack"><span class="t new">C</span><span class="t">L</span><span class="t">O</span><span class="t">U</span><span class="t">R</span></div>
+    <div class="rack"><span class="t new">F</span><span class="t">L</span><span class="t">O</span><span class="t">U</span><span class="t">R</span></div>
+    <div class="rack"><span class="t">L</span><span class="t">O</span><span class="t">U</span><span class="t">R</span><span class="t new">E</span></div>
+    <div class="rack"><span class="t">L</span><span class="t">O</span><span class="t">U</span><span class="t">R</span><span class="t new">S</span></div>
+  </div>
+  <div class="sub-h"><span>⇄ SHUFFLED</span><span class="n">1</span></div>
+  <div class="racks">
+    <div class="rack"><span class="t loose new">F</span><span class="t loose">L</span><span class="t loose">U</span><span class="t loose">O</span><span class="t loose">R</span></div>
+  </div>
+
+  <div class="lad-h del"><span class="sign">−1</span><span>RETURN A TILE</span><span class="n">2</span></div>
+  <div class="racks">
+    <div class="rack"><span class="t gone">L</span><span class="t">O</span><span class="t">U</span><span class="t">R</span></div>
+    <div class="rack"><span class="t">L</span><span class="t">O</span><span class="t gone">U</span><span class="t">R</span></div>
+  </div>
+  <div class="sub-h"><span>⇄ SHUFFLED</span><span class="n">0</span></div>
+  <div class="zero">no shuffled words one tile down</div>
+
+</div>
+</body>
+</html>
