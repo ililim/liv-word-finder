@@ -130,10 +130,12 @@ shapes survive only in the nav (seg pill + header ?/⚙ buttons). Header: brand 
   example: B_TT*Y → BATTERY · BUTTERY · BITTERLY).
 - **LADDER** (±1, internal id "lab") — one letter more/less; tap a word to walk to it
   (trail crumbs grow, ✕ CLEAR button at trail end; **typing directly resets the trail**);
-  hold a word for its definition. Toggles: shuffle (on by default), no-doubles, hide +S
-  plurals. +1/−1 sections split on a thick accent rule with signed badges. No "word not
+  hold a word for its definition. Toggles: ANAGRAM (rearranged letters, on by default),
+  UNIQUE (no repeated letters), +S (hide S-plurals). +1/−1 sections split on a thick accent rule with signed badges. No "word not
   in dictionary" notices (owner cut it).
-- Constraint board MUST keys show a ✱ top-right (required-field convention).
+- Constraint board MUST keys show an inline ✱ superscript (required-field convention).
+- Filter rows: ↺ reset sits LEFT, terse filter chips RIGHT, one line, no inline hint text
+  (the ? help sheet teaches instead). No inline ✕ in inputs (owner dislikes).
 - Everywhere else: tap a word → definition sheet (word, NWL/CSW/ENABLE flags, definition).
 - Dictionary picker in header: NWL2023 (default) / CSW21 / ENABLE / ALL (union).
 - Global rack drawer is milestone 2 — `state.rack` + engine `fitsRack` already wired.
