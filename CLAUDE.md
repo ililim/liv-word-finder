@@ -68,6 +68,8 @@ Notes:
   specimen (`_template.html`). Identical markup/sizes across all skins (owner requirement:
   key & UI sizes never change — style only); each skin edits only the THEME CSS block
   (colors, radii, borders, shadows, type). No skeuomorphism. + `index.html` gallery.
+- `docs/v4_explorations/` — round 4: 6 mode-color/UX explorations of the real app's three
+  modes (palette semantics, ladder ±1 color-coding). + `index.html` gallery.
 
 ## Design direction
 

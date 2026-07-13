@@ -15,7 +15,7 @@ const state = {
   rack: null, // global rack drawer — milestone 2, engine already honors it
   slots:   { len: 5, letters: [], cursor: 0, may: new Set(), must: new Set(), noDoubles: false },
   pattern: { str: "", anchorStart: false, anchorEnd: false, lengths: new Set(), noDoubles: false },
-  lab:     { word: "", shuffle: true, noDoubles: false, hideSPlurals: false, trail: [] },
+  lab:     { word: "", shuffle: true, noDoubles: false, hideSPlurals: false, trail: [], pos: 0 },
 };
 
 
@@ -208,9 +208,12 @@ function normalizePattern(raw) {
 
 // — ±1 Lab ————————————————————————————————————————————————————————————————————
 
+// Stepping from mid-trail forks: the abandoned future is dropped only then.
 function walkTo(word) {
   const lab = state.lab;
-  if (lab.word && lab.word !== word) lab.trail.push(lab.word);
+  lab.trail = lab.trail.slice(0, lab.pos + 1);
+  lab.trail.push(word);
+  lab.pos = lab.trail.length - 1;
   lab.word = word;
   $("lab-input").value = word.toUpperCase();
   paintTrail();
@@ -219,31 +222,36 @@ function walkTo(word) {
 
 // Typing directly is a fresh start — the trail resets.
 function labTyped(value) {
-  state.lab.word = value.toLowerCase().replace(/[^a-z]/g, "");
-  state.lab.trail = [];
+  const word = value.toLowerCase().replace(/[^a-z]/g, "");
+  state.lab.word = word;
+  state.lab.trail = word ? [word] : [];
+  state.lab.pos = 0;
   paintTrail();
   render();
 }
 
 function paintTrail() {
+  const lab = state.lab;
   const wrap = $("trail");
   wrap.innerHTML = "";
-  for (const [i, word] of state.lab.trail.entries()) {
+  if (lab.trail.length < 2) return;
+
+  let currentEl = null;
+  for (const [i, word] of lab.trail.entries()) {
     if (i) wrap.append(el(`<span class="t-arrow">›</span>`));
-    const crumb = document.createElement("button");
-    crumb.className = "crumb";
-    crumb.textContent = word;
+    const crumb = el(`<button class="crumb${i === lab.pos ? " current" : ""}">${word}</button>`);
+    if (i === lab.pos) currentEl = crumb;
     crumb.onclick = () => {
-      state.lab.trail.length = i; // jumping back forgets what came after
-      state.lab.word = word;
+      if (i === lab.pos) return;
+      lab.pos = i; // just move the cursor — the future survives until she forks
+      lab.word = word;
       $("lab-input").value = word.toUpperCase();
       paintTrail();
       render();
     };
     wrap.append(crumb);
   }
-  if (state.lab.trail.length) wrap.append(el(`<span class="t-arrow">›</span>`));
-  wrap.scrollLeft = wrap.scrollWidth; // newest step stays in view
+  currentEl?.scrollIntoView({ inline: "nearest", block: "nearest" });
 }
 
 
@@ -395,8 +403,20 @@ async function openDef(word) {
   $("def-flags").innerHTML = [["N", "NWL2023"], ["C", "CSW21"], ["E", "ENABLE"]]
     .map(([f, label]) => `<span class="flag ${flags.includes(f) ? "yes" : ""}">${label}</span>`)
     .join("");
-  $("def-text").innerHTML = entry?.[0]
-    ? entry[0].replace(/\[([^\]]+)\]/g, `<span class="tag">[$1]</span>`)
+
+  // Inflections are cross-references (<dog=v>): resolve to the base word's
+  // definition and say what this form is.
+  let def = entry?.[0] ?? "";
+  let lead = "";
+  for (let hop = 0; hop < 2; hop++) {
+    const ref = def.match(/^<([a-z]+)=([a-z]+)>/);
+    if (!ref) break;
+    lead = `${ref[2] === "n" ? "plural of" : "form of"} ${ref[1].toUpperCase()} · `;
+    def = (await lookupDef(ref[1]))?.[0] ?? "";
+  }
+  def = def.replace(/\{([a-z]+)=[a-z]+\}/g, "$1"); // {frighten=v} -> frighten
+  $("def-text").innerHTML = def
+    ? `<span class="tag">${lead}</span>` + def.replace(/\[([^\]]+)\]/g, `<span class="tag">[$1]</span>`)
     : `<span class="tag">no definition on file</span>`;
 }
 
@@ -484,7 +504,7 @@ function resetView() {
     paintLenChips();
   }
   if (app === "lab") {
-    state.lab = { word: "", shuffle: true, noDoubles: false, hideSPlurals: false, trail: [] };
+    state.lab = { word: "", shuffle: true, noDoubles: false, hideSPlurals: false, trail: [], pos: 0 };
     $("lab-input").value = "";
     $("lab-shuffle").classList.add("on");
     $("lab-nodoubles").classList.remove("on");
