@@ -1,0 +1,185 @@
+<!-- 10 · Ceefax — Liv Word Finder v4.
+     Teletext, done straight: each mode is a broadcast PAGE (P101 SLOTS, P102 PATTERN, P103
+     LADDER) with a clock row, a blue title band with mosaic blocks, dot-leader listings, and a
+     FASTEXT red/green/yellow/cyan button row as the mode switcher — navigation is literally
+     "turn to page 102". COMMITTED DARK ONLY: teletext exists on a black CRT, so no light variant.
+     Character-grid monospace throughout; colors carry the broadcast semantics (green = headers/
+     counts, cyan = result rows, yellow = the letters that changed, red band = −1 removals). -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<title>10 · Ceefax — Liv Word Finder v4</title>
+<style>
+  :root {
+    --bg: #000000; --wht: #ececec; --dim: #7a7a7a;
+    --yel: #ffd23f; --grn: #3fd23f; --cyn: #40d0d0; --red: #d40000; --blu: #1024b8;
+    color-scheme: dark;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  body {
+    font-family: ui-monospace, "SF Mono", Menlo, monospace;
+    background: var(--bg); color: var(--wht);
+    display: flex; flex-direction: column; align-items: center; padding-bottom: 60px;
+    font-size: 14px; line-height: 1.55;
+  }
+  .topbar {
+    width: 100%; max-width: 430px; display: flex; justify-content: space-between; align-items: center;
+    padding: 10px 14px; font-size: 11px; color: var(--dim);
+  }
+  .topbar a { color: var(--dim); text-decoration: none; }
+  .phone { width: 100%; max-width: 430px; padding: 0 14px; }
+
+  .clockrow { display: flex; gap: 10px; justify-content: space-between; margin: 4px 0 6px; font-weight: 700; }
+  .clockrow .p { color: var(--wht); }
+  .clockrow .svc { color: var(--cyn); }
+  .clockrow .dt { color: var(--yel); }
+
+  .band { background: var(--blu); padding: 6px 10px 8px; margin-bottom: 4px; }
+  .band .big { color: var(--yel); font-size: 24px; font-weight: 800; letter-spacing: 0.04em; line-height: 1.1; }
+  .band .sub { color: var(--wht); font-size: 11px; margin-top: 2px; }
+  .mosaic { font-size: 12px; letter-spacing: 0; line-height: 1; margin: 6px 0 14px; overflow: hidden; white-space: nowrap; }
+  .mosaic .g { color: var(--grn); } .mosaic .c { color: var(--cyn); } .mosaic .y { color: var(--yel); }
+
+  .g { color: var(--grn); } .c { color: var(--cyn); } .y { color: var(--yel); } .w { color: var(--wht); } .d { color: var(--dim); }
+  b { font-weight: 800; }
+
+  .hrow { display: flex; justify-content: space-between; font-weight: 800; color: var(--grn); margin: 16px 0 4px; }
+
+  /* query in double height */
+  .dh { font-size: 26px; font-weight: 800; letter-spacing: 0.14em; color: var(--yel); margin: 8px 0 2px; }
+  .dh .hole { color: var(--dim); }
+
+  /* qwerty rendered as bare character rows */
+  .kb { text-align: center; letter-spacing: 0.5em; font-size: 16px; line-height: 1.9; margin: 10px 0 2px; font-weight: 700; }
+  .kb .off { color: var(--dim); opacity: 0.6; }
+  .kb .may { color: var(--wht); }
+  .kb .must { color: #000; background: var(--yel); padding: 0 3px; }
+
+  /* dot-leader result rows */
+  .lst { margin-top: 4px; }
+  .lr { display: flex; align-items: baseline; font-weight: 700; }
+  .lr .word { color: var(--cyn); font-size: 17px; letter-spacing: 0.12em; white-space: nowrap; }
+  .lr .word i { font-style: normal; color: var(--yel); }
+  .lr .word s { color: var(--wht); text-decoration-color: var(--red); text-decoration-thickness: 2px; }
+  .lr .dots { flex: 1; overflow: hidden; white-space: nowrap; color: var(--dim); margin: 0 6px; }
+  .lr .dots::before { content: ".........................................."; letter-spacing: 2px; }
+  .lr .tag { color: var(--wht); font-size: 11px; white-space: nowrap; }
+
+  .redband { background: var(--red); color: #fff; font-weight: 800; padding: 3px 10px; display: flex; justify-content: space-between; margin: 18px 0 4px; }
+  .grnband { background: var(--grn); color: #000; font-weight: 800; padding: 3px 10px; display: flex; justify-content: space-between; margin: 18px 0 4px; }
+
+  .ctlrow { margin: 6px 0; font-weight: 700; }
+  .ctlrow .onb { background: var(--wht); color: #000; padding: 0 6px; }
+  .ctlrow .offb { color: var(--dim); padding: 0 6px; }
+
+  /* FASTEXT footer = mode switcher */
+  .fastext { display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 4px; margin: 22px 0 8px; text-align: center; font-weight: 800; font-size: 11px; }
+  .fastext span { padding: 6px 2px; color: #000; }
+  .fastext .fr { background: var(--red); color: #fff; }
+  .fastext .fg { background: var(--grn); }
+  .fastext .fy { background: var(--yel); }
+  .fastext .fc { background: var(--cyn); }
+  .fastext .here { outline: 2px solid var(--wht); outline-offset: 1px; }
+
+  .pagegap { margin-top: 40px; border-top: 2px solid var(--dim); padding-top: 2px; }
+</style>
+</head>
+<body>
+<div class="topbar"><a href="./index.html">‹ Gallery</a><span>10 · CEEFAX</span></div>
+<div class="phone">
+
+  <!-- ==================== P101 · SLOTS ==================== -->
+  <div class="clockrow"><span class="p">P101</span><span class="svc">LIVWORDS</span><span class="dt">Sun 13 Jul 21:47/12</span></div>
+  <div class="band">
+    <div class="big">WORD FINDER — SLOTS</div>
+    <div class="sub">POSITIONAL SEARCH · LENGTH 5</div>
+  </div>
+  <div class="mosaic"><span class="g">▐▀▄▌</span><span class="c">█▄▀▐</span><span class="y">▌▄▀█</span><span class="g">▐▀▄▌</span><span class="c">█▄▀▐</span><span class="y">▌▄▀█</span><span class="g">▐▀▄▌</span><span class="c">█▄▀▐</span></div>
+
+  <div class="dh">S<span class="hole">·</span>A<span class="hole">·</span>E</div>
+  <div class="ctlrow"><span class="w">LENGTH</span> <span class="onb">5</span> <span class="d">− / +</span></div>
+
+  <div class="kb">
+    <span class="off">QWE</span><span class="may">RT</span><span class="off">YUIO</span><span class="may">P</span><br>
+    <span class="off">AS</span><span class="may">D</span><span class="off">FG</span><span class="must">H✱</span><span class="off">J</span><span class="may">KL</span><br>
+    <span class="off">ZXC</span><span class="may">V</span><span class="off">BN</span><span class="may">M</span>
+  </div>
+  <div class="ctlrow" style="text-align:center"><span class="d">grey CLOSED ·</span> <span class="w">white MAY ·</span> <span class="y">yellow MUST✱</span></div>
+
+  <div class="hrow"><span>MATCHES</span><span>7</span></div>
+  <div class="lst">
+    <div class="lr"><span class="word">SHADE</span><span class="dots"></span><span class="tag">NWL</span></div>
+    <div class="lr"><span class="word">SHAKE</span><span class="dots"></span><span class="tag">NWL</span></div>
+    <div class="lr"><span class="word">SHALE</span><span class="dots"></span><span class="tag">NWL</span></div>
+    <div class="lr"><span class="word">SHAME</span><span class="dots"></span><span class="tag">NWL</span></div>
+    <div class="lr"><span class="word">SHAPE</span><span class="dots"></span><span class="tag">NWL</span></div>
+    <div class="lr"><span class="word">SHARE</span><span class="dots"></span><span class="tag">NWL</span></div>
+    <div class="lr"><span class="word">SHAVE</span><span class="dots"></span><span class="tag">NWL</span></div>
+  </div>
+
+  <div class="fastext">
+    <span class="fr here">SLOTS 101</span><span class="fg">PATTERN 102</span><span class="fy">LADDER 103</span><span class="fc">INDEX 100</span>
+  </div>
+
+  <!-- ==================== P102 · PATTERN ==================== -->
+  <div class="pagegap"></div>
+  <div class="clockrow"><span class="p">P102</span><span class="svc">LIVWORDS</span><span class="dt">Sun 13 Jul 21:47/31</span></div>
+  <div class="band">
+    <div class="big">WORD FINDER — PATTERN</div>
+    <div class="sub">_ ANY LETTER · * ANY RUN</div>
+  </div>
+
+  <div class="dh">B<span class="hole">_</span>TT<span class="hole">*</span>Y</div>
+  <div class="ctlrow"><span class="onb">STARTS WITH</span> <span class="offb">ENDS WITH</span></div>
+  <div class="ctlrow"><span class="w">LEN</span> <span class="onb">ALL</span> <span class="offb">5</span><span class="offb">6</span><span class="offb">7</span><span class="offb">8</span><span class="offb">9</span><span class="offb">10+</span></div>
+
+  <div class="hrow"><span>MATCHES</span><span>4</span></div>
+  <div class="lst">
+    <div class="lr"><span class="word">B<i>A</i>TT<i>ER</i>Y</span><span class="dots"></span><span class="tag">7 NWL</span></div>
+    <div class="lr"><span class="word">B<i>I</i>TT<i>ERL</i>Y</span><span class="dots"></span><span class="tag">8 NWL</span></div>
+    <div class="lr"><span class="word">B<i>U</i>TT<i>ERFL</i>Y</span><span class="dots"></span><span class="tag">9 NWL</span></div>
+    <div class="lr"><span class="word">B<i>U</i>TT<i>ER</i>Y</span><span class="dots"></span><span class="tag">7 NWL</span></div>
+  </div>
+
+  <div class="fastext">
+    <span class="fr">SLOTS 101</span><span class="fg here">PATTERN 102</span><span class="fy">LADDER 103</span><span class="fc">INDEX 100</span>
+  </div>
+
+  <!-- ==================== P103 · LADDER ==================== -->
+  <div class="pagegap"></div>
+  <div class="clockrow"><span class="p">P103</span><span class="svc">LIVWORDS</span><span class="dt">Sun 13 Jul 21:48/02</span></div>
+  <div class="band">
+    <div class="big">WORD FINDER — LADDER</div>
+    <div class="sub">ONE LETTER MORE / ONE LESS</div>
+  </div>
+
+  <div class="dh">LOUR</div>
+  <div class="ctlrow"><span class="w">ROUTE</span> <span class="d">FLOUR &gt;</span> <span class="onb">LOUR</span> <span class="d">✕ CLEAR</span></div>
+  <div class="ctlrow"><span class="onb">ANAGRAM</span> <span class="offb">UNIQUE</span> <span class="offb">+S</span></div>
+
+  <div class="grnband"><span>+1 ADD A LETTER</span><span>5</span></div>
+  <div class="lst">
+    <div class="lr"><span class="word"><i>C</i>LOUR</span><span class="dots"></span><span class="tag">CSW</span></div>
+    <div class="lr"><span class="word"><i>F</i>LOUR</span><span class="dots"></span><span class="tag">NWL</span></div>
+    <div class="lr"><span class="word">LOUR<i>E</i></span><span class="dots"></span><span class="tag">CSW</span></div>
+    <div class="lr"><span class="word">LOUR<i>S</i></span><span class="dots"></span><span class="tag">NWL</span></div>
+    <div class="lr"><span class="word">FLUOR <span class="w">⇄</span></span><span class="dots"></span><span class="tag">NWL SHUF</span></div>
+  </div>
+
+  <div class="redband"><span>−1 DROP A LETTER</span><span>2</span></div>
+  <div class="lst">
+    <div class="lr"><span class="word"><s>L</s>OUR</span><span class="dots"></span><span class="tag">NWL</span></div>
+    <div class="lr"><span class="word">LO<s>U</s>R</span><span class="dots"></span><span class="tag">CSW</span></div>
+  </div>
+  <div class="ctlrow"><span class="d">SHUFFLED: NONE</span></div>
+
+  <div class="fastext">
+    <span class="fr">SLOTS 101</span><span class="fg">PATTERN 102</span><span class="fy here">LADDER 103</span><span class="fc">INDEX 100</span>
+  </div>
+
+</div>
+</body>
+</html>
