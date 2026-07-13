@@ -213,7 +213,6 @@ function walkTo(word) {
   if (lab.word && lab.word !== word) lab.trail.push(lab.word);
   lab.word = word;
   $("lab-input").value = word.toUpperCase();
-  syncClears();
   paintTrail();
   render();
 }
@@ -308,7 +307,7 @@ function labSection(sign, title, { inPlace, shuffled }) {
   if (!total) section.append(el(`<div class="idle">none</div>`));
   if (inPlace.length) section.append(wordRow(inPlace, true));
   if (shuffled.length) {
-    section.append(el(`<div class="sublabel">SHUFFLED</div>`));
+    section.append(el(`<div class="sublabel">ANAGRAMS</div>`));
     section.append(wordRow(shuffled, true));
   }
   return section;
@@ -443,22 +442,18 @@ function wireEvents() {
     const clean = normalizePattern(e.target.value);
     e.target.value = clean.toUpperCase();
     state.pattern.str = clean;
-    syncClears();
     render();
   });
   $("anchor-start").onclick = () => anchor("anchorStart", "anchor-start");
   $("anchor-end").onclick = () => anchor("anchorEnd", "anchor-end");
   toggle($("pat-nodoubles"), on => { state.pattern.noDoubles = on; });
 
-  $("lab-input").addEventListener("input", e => { labTyped(e.target.value); syncClears(); });
+  $("lab-input").addEventListener("input", e => labTyped(e.target.value));
   toggle($("lab-shuffle"), on => { state.lab.shuffle = on; }, state.lab.shuffle);
   toggle($("lab-nodoubles"), on => { state.lab.noDoubles = on; });
   toggle($("lab-nos"), on => { state.lab.hideSPlurals = on; });
 
   for (const btn of document.querySelectorAll(".tchip.reset")) btn.onclick = resetView;
-  $("pat-clear").onclick = () => { $("pat-input").value = ""; state.pattern.str = ""; syncClears(); render(); };
-  $("lab-clear").onclick = () => { $("lab-input").value = ""; labTyped(""); syncClears(); };
-
   window.addEventListener("resize", buildSlots);
 
   for (const list of document.querySelectorAll(".results"))
@@ -484,7 +479,6 @@ function resetView() {
     $("anchor-end").classList.remove("on");
     $("pat-nodoubles").classList.remove("on");
     paintLenChips();
-    syncClears();
   }
   if (app === "lab") {
     state.lab = { word: "", shuffle: true, noDoubles: false, hideSPlurals: false, trail: [] };
@@ -493,15 +487,8 @@ function resetView() {
     $("lab-nodoubles").classList.remove("on");
     $("lab-nos").classList.remove("on");
     paintTrail();
-    syncClears();
   }
   render();
-}
-
-// the in-input clear buttons appear only when there is text to clear
-function syncClears() {
-  $("pat-clear").classList.toggle("show", !!$("pat-input").value);
-  $("lab-clear").classList.toggle("show", !!$("lab-input").value);
 }
 
 function anchor(prop, id) {

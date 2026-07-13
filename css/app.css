@@ -62,9 +62,9 @@ button { font: inherit; color: inherit; background: none; border: none; cursor: 
 @media (prefers-color-scheme: light) { .brand em { color: var(--ink); } }
 .head-btns { display: flex; gap: 8px; }
 .icon-btn {
-  width: 36px; height: 36px;
+  width: 32px; height: 32px;
   display: grid; place-items: center;
-  font-size: 16px; font-weight: 850; line-height: 1;
+  font-size: 14px; font-weight: 850; line-height: 1;
   border: 2px solid var(--ink); border-radius: var(--r-pill);
 }
 .icon-btn span { transform: translateY(-0.5px); }
@@ -155,16 +155,6 @@ button { font: inherit; color: inherit; background: none; border: none; cursor: 
 .tchip.on { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); }
 .tchip.reset { padding: 0 11px; font-size: 15px; }
 
-/* clear lives inside the input, iOS-style; appears only with text */
-.input-wrap { position: relative; flex: 1; min-width: 0; display: flex; }
-.input-wrap.block { flex: 0 0 auto; width: 100%; }
-.input-wrap input { width: 100%; }
-.input-clear {
-  position: absolute; right: 8px; top: 50%; transform: translateY(-50%);
-  width: 28px; height: 28px; display: none; place-items: center;
-  font-size: 13px; font-weight: 850; color: var(--muted);
-}
-.input-clear.show { display: grid; }
 
 /* ---- PATTERN ---- */
 .pat-row { display: flex; gap: 8px; align-items: stretch; }

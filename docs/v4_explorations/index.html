@@ -1,0 +1,120 @@
+<!-- Gallery index for the 6 v4 explorations of Liv Word Finder.
+     Round 4: color palettes & semantics per mode, ladder +1/−1 section coding,
+     and varied results/divider/board formats — all three modes stacked per mockup. -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<title>Liv Word Finder — v4 Explorations</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🔤</text></svg>">
+<style>
+  :root {
+    --bg: #f4f2ee;
+    --card: #ffffff;
+    --ink: #1c1b18;
+    --muted: #77726a;
+    --accent: #93c400;
+    --line: rgba(0,0,0,.08);
+    color-scheme: light dark;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #141312;
+      --card: #201f1d;
+      --ink: #f0ede8;
+      --muted: #9b958c;
+      --accent: #b8e62e;
+      --line: rgba(255,255,255,.09);
+    }
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    background: var(--bg);
+    color: var(--ink);
+    padding: max(20px, env(safe-area-inset-top)) 16px 48px;
+  }
+  .wrap { max-width: 1200px; margin: 0 auto; }
+  header { margin: 16px 4px 8px; }
+  h1 { font-size: 28px; letter-spacing: -.02em; }
+  h1 .v { color: var(--accent); }
+  .sub { color: var(--muted); margin-top: 6px; font-size: 15px; line-height: 1.45; max-width: 640px; }
+  .backlink { display: inline-block; margin-top: 10px; margin-right: 16px; font-size: 13px; color: var(--muted); text-decoration: none; }
+  .backlink:hover { color: var(--accent); }
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: 16px;
+    margin-top: 24px;
+  }
+  a.card {
+    display: block; text-decoration: none; color: inherit;
+    background: var(--card); border: 1px solid var(--line);
+    border-radius: 18px; overflow: hidden;
+    transition: transform .15s ease, box-shadow .15s ease;
+  }
+  a.card:active { transform: scale(.97); }
+  @media (hover: hover) {
+    a.card:hover { transform: translateY(-3px); box-shadow: 0 10px 30px rgba(0,0,0,.12); }
+  }
+  .preview {
+    height: 340px; overflow: hidden; position: relative;
+    background: var(--bg); border-bottom: 1px solid var(--line);
+  }
+  .preview iframe {
+    width: 390px; height: 844px; border: 0;
+    transform: scale(.5); transform-origin: top center;
+    position: absolute; left: 50%; margin-left: -195px; top: 0;
+    pointer-events: none;
+  }
+  .meta { padding: 12px 14px 14px; }
+  .num {
+    font-size: 11px; font-weight: 700; color: var(--accent);
+    letter-spacing: .06em;
+  }
+  .name { font-size: 17px; font-weight: 650; margin: 2px 0 3px; }
+  .tag { font-size: 13px; color: var(--muted); line-height: 1.4; }
+  footer { margin-top: 48px; color: var(--muted); font-size: 13px; text-align: center; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>Liv Word Finder <span class="v">· v4 explorations</span></h1>
+    <p class="sub">Six palette-and-format studies, each showing all three modes stacked
+    (SLOTS · PATTERN · LADDER). Every color has a job drawn from the app's world — pens,
+    tiles, ribbons, puzzle pages, highlighters — and each design tries a different take on
+    the ladder's +1 / −1 / shuffled section coding and on how results are laid out.</p>
+    <a class="backlink" href="../v3_explorations/index.html">← round 3 (15 skins)</a>
+    <a class="backlink" href="../v2_explorations/index.html">← round 2 (10 concepts)</a>
+    <a class="backlink" href="../v1_explorations/index.html">← round 1 (20 mockups)</a>
+  </header>
+
+  <div class="grid" id="grid"></div>
+
+  <footer>Round 4 · every color earns its keep 💜</footer>
+</div>
+
+<script>
+  const items = [
+    ["01-proofroom.html", "01", "Proofroom", "Editor's desk: red pen stays strict for slots, blue pencil for pattern, green pen for ladder — +1 inserts in green, −1 dele in red, shuffled tagged trs ⇄. Manuscript-row results, serif display."],
+    ["02-premium-tiles.html", "02", "Premium Tiles", "Scrabble board semantics: triple-word red = slots, letter-premium blue = pattern, board green = ladder. Words are physical cream tiles; +1 draws a tile, −1 returns one, shuffled tiles go loose."],
+    ["03-coldset.html", "03", "Coldset", "Fully cool editorial: depth = strictness. Press navy slots, editor teal pattern, pencil-steel ladder with ice fills. Ice band = +1, ink band = −1. Dense newspaper-column results, big cold counters."],
+    ["04-ribbon.html", "04", "Two-Tone Ribbon", "Typewriter black-and-red ribbon + carbon paper: red register = slots, plain black ink = pattern, carbon blue = ladder. −1 rules typed in the red; shuffled words are the blue carbon copy. Monospace report."],
+    ["05-puzzle-page.html", "05", "Puzzle Page", "The colors of her actual games: Wordle green slots (board keys speak Wordle — green must, yellow may, gray out), Spelling Bee gold pattern, Letter Boxed coral ladder with filled vs hollow +1/−1 bars."],
+    ["06-five-pack.html", "06", "Five-Pack", "Five highlighters, one job each: pink = slots, yellow = pattern, blue = ladder — then green swipes every +1 and orange every −1. Color only ever behind ink. Results as running marked-up text."]
+  ];
+  document.getElementById("grid").innerHTML = items.map(([file, num, name, tag]) => `
+    <a class="card" href="${file}">
+      <div class="preview"><iframe src="${file}" loading="lazy" tabindex="-1" title="${name} preview"></iframe></div>
+      <div class="meta">
+        <div class="num">EXPLORATION ${num}</div>
+        <div class="name">${name}</div>
+        <div class="tag">${tag}</div>
+      </div>
+    </a>`).join("");
+</script>
+</body>
+</html>

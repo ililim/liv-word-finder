@@ -40,10 +40,9 @@
     </div>
     <div class="board" id="board"></div>
     <div class="chips">
-      <div class="hint">TAP ONCE <b>MAY</b> · TWICE <b>MUST ✱</b></div>
-      <div class="grow"></div>
-      <button class="tchip" id="slots-nodoubles"><span class="ic">◇</span>NO DOUBLES</button>
       <button class="tchip reset">↺</button>
+      <div class="grow"></div>
+      <button class="tchip" id="slots-nodoubles"><span class="ic">◇</span>UNIQUE</button>
     </div>
     <div class="results" id="slots-results"></div>
   </section>
@@ -52,35 +51,29 @@
   <section class="view" id="view-pattern">
     <div class="pat-row">
       <button class="anchor" id="anchor-start">START<br>WITH</button>
-      <span class="input-wrap">
-        <input class="pat-input" id="pat-input" placeholder="B_TT*Y" autocomplete="off"
-               autocorrect="off" autocapitalize="characters" spellcheck="false" enterkeyhint="done">
-        <button class="input-clear" id="pat-clear">✕</button>
-      </span>
+      <input class="pat-input" id="pat-input" placeholder="B_TT*Y" autocomplete="off"
+             autocorrect="off" autocapitalize="characters" spellcheck="false" enterkeyhint="done">
       <button class="anchor" id="anchor-end">END<br>WITH</button>
     </div>
     <div class="lenchips" id="lenchips"></div>
     <div class="chips">
-      <div class="hint"><b>_</b> ONE LETTER · <b>*</b> ANY RUN</div>
-      <div class="grow"></div>
-      <button class="tchip" id="pat-nodoubles"><span class="ic">◇</span>NO DOUBLES</button>
       <button class="tchip reset">↺</button>
+      <div class="grow"></div>
+      <button class="tchip" id="pat-nodoubles"><span class="ic">◇</span>UNIQUE</button>
     </div>
     <div class="results" id="pattern-results"></div>
   </section>
 
   <!-- ±1 — words one letter away; tap a word to walk -->
   <section class="view" id="view-lab">
-    <span class="input-wrap block">
-      <input class="lab-input" id="lab-input" placeholder="TYPE A WORD" autocomplete="off"
-             autocorrect="off" autocapitalize="characters" spellcheck="false" enterkeyhint="done">
-      <button class="input-clear" id="lab-clear">✕</button>
-    </span>
+    <input class="lab-input" id="lab-input" placeholder="TYPE A WORD" autocomplete="off"
+           autocorrect="off" autocapitalize="characters" spellcheck="false" enterkeyhint="done">
     <div class="chips">
-      <button class="tchip" id="lab-shuffle"><span class="ic">⇄</span>SHUFFLE</button>
-      <button class="tchip" id="lab-nodoubles"><span class="ic">◇</span>NO DOUBLES</button>
-      <button class="tchip" id="lab-nos"><span class="ic">S̶</span>HIDE +S</button>
       <button class="tchip reset">↺</button>
+      <div class="grow"></div>
+      <button class="tchip" id="lab-shuffle"><span class="ic">⇄</span>ANAGRAM</button>
+      <button class="tchip" id="lab-nodoubles"><span class="ic">◇</span>UNIQUE</button>
+      <button class="tchip" id="lab-nos"><span class="ic">S̶</span>+S</button>
     </div>
     <div class="trail" id="trail"></div>
     <div class="results" id="lab-results"></div>
@@ -135,7 +128,7 @@
         <span class="help-t"><b>tap</b> a word to step to it<br>+1 adds a letter · −1 removes</span>
       </div>
       <div class="help-row">
-        <span class="help-demo"><span class="d-chip on">⇄ SHUFFLE</span></span>
+        <span class="help-demo"><span class="d-chip on">⇄ ANAGRAM</span></span>
         <span class="help-t">allow rearranged letters too<br>FLUOR, not just FLOUR</span>
       </div>
       <div class="help-row">
