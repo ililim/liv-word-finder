@@ -478,23 +478,28 @@ function setRack(str) {
 
 function paintRackStrip() {
   const raw = $("rack-input").value.toLowerCase().replace(/[^a-z?]/g, "");
-  $("rack-strip").classList.toggle("on", !!state.rack);
-  $("rack-tiles").innerHTML = [...raw]
+  const editing = document.activeElement === $("rack-input");
+  $("rack-strip").classList.toggle("on", !!state.rack || editing);
+  const tiles = [...raw]
     .map(ch => `<span class="rt${ch === "?" ? " blank" : ""}">${ch === "?" ? "?" : ch}</span>`)
     .join("");
+  $("rack-tiles").innerHTML =
+    tiles +
+    (editing ? `<span class="caret"></span>` : "") +
+    (editing && !raw ? `<span class="hint-tile">YOUR LETTERS · ? = BLANK</span>` : "");
 }
 
 function wireEvents() {
   $("seg").onclick = e => e.target.dataset.app && switchApp(e.target.dataset.app);
   $("help-btn").onclick = () => openSheet("help-sheet");
-  $("rack-btn").onclick = () => {
-    const open = $("rack-drawer").classList.toggle("open");
-    if (open) $("rack-input").focus({ preventScroll: true });
+  const rackFocus = () => {
+    const input = $("rack-input");
+    input.focus({ preventScroll: true });
+    input.setSelectionRange(input.value.length, input.value.length);
+    paintRackStrip();
   };
-  $("rack-tiles").onclick = () => {
-    $("rack-drawer").classList.add("open");
-    $("rack-input").focus({ preventScroll: true });
-  };
+  $("rack-btn").onclick = rackFocus;
+  $("rack-tiles").onclick = rackFocus;
   $("rack-dismiss").onclick = () => {
     $("rack-input").value = "";
     setRack("");
@@ -504,9 +509,9 @@ function wireEvents() {
     setRack(e.target.value);
   });
   $("rack-input").addEventListener("keydown", e => {
-    if (e.key === "Enter") { $("rack-input").blur(); $("rack-drawer").classList.remove("open"); }
+    if (e.key === "Enter") $("rack-input").blur();
   });
-  $("rack-input").addEventListener("blur", () => $("rack-drawer").classList.remove("open"));
+  $("rack-input").addEventListener("blur", paintRackStrip);
   $("settings-btn").onclick = () => openSheet("set-sheet");
   $("scrim").onclick = closeSheets;
 

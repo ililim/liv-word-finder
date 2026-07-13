@@ -86,27 +86,21 @@ button { font: inherit; color: inherit; background: none; border: none; cursor: 
 }
 .seg button.active { background: var(--accent); color: var(--accent-ink); }
 
-/* rack — drawer slides from under the header; strip shows the active rack */
-.rack-drawer {
-  display: none; gap: 8px; margin-top: 12px; align-items: stretch;
-}
-.rack-drawer.open { display: flex; }
-.rack-input {
-  flex: 1; min-width: 0; height: 48px; padding: 0 12px;
-  font-size: 16px; font-weight: 850; letter-spacing: 0.3em; text-transform: uppercase;
-  background: var(--surface); color: var(--ink);
-  border: 2px solid var(--line); border-radius: var(--r);
-  outline: none; text-align: center;
-}
-.rack-input:focus { border-color: var(--ink); }
-.rack-input::placeholder { font-size: 11px; letter-spacing: 0.1em; font-weight: 800; opacity: 0.55; }
+/* rack — the strip IS the input: tiles render live, a caret tile blinks while editing */
 .rack-strip {
   display: none; gap: 2px; align-items: center; justify-content: center;
-  margin-top: 10px; min-height: 30px;
+  margin-top: 10px; min-height: 32px; position: relative;
 }
 .rack-strip.on { display: flex; }
-.rack-drawer.open + .rack-strip { display: none; } /* edit and display never stack */
-.rack-tiles { display: inline-flex; gap: 5px; flex-wrap: wrap; justify-content: center; }
+.rack-tiles { display: inline-flex; gap: 5px; flex-wrap: wrap; justify-content: center; align-items: center; }
+.rack-tiles .hint-tile {
+  font-size: 11px; font-weight: 800; letter-spacing: 0.08em; color: var(--muted);
+}
+.rack-tiles .caret {
+  width: 2px; height: 24px; background: var(--ink);
+  animation: rack-blink 1.1s step-end infinite;
+}
+@keyframes rack-blink { 50% { opacity: 0; } }
 .rack-dismiss { font-size: 14px; font-weight: 850; color: var(--muted); padding: 4px 8px; }
 .rack-strip .rt {
   width: 24px; height: 28px; display: inline-grid; place-items: center;
