@@ -281,7 +281,7 @@ function paintSlotsResults() {
   const filters = { include: s.must, only, noDoubles: s.noDoubles, rack: state.rack };
   const words = querySlots(state.dict, slots, filters);
   const wrap = $("slots-results");
-  paintGroups(wrap, touched ? words : [], touched ? null : "fill a slot or tap a letter");
+  paintGroups(wrap, touched ? words : [], !touched);
   if (touched) appendOtherLengths(wrap, querySlotsLoose(state.dict, slots, filters));
 }
 
@@ -289,7 +289,7 @@ function paintPatternResults() {
   const p = state.pattern;
   const words = p.str ? queryPattern(state.dict, p.str, { ...p, rack: state.rack }) : [];
   const wrap = $("pattern-results");
-  paintGroups(wrap, words, p.str ? null : "type a pattern");
+  paintGroups(wrap, words, !p.str);
   if (p.str && p.lengths.size) {
     const seen = new Set(words);
     const loose = queryPattern(state.dict, p.str, { ...p, lengths: null, rack: state.rack }).filter(w => !seen.has(w));
@@ -301,7 +301,7 @@ function paintLabResults() {
   const lab = state.lab;
   const wrap = $("lab-results");
   if (lab.word.length < 2) {
-    wrap.innerHTML = `<div class="idle">type a word</div>`;
+    wrap.innerHTML = "";
     return;
   }
   const { plus, minus } = queryPlusMinus(state.dict, lab.word, { ...lab, rack: state.rack });
@@ -324,10 +324,11 @@ function labSection(sign, title, { inPlace, shuffled }) {
   return section;
 }
 
-function paintGroups(wrap, words, idleText) {
+// idle = nothing entered yet: an empty canvas says it better than copy
+function paintGroups(wrap, words, idle) {
   wrap.innerHTML = "";
   wrap.scrollTop = 0;
-  if (idleText) return wrap.append(el(`<div class="idle">${idleText}</div>`));
+  if (idle) return;
   if (!words.length) return wrap.append(el(`<div class="idle">no words: loosen something</div>`));
   appendGroups(wrap, words);
 }
