@@ -133,10 +133,12 @@ button { font: inherit; color: inherit; background: none; border: none; cursor: 
 }
 .bkey.may { background: var(--ink); color: var(--bg); border-color: var(--ink); }
 .bkey.must { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); font-weight: 850; }
-/* the required star rides the letter, superscript-style: K✱ */
+/* the required star sits at the letter's shoulder without moving it:
+   anchored to the key's center, where the letter always is */
 .bkey.must::after {
   content: "✱"; font-size: 9px; line-height: 1;
-  margin-left: 1px; transform: translateY(-4px);
+  position: absolute; left: 50%; top: 50%;
+  transform: translate(5px, -14px);
 }
 .board.active .bkey:not(.may):not(.must):not(.fn) { opacity: 0.3; }
 .bkey.fn { flex: 0 0 48px; font-size: 11px; font-weight: 850; color: var(--muted); }
