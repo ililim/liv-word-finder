@@ -506,11 +506,7 @@ function wireEvents() {
   $("rack-input").addEventListener("keydown", e => {
     if (e.key === "Enter") { $("rack-input").blur(); $("rack-drawer").classList.remove("open"); }
   });
-  $("rack-clear").onclick = () => {
-    $("rack-input").value = "";
-    $("rack-drawer").classList.remove("open");
-    setRack("");
-  };
+  $("rack-input").addEventListener("blur", () => $("rack-drawer").classList.remove("open"));
   $("settings-btn").onclick = () => openSheet("set-sheet");
   $("scrim").onclick = closeSheets;
 

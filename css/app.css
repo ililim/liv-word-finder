@@ -90,7 +90,6 @@ button { font: inherit; color: inherit; background: none; border: none; cursor: 
 .rack-drawer {
   display: none; gap: 8px; margin-top: 12px; align-items: stretch;
 }
-.rack-drawer .reset { width: 48px; height: 48px; padding: 0; font-size: 19px; }
 .rack-drawer.open { display: flex; }
 .rack-input {
   flex: 1; min-width: 0; height: 48px; padding: 0 12px;
@@ -106,6 +105,7 @@ button { font: inherit; color: inherit; background: none; border: none; cursor: 
   margin-top: 10px; min-height: 30px;
 }
 .rack-strip.on { display: flex; }
+.rack-drawer.open + .rack-strip { display: none; } /* edit and display never stack */
 .rack-tiles { display: inline-flex; gap: 5px; flex-wrap: wrap; justify-content: center; }
 .rack-dismiss { font-size: 14px; font-weight: 850; color: var(--muted); padding: 4px 8px; }
 .rack-strip .rt {
