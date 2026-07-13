@@ -1,0 +1,277 @@
+<!-- 12 · Receiving Office — Liv Word Finder v4.
+     A telegraph office: results arrive as ONE huge line of type on punched paper tape (feed
+     holes, torn zigzag ends, side-scrolling strip) instead of a vertical list — the ladder gets
+     two tapes, a blue-ink +1 tape and a red-ink −1 tape, and the trail is a spliced scrap of
+     yesterday's tape. Word length is set on a ROTARY DIAL, the mode switcher is three rubber
+     stamps (the active one freshly inked and crooked), and the QWERTY board is round typewriter
+     keys. Ink jobs: red = strict/minus/must, blue = additions, black = everything typed. -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<title>12 · Receiving Office — Liv Word Finder v4</title>
+<style>
+  :root {
+    --desk: #e9e3d3; --tape: #fdf9ec; --ink: #26200f; --muted: #7d7460;
+    --line: rgba(38, 32, 15, 0.22); --hole: #d4cbb2;
+    --red: #b3261a; --blu: #23509e;
+    color-scheme: light dark;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --desk: #1a1812; --tape: #efe8d2; --ink: #26200f; --muted: #9d947c;
+      --line: rgba(239, 232, 210, 0.22); --hole: #c9bfa4;
+      --red: #e0584a; --blu: #7fa0dd;
+    }
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  body {
+    font-family: ui-monospace, "SF Mono", Menlo, monospace;
+    background: var(--desk); color: var(--ink);
+    display: flex; flex-direction: column; align-items: center; padding-bottom: 90px;
+  }
+  @media (prefers-color-scheme: dark) { body { color: #efe8d2; } .deskink { color: #efe8d2; } }
+  .deskink { color: var(--ink); }
+  .topbar {
+    width: 100%; max-width: 430px; display: flex; justify-content: space-between; align-items: center;
+    padding: 10px 16px; font-size: 11px; font-weight: 700; color: var(--muted);
+  }
+  .topbar a { color: var(--muted); text-decoration: none; }
+  .phone { width: 100%; max-width: 430px; padding: 0 16px; }
+
+  .office-h { text-align: center; margin: 4px 0 16px; }
+  .office-h .t { font-size: 15px; font-weight: 800; letter-spacing: 0.28em; }
+  .office-h .s { font-size: 9px; font-weight: 700; letter-spacing: 0.3em; color: var(--muted); margin-top: 3px; }
+  .office-h .btns { font-size: 12px; color: var(--muted); letter-spacing: 0.5em; margin-top: 4px; }
+
+  /* mode switcher = rubber stamps */
+  .stamps { display: flex; justify-content: center; gap: 12px; margin-bottom: 22px; }
+  .stamp { padding: 7px 12px; border: 2px solid var(--muted); color: var(--muted);
+    font-size: 11px; font-weight: 800; letter-spacing: 0.16em; opacity: 0.75; }
+  .stamp.on { border: 2.5px double var(--red); color: var(--red); opacity: 1;
+    transform: rotate(-2.5deg); border-style: double; }
+
+  .formline { display: flex; align-items: baseline; gap: 10px; margin: 0 0 6px; font-size: 12px; }
+  .formline .k { color: var(--muted); font-size: 10px; font-weight: 700; letter-spacing: 0.14em; }
+  .formline .v { font-size: 22px; font-weight: 800; letter-spacing: 0.22em; border-bottom: 2px solid var(--line); padding: 0 8px 2px; }
+  .formline .v .hole { color: var(--muted); }
+
+  /* rotary length dial */
+  .dialrow { display: flex; align-items: center; gap: 18px; margin: 14px 0 18px; }
+  .dial { position: relative; width: 128px; height: 128px; flex: 0 0 128px;
+    border: 3px solid currentColor; border-radius: 999px; }
+  .dial .num { position: absolute; left: 50%; top: 50%; width: 20px; height: 20px; margin: -10px 0 0 -10px;
+    display: grid; place-items: center; font-size: 12px; font-weight: 700; color: var(--muted); }
+  .dial .num.on { color: var(--red); font-weight: 800; font-size: 15px; }
+  .dial .needle { position: absolute; left: calc(50% - 1.5px); bottom: 50%; width: 3px; height: 34px;
+    background: var(--red); transform-origin: bottom center; transform: rotate(-60deg); }
+  .dial .hub { position: absolute; left: calc(50% - 5px); top: calc(50% - 5px); width: 10px; height: 10px;
+    border-radius: 999px; background: currentColor; }
+  .dial .cap { position: absolute; left: 0; right: 0; bottom: 16px; text-align: center;
+    font-size: 8px; font-weight: 800; letter-spacing: 0.24em; color: var(--muted); }
+  .dialnote { font-size: 10px; font-weight: 700; line-height: 1.8; letter-spacing: 0.08em; color: var(--muted); }
+  .dialnote b { color: currentColor; }
+
+  /* round typewriter keys */
+  .board { display: flex; flex-direction: column; gap: 6px; margin-bottom: 6px; }
+  .brow { display: flex; gap: 6px; justify-content: center; }
+  .bkey { flex: 0 0 34px; height: 34px; border-radius: 999px; display: grid; place-items: center;
+    font-size: 13px; font-weight: 800; border: 2px solid currentColor; position: relative; }
+  .bkey.dim { opacity: 0.25; border-width: 1.5px; }
+  .bkey.may { background: currentColor; }
+  .bkey.may i { font-style: normal; color: var(--desk); }
+  .bkey.must { border-color: var(--red); color: var(--red); border-width: 2.5px; }
+  .bkey.must::after { content: "✱"; position: absolute; top: -4px; right: -3px; font-size: 9px; color: var(--red); }
+  .legend { text-align: center; font-size: 10px; font-weight: 700; letter-spacing: 0.1em; color: var(--muted); margin-bottom: 18px; }
+  .legend b { color: currentColor; }
+  .legend .r { color: var(--red); }
+
+  /* the tape */
+  .rcvd { display: flex; align-items: baseline; gap: 10px; margin: 4px 0 6px; }
+  .rcvd .st { font-size: 10px; font-weight: 800; letter-spacing: 0.2em; border: 2px double var(--muted);
+    padding: 3px 8px; color: var(--muted); transform: rotate(-1.5deg); }
+  .rcvd .st.blue { color: var(--blu); border-color: var(--blu); }
+  .rcvd .st.red { color: var(--red); border-color: var(--red); }
+  .rcvd .n { margin-left: auto; font-size: 18px; font-weight: 800; }
+  .tapewrap { overflow-x: auto; margin: 0 -16px 8px; padding: 0 16px; }
+  .tape { display: inline-flex; align-items: center; gap: 0; min-width: 100%;
+    background: var(--tape); color: #26200f; padding: 22px 26px;
+    background-image:
+      radial-gradient(circle 2.5px at 12px 9px, var(--hole) 0 2.5px, transparent 2.6px),
+      radial-gradient(circle 2.5px at 12px calc(100% - 9px), var(--hole) 0 2.5px, transparent 2.6px);
+    background-size: 24px 100%; background-repeat: repeat-x;
+    clip-path: polygon(0 6%, 6px 0, calc(100% - 6px) 0, 100% 6%, 100% 94%, calc(100% - 6px) 100%, 6px 100%, 0 94%);
+    white-space: nowrap;
+  }
+  .tape .w { font-size: 24px; font-weight: 800; letter-spacing: 0.14em; }
+  .tape .w i { font-style: normal; color: var(--blu); border-bottom: 3px solid var(--blu); }
+  .tape .w s { color: var(--red); text-decoration-thickness: 2.5px; }
+  .tape .w .lex { font-size: 8px; font-weight: 700; letter-spacing: 0.1em; color: #7d7460; vertical-align: super; margin-left: 3px; }
+  .tape .sep { font-size: 18px; color: #b0a68a; margin: 0 14px; }
+  .tape .shuf { font-style: italic; }
+  .tape .shuf::before { content: "⇄"; font-style: normal; font-size: 14px; color: #7d7460; margin-right: 6px; }
+  .tapecap { font-size: 9px; font-weight: 700; letter-spacing: 0.18em; color: var(--muted); margin: 0 0 20px; }
+
+  .modebreak { margin: 44px 0 18px; text-align: center; font-size: 10px; font-weight: 800;
+    letter-spacing: 0.3em; color: var(--muted); border-top: 2px solid var(--line); padding-top: 10px; }
+
+  /* pattern extras */
+  .switches { display: flex; gap: 14px; margin: 10px 0 14px; }
+  .sw { display: flex; align-items: center; gap: 7px; font-size: 10px; font-weight: 800; letter-spacing: 0.12em; color: var(--muted); }
+  .sw .k { width: 30px; height: 16px; border: 2px solid var(--muted); position: relative; }
+  .sw .k::after { content: ""; position: absolute; top: 1px; left: 1px; width: 10px; height: 10px; background: var(--muted); }
+  .sw.on { color: currentColor; }
+  .sw.on .k { border-color: var(--red); }
+  .sw.on .k::after { left: auto; right: 1px; background: var(--red); }
+  .punchrow { display: flex; gap: 12px; align-items: center; margin: 0 0 16px; }
+  .punchrow .k { font-size: 10px; font-weight: 800; letter-spacing: 0.14em; color: var(--muted); }
+  .punch { display: flex; flex-direction: column; align-items: center; gap: 4px;
+    font-size: 11px; font-weight: 700; color: var(--muted); }
+  .punch .h { width: 16px; height: 16px; border-radius: 999px; border: 2px solid var(--muted); }
+  .punch.on { color: currentColor; font-weight: 800; }
+  .punch.on .h { background: currentColor; border-color: currentColor; }
+
+  /* ladder splice */
+  .splice { display: inline-flex; align-items: center; margin: 10px 0 4px; }
+  .scrap { background: var(--tape); color: #26200f; font-size: 12px; font-weight: 800; letter-spacing: 0.14em;
+    padding: 8px 14px; clip-path: polygon(0 20%, 5px 0, calc(100% - 5px) 0, 100% 20%, 100% 80%, calc(100% - 5px) 100%, 5px 100%, 0 80%); }
+  .scrap.old { color: #7d7460; transform: rotate(-2deg); }
+  .splice .jn { font-size: 12px; color: var(--muted); margin: 0 8px; }
+  .splice .clear { margin-left: 14px; font-size: 10px; font-weight: 800; letter-spacing: 0.12em; color: var(--muted);
+    border: 2px solid var(--line); padding: 4px 8px; }
+  .togs { display: flex; gap: 10px; margin: 10px 0 18px; }
+  .tg { font-size: 10px; font-weight: 800; letter-spacing: 0.12em; color: var(--muted); }
+  .tg.on { color: currentColor; }
+  .tg::before { content: "☐ "; }
+  .tg.on::before { content: "☒ "; color: var(--red); }
+</style>
+</head>
+<body>
+<div class="topbar"><a href="./index.html">‹ Gallery</a><span>12 · RECEIVING OFFICE</span></div>
+<div class="phone deskink">
+
+  <div class="office-h">
+    <div class="t">LIV·WORDS</div>
+    <div class="s">TELEGRAPH — RECEIVING OFFICE</div>
+    <div class="btns">? ⚙</div>
+  </div>
+
+  <!-- ==================== SLOTS ==================== -->
+  <div class="stamps">
+    <span class="stamp on">SLOTS</span><span class="stamp">PATTERN</span><span class="stamp">LADDER</span>
+  </div>
+
+  <div class="formline"><span class="k">MSG</span><span class="v">S<span class="hole">·</span>A<span class="hole">·</span>E</span></div>
+
+  <div class="dialrow">
+    <div class="dial">
+      <span class="num" style="transform:rotate(-140deg) translate(0,-46px) rotate(140deg)">3</span>
+      <span class="num" style="transform:rotate(-100deg) translate(0,-46px) rotate(100deg)">4</span>
+      <span class="num on" style="transform:rotate(-60deg) translate(0,-46px) rotate(60deg)">5</span>
+      <span class="num" style="transform:rotate(-20deg) translate(0,-46px) rotate(20deg)">6</span>
+      <span class="num" style="transform:rotate(20deg) translate(0,-46px) rotate(-20deg)">7</span>
+      <span class="num" style="transform:rotate(60deg) translate(0,-46px) rotate(-60deg)">8</span>
+      <span class="num" style="transform:rotate(100deg) translate(0,-46px) rotate(-100deg)">9</span>
+      <span class="num" style="transform:rotate(140deg) translate(0,-46px) rotate(-140deg)">10</span>
+      <div class="needle"></div><div class="hub"></div>
+      <div class="cap">LENGTH</div>
+    </div>
+    <div class="dialnote">TURN DIAL TO SET<br>WORD LENGTH — <b>5</b><br><br>SPACE = ANY LETTER</div>
+  </div>
+
+  <div class="board">
+    <div class="brow">
+      <div class="bkey dim">Q</div><div class="bkey dim">W</div><div class="bkey dim">E</div>
+      <div class="bkey may"><i>R</i></div><div class="bkey may"><i>T</i></div><div class="bkey dim">Y</div>
+      <div class="bkey dim">U</div><div class="bkey dim">I</div><div class="bkey dim">O</div><div class="bkey may"><i>P</i></div>
+    </div>
+    <div class="brow">
+      <div class="bkey dim">A</div><div class="bkey dim">S</div><div class="bkey may"><i>D</i></div>
+      <div class="bkey dim">F</div><div class="bkey dim">G</div><div class="bkey must">H</div>
+      <div class="bkey dim">J</div><div class="bkey may"><i>K</i></div><div class="bkey may"><i>L</i></div>
+    </div>
+    <div class="brow">
+      <div class="bkey dim">Z</div><div class="bkey dim">X</div><div class="bkey dim">C</div>
+      <div class="bkey may"><i>V</i></div><div class="bkey dim">B</div><div class="bkey dim">N</div><div class="bkey may"><i>M</i></div>
+    </div>
+  </div>
+  <div class="legend">FADED CLOSED · <b>INKED MAY</b> · <span class="r">RED RING MUST ✱</span></div>
+
+  <div class="rcvd"><span class="st">RCVD</span><span class="k" style="font-size:10px;font-weight:800;letter-spacing:.2em;color:var(--muted)">7 WORDS</span><span class="n">7</span></div>
+  <div class="tapewrap"><div class="tape">
+    <span class="w">SHADE<span class="lex">NWL</span></span><span class="sep">•</span>
+    <span class="w">SHAKE<span class="lex">NWL</span></span><span class="sep">•</span>
+    <span class="w">SHALE<span class="lex">NWL</span></span><span class="sep">•</span>
+    <span class="w">SHAME<span class="lex">NWL</span></span><span class="sep">•</span>
+    <span class="w">SHAPE<span class="lex">NWL</span></span><span class="sep">•</span>
+    <span class="w">SHARE<span class="lex">NWL</span></span><span class="sep">•</span>
+    <span class="w">SHAVE<span class="lex">NWL</span></span>
+  </div></div>
+  <div class="tapecap">SLIDE TAPE TO READ ▸ · TAP A WORD FOR ITS MEANING</div>
+
+  <!-- ==================== PATTERN ==================== -->
+  <div class="modebreak">— WIRE 2 —</div>
+  <div class="stamps">
+    <span class="stamp">SLOTS</span><span class="stamp on">PATTERN</span><span class="stamp">LADDER</span>
+  </div>
+
+  <div class="formline"><span class="k">QRY</span><span class="v">B<span class="hole">_</span>TT<span class="hole">*</span>Y</span></div>
+  <div class="switches">
+    <div class="sw on"><span class="k"></span>STARTS WITH</div>
+    <div class="sw"><span class="k"></span>ENDS WITH</div>
+  </div>
+  <div class="punchrow">
+    <span class="k">LEN</span>
+    <div class="punch on"><span class="h"></span>ALL</div>
+    <div class="punch"><span class="h"></span>5</div>
+    <div class="punch"><span class="h"></span>6</div>
+    <div class="punch"><span class="h"></span>7</div>
+    <div class="punch"><span class="h"></span>8</div>
+    <div class="punch"><span class="h"></span>9</div>
+    <div class="punch"><span class="h"></span>10+</div>
+  </div>
+
+  <div class="rcvd"><span class="st">RCVD</span><span class="k" style="font-size:10px;font-weight:800;letter-spacing:.2em;color:var(--muted)">4 WORDS</span><span class="n">4</span></div>
+  <div class="tapewrap"><div class="tape">
+    <span class="w">BATTERY<span class="lex">7·NWL</span></span><span class="sep">•</span>
+    <span class="w">BITTERLY<span class="lex">8·NWL</span></span><span class="sep">•</span>
+    <span class="w">BUTTERFLY<span class="lex">9·NWL</span></span><span class="sep">•</span>
+    <span class="w">BUTTERY<span class="lex">7·NWL</span></span>
+  </div></div>
+  <div class="tapecap">_ ANY ONE LETTER · * ANY RUN</div>
+
+  <!-- ==================== LADDER ==================== -->
+  <div class="modebreak">— WIRE 3 —</div>
+  <div class="stamps">
+    <span class="stamp">SLOTS</span><span class="stamp">PATTERN</span><span class="stamp on">LADDER</span>
+  </div>
+
+  <div class="formline"><span class="k">WORD</span><span class="v">LOUR</span></div>
+  <div class="splice">
+    <span class="scrap old">FLOUR</span><span class="jn">⟿</span><span class="scrap">LOUR</span>
+    <span class="clear">✕ CLEAR</span>
+  </div>
+  <div class="togs"><span class="tg on">ANAGRAM</span><span class="tg">UNIQUE</span><span class="tg">+S</span></div>
+
+  <div class="rcvd"><span class="st blue">+1 TAPE</span><span class="k" style="font-size:10px;font-weight:800;letter-spacing:.2em;color:var(--muted)">ADD A LETTER</span><span class="n" style="color:var(--blu)">5</span></div>
+  <div class="tapewrap"><div class="tape">
+    <span class="w"><i>C</i>LOUR<span class="lex">CSW</span></span><span class="sep">•</span>
+    <span class="w"><i>F</i>LOUR<span class="lex">NWL</span></span><span class="sep">•</span>
+    <span class="w">LOUR<i>E</i><span class="lex">CSW</span></span><span class="sep">•</span>
+    <span class="w">LOUR<i>S</i><span class="lex">NWL</span></span><span class="sep">•</span>
+    <span class="w shuf">FLUOR<span class="lex">NWL</span></span>
+  </div></div>
+  <div class="tapecap">⇄ = SHUFFLED LETTERS · SLIDE ▸</div>
+
+  <div class="rcvd"><span class="st red">−1 TAPE</span><span class="k" style="font-size:10px;font-weight:800;letter-spacing:.2em;color:var(--muted)">DROP A LETTER</span><span class="n" style="color:var(--red)">2</span></div>
+  <div class="tapewrap"><div class="tape">
+    <span class="w"><s>L</s>OUR<span class="lex">NWL</span></span><span class="sep">•</span>
+    <span class="w">LO<s>U</s>R<span class="lex">CSW</span></span>
+  </div></div>
+  <div class="tapecap">NO SHUFFLED WORDS ON THIS TAPE</div>
+
+</div>
+</body>
+</html>

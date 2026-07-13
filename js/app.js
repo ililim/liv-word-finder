@@ -206,9 +206,11 @@ function paintLenChips() {
   }
 }
 
-// Keep only letters and our two wildcards; space reads as "_".
+// Letters stay; SPACE types "_"; any other character types "*".
 function normalizePattern(raw) {
-  return raw.toLowerCase().replace(/ /g, "_").replace(/[^a-z_*]/g, "");
+  return [...raw.toLowerCase()]
+    .map(ch => (/[a-z_]/.test(ch) ? ch : ch === " " ? "_" : "*"))
+    .join("");
 }
 
 
