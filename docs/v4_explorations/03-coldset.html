@@ -1,0 +1,259 @@
+<!-- 03 · Coldset — Liv Word Finder v4.
+     COLOR LOGIC — a fully cool, cold-press editorial palette: one ink family where DEPTH ENCODES
+     STRICTNESS. SLOTS = PRESS NAVY (#1e3f66), the darkest — set in permanent ink, positions locked.
+     PATTERN = EDITOR TEAL (#0c6b60), the mid tone — the flexible mark-up color. LADDER = PENCIL
+     STEEL with ICE fills (#c9dbe7) — the lightest, erasable, made for wandering step by step.
+     In LADDER the owner's two-bar idea goes literal: +1 sections open with an ICE band (light =
+     something added), −1 sections with a solid INK band (dark = something struck), and SHUFFLED
+     sub-groups hang under a dotted rule with a ⇄ tag and italic words. Results are dense
+     newspaper columns; counters are big cold numerals. -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<title>03 · Coldset — Liv Word Finder v4</title>
+<style>
+  :root {
+    --bg: #f1f3f5; --surface: #ffffff; --ink: #131a21; --muted: #5f6b76;
+    --line: rgba(19, 26, 33, 0.18);
+    --navy: #1e3f66;  --navy-ink: #ffffff;  --navy-text: #1e3f66;
+    --teal: #0c6b60;  --teal-ink: #ffffff;  --teal-text: #0c6b60;
+    --steel-text: #43606f;
+    --ice: #c9dbe7;   --ice-ink: #131a21;
+    color-scheme: light dark;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #10161c; --surface: #19222b; --ink: #e8eef3; --muted: #8fa0af;
+      --line: rgba(232, 238, 243, 0.18);
+      --navy: #35639c;  --navy-ink: #ffffff;  --navy-text: #a4c4ea;
+      --teal: #12836f;  --teal-ink: #ffffff;  --teal-text: #5cc4b2;
+      --steel-text: #9db4c2;
+      --ice: #2e4557;   --ice-ink: #e8eef3;
+    }
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    background: var(--bg); color: var(--ink);
+    display: flex; flex-direction: column; align-items: center;
+    padding-bottom: 80px;
+  }
+  .topbar { width: 100%; max-width: 430px; display: flex; justify-content: space-between; padding: 10px 16px; font-size: 12px; font-weight: 700; color: var(--muted); }
+  .topbar a { color: var(--muted); text-decoration: none; }
+  .phone { width: 100%; max-width: 430px; padding: 4px 16px 0; }
+
+  .brand-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
+  .brand { font-size: 14px; font-weight: 850; letter-spacing: 0.22em; }
+  .icon-btns { display: flex; gap: 8px; }
+  .icon-btn { width: 32px; height: 32px; display: grid; place-items: center; font-size: 13px; font-weight: 850; border: 2px solid var(--ink); border-radius: 999px; }
+
+  .seg {
+    display: grid; grid-template-columns: 1fr 1fr 1fr;
+    height: 44px; padding: 4px; gap: 2px;
+    border: 2px solid var(--ink); border-radius: 999px; background: var(--bg);
+    margin: 10px 0 16px;
+  }
+  .seg span { display: grid; place-items: center; border-radius: 999px; font-size: 12px; font-weight: 850; letter-spacing: 0.08em; color: var(--muted); }
+  .seg .on.slots   { background: var(--navy); color: var(--navy-ink); }
+  .seg .on.pattern { background: var(--teal); color: var(--teal-ink); }
+  .seg .on.ladder  { background: var(--ice);  color: var(--ice-ink); }
+
+  /* FT-style double rule between modes */
+  .mode-break { margin-top: 46px; border-top: 3px solid var(--ink); }
+  .mode-break .inner { border-top: 1px solid var(--ink); margin-top: 2px; padding-top: 7px; font-size: 10px; font-weight: 850; letter-spacing: 0.24em; color: var(--muted); }
+
+  .hint { font-size: 11px; font-weight: 700; letter-spacing: 0.06em; color: var(--muted); }
+  .hint b { color: var(--ink); font-weight: 850; }
+
+  /* ---- SLOTS ---- */
+  .slots { display: flex; gap: 6px; justify-content: center; }
+  .slot {
+    width: 56px; height: 60px; display: grid; place-items: center;
+    font-size: 26px; font-weight: 850;
+    background: var(--surface); border: 1px solid var(--line); position: relative;
+  }
+  .slot .idx { position: absolute; top: 3px; left: 6px; font-size: 9px; font-weight: 800; color: var(--muted); }
+  .slot.filled { background: var(--navy); color: var(--navy-ink); border-color: var(--navy); }
+  .slot.filled .idx { color: var(--navy-ink); opacity: 0.55; }
+  .slot.cursor { border: 2px solid var(--ink); }
+  .slots-tools { display: flex; align-items: center; justify-content: space-between; margin: 14px 0; }
+  .stepper { display: flex; border: 2px solid var(--ink); }
+  .stepper b { width: 40px; height: 32px; display: grid; place-items: center; font-size: 16px; font-weight: 850; }
+  .stepper .len { border-inline: 2px solid var(--ink); font-size: 13px; font-variant-numeric: tabular-nums; }
+
+  /* board — MUST = navy fill, MAY = hard ink outline, excluded = dotted ghost */
+  .board { display: flex; flex-direction: column; gap: 5px; margin-bottom: 12px; }
+  .brow { display: flex; gap: 5px; justify-content: center; }
+  .bkey {
+    flex: 0 0 34px; height: 40px; display: grid; place-items: center;
+    font-size: 14px; font-weight: 800;
+    background: var(--surface); border: 1px solid var(--line); position: relative;
+  }
+  .bkey.dim { border-style: dotted; background: none; color: var(--muted); opacity: 0.45; }
+  .bkey.may { border: 2px solid var(--ink); font-weight: 850; }
+  .bkey.must { background: var(--navy); color: var(--navy-ink); border-color: var(--navy); font-weight: 850; }
+  .bkey.must::after { content: "✱"; position: absolute; top: 1px; right: 3px; font-size: 9px; }
+  .chips { display: flex; gap: 8px; align-items: center; margin-bottom: 18px; }
+  .chips .grow { flex: 1; }
+  .tchip { height: 32px; padding: 0 12px; display: inline-flex; align-items: center; gap: 6px; font-size: 11px; font-weight: 850; letter-spacing: 0.06em; border: 1px solid var(--line); color: var(--muted); }
+  .tchip.on { background: var(--ink); color: var(--bg); border-color: var(--ink); }
+
+  /* results — cold stat header + newspaper columns */
+  .stat {
+    display: flex; align-items: baseline; gap: 10px;
+    border-top: 1px solid var(--ink); padding-top: 8px; margin-bottom: 10px;
+  }
+  .stat .n { font-size: 34px; font-weight: 850; letter-spacing: -0.02em; font-variant-numeric: tabular-nums; line-height: 1; }
+  .stat .n.navy { color: var(--navy-text); } .stat .n.teal { color: var(--teal-text); } .stat .n.steel { color: var(--steel-text); }
+  .stat .lab { font-size: 10px; font-weight: 850; letter-spacing: 0.2em; color: var(--muted); }
+  .cols { column-count: 3; column-gap: 18px; column-rule: 1px solid var(--line); }
+  .cols .w {
+    display: block; font-size: 14px; font-weight: 750; letter-spacing: 0.06em;
+    padding: 5px 0; border-bottom: 1px solid var(--line);
+    break-inside: avoid;
+  }
+  .cols .w u { text-decoration: none; color: var(--teal-text); font-weight: 850; }
+  .cols.two { column-count: 2; }
+  .cols .w i { font-style: normal; color: var(--steel-text); font-weight: 850; }
+  .cols .w s { color: var(--muted); text-decoration-thickness: 2px; }
+  .cols .w.trs { font-style: italic; }
+
+  /* ---- PATTERN ---- */
+  .pat-row { display: flex; gap: 8px; align-items: stretch; margin-bottom: 12px; }
+  .anchor { flex: 0 0 60px; display: grid; place-items: center; text-align: center; font-size: 10px; font-weight: 850; line-height: 1.4; border: 1px solid var(--line); color: var(--muted); background: var(--surface); }
+  .anchor.on { background: var(--teal); color: var(--teal-ink); border-color: var(--teal); }
+  .pat-input { flex: 1; height: 54px; display: grid; place-items: center; font-size: 24px; font-weight: 850; letter-spacing: 0.14em; background: var(--surface); border-bottom: 3px solid var(--teal); border-top: 1px solid var(--line); }
+  .lenchips { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 18px; }
+  .lchip { height: 30px; min-width: 38px; padding: 0 10px; display: grid; place-items: center; font-size: 12px; font-weight: 850; border: 1px solid var(--line); color: var(--muted); font-variant-numeric: tabular-nums; }
+  .lchip.on { background: var(--ink); color: var(--bg); border-color: var(--ink); }
+
+  /* ---- LADDER ---- */
+  .lab-input { width: 100%; height: 54px; display: grid; place-items: center; font-size: 24px; font-weight: 850; letter-spacing: 0.14em; background: var(--surface); border-bottom: 3px solid var(--steel-text); border-top: 1px solid var(--line); margin-bottom: 12px; }
+  .trail { display: flex; gap: 6px; align-items: center; margin-bottom: 14px; }
+  .crumb { height: 28px; padding: 0 11px; display: inline-flex; align-items: center; font-size: 11px; font-weight: 850; border: 1px solid var(--line); color: var(--muted); }
+  .crumb::after { content: " ›"; color: var(--line); }
+  .trail .clear { margin-left: auto; height: 28px; padding: 0 10px; display: inline-flex; align-items: center; font-size: 11px; font-weight: 850; color: var(--muted); border: 1px solid var(--line); }
+
+  /* +1 = ICE band (light: added) · −1 = INK band (dark: struck) — two different colored bars */
+  .band {
+    display: flex; align-items: center; gap: 10px;
+    height: 34px; padding: 0 12px; margin: 20px 0 10px;
+    font-size: 11px; font-weight: 850; letter-spacing: 0.14em;
+  }
+  .band.add { background: var(--ice); color: var(--ice-ink); }
+  .band.del { background: var(--ink); color: var(--bg); }
+  .band .n { margin-left: auto; font-size: 16px; font-variant-numeric: tabular-nums; }
+  .sub-h { display: flex; align-items: baseline; gap: 8px; border-top: 1px dotted var(--muted); padding-top: 6px; margin: 14px 0 8px; font-size: 10px; font-weight: 850; letter-spacing: 0.14em; color: var(--muted); }
+  .sub-h .n { margin-left: auto; font-size: 12px; }
+  .zero { font-size: 12px; font-weight: 700; color: var(--muted); font-style: italic; padding: 2px 0 6px; }
+</style>
+</head>
+<body>
+<div class="topbar"><a href="./index.html">‹ Gallery</a><span>03 · COLDSET</span></div>
+<div class="phone">
+
+  <div class="brand-row">
+    <div class="brand">LIV·WORDS</div>
+    <div class="icon-btns"><span class="icon-btn">?</span><span class="icon-btn">⚙</span></div>
+  </div>
+
+  <!-- ==================== SLOTS ==================== -->
+  <nav class="seg"><span class="on slots">SLOTS</span><span>PATTERN</span><span>LADDER</span></nav>
+
+  <div class="slots">
+    <div class="slot filled"><span class="idx">1</span>S</div>
+    <div class="slot cursor"><span class="idx">2</span></div>
+    <div class="slot filled"><span class="idx">3</span>A</div>
+    <div class="slot"><span class="idx">4</span></div>
+    <div class="slot filled"><span class="idx">5</span>E</div>
+  </div>
+  <div class="slots-tools">
+    <div class="hint">WORD LENGTH</div>
+    <div class="stepper"><b>−</b><b class="len">5</b><b>+</b></div>
+  </div>
+  <div class="board">
+    <div class="brow">
+      <div class="bkey dim">Q</div><div class="bkey dim">W</div><div class="bkey dim">E</div>
+      <div class="bkey may">R</div><div class="bkey may">T</div><div class="bkey dim">Y</div>
+      <div class="bkey dim">U</div><div class="bkey dim">I</div><div class="bkey dim">O</div><div class="bkey may">P</div>
+    </div>
+    <div class="brow">
+      <div class="bkey dim">A</div><div class="bkey dim">S</div><div class="bkey may">D</div>
+      <div class="bkey dim">F</div><div class="bkey dim">G</div><div class="bkey must">H</div>
+      <div class="bkey dim">J</div><div class="bkey may">K</div><div class="bkey may">L</div>
+    </div>
+    <div class="brow">
+      <div class="bkey dim">Z</div><div class="bkey dim">X</div><div class="bkey dim">C</div>
+      <div class="bkey may">V</div><div class="bkey dim">B</div><div class="bkey dim">N</div><div class="bkey may">M</div>
+    </div>
+  </div>
+  <div class="chips">
+    <div class="hint">OUTLINE <b>MAY</b> · FILLED <b>MUST ✱</b></div>
+    <div class="grow"></div>
+    <span class="tchip">◇ NO DOUBLES</span>
+  </div>
+
+  <div class="stat"><span class="n navy">7</span><span class="lab">WORDS · S _ A _ E</span></div>
+  <div class="cols">
+    <span class="w">SHADE</span><span class="w">SHAKE</span><span class="w">SHALE</span>
+    <span class="w">SHAME</span><span class="w">SHAPE</span><span class="w">SHARE</span><span class="w">SHAVE</span>
+  </div>
+
+  <!-- ==================== PATTERN ==================== -->
+  <div class="mode-break"><div class="inner">PATTERN</div></div>
+  <nav class="seg"><span>SLOTS</span><span class="on pattern">PATTERN</span><span>LADDER</span></nav>
+
+  <div class="pat-row">
+    <div class="anchor on">START<br>WITH</div>
+    <div class="pat-input">B_TT*Y</div>
+    <div class="anchor">END<br>WITH</div>
+  </div>
+  <div class="lenchips">
+    <span class="lchip on">ALL</span><span class="lchip">5</span><span class="lchip">6</span>
+    <span class="lchip">7</span><span class="lchip">8</span><span class="lchip">9</span><span class="lchip">10+</span>
+  </div>
+
+  <div class="stat"><span class="n teal">4</span><span class="lab">WORDS · B_TT*Y</span></div>
+  <div class="cols two">
+    <span class="w"><u>B</u>A<u>TT</u>ER<u>Y</u></span>
+    <span class="w"><u>B</u>I<u>TT</u>ERL<u>Y</u></span>
+    <span class="w"><u>B</u>U<u>TT</u>ERFL<u>Y</u></span>
+    <span class="w"><u>B</u>U<u>TT</u>ER<u>Y</u></span>
+  </div>
+
+  <!-- ==================== LADDER ==================== -->
+  <div class="mode-break"><div class="inner">LADDER</div></div>
+  <nav class="seg"><span>SLOTS</span><span>PATTERN</span><span class="on ladder">LADDER</span></nav>
+
+  <div class="lab-input">LOUR</div>
+  <div class="trail"><span class="crumb">FLOUR</span><span class="clear">✕ CLEAR</span></div>
+  <div class="chips">
+    <span class="tchip on">⇄ SHUFFLE</span><span class="tchip">◇ NO DOUBLES</span><span class="tchip">S̶ HIDE +S</span>
+  </div>
+
+  <div class="band add"><span>+1 · ADD A LETTER</span><span class="n">5</span></div>
+  <div class="cols two">
+    <span class="w"><i>C</i>LOUR</span>
+    <span class="w"><i>F</i>LOUR</span>
+    <span class="w">LOUR<i>E</i></span>
+    <span class="w">LOUR<i>S</i></span>
+  </div>
+  <div class="sub-h"><span>⇄ SHUFFLED</span><span class="n">1</span></div>
+  <div class="cols two">
+    <span class="w trs">FLUOR</span>
+  </div>
+
+  <div class="band del"><span>−1 · STRIKE A LETTER</span><span class="n">2</span></div>
+  <div class="cols two">
+    <span class="w"><s>L</s>OUR</span>
+    <span class="w">LO<s>U</s>R</span>
+  </div>
+  <div class="sub-h"><span>⇄ SHUFFLED</span><span class="n">0</span></div>
+  <div class="zero">no shuffled words one letter down</div>
+
+</div>
+</body>
+</html>

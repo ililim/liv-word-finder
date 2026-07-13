@@ -43,6 +43,7 @@
       <div class="hint">TAP ONCE <b>MAY</b> · TWICE <b>MUST ✱</b></div>
       <div class="grow"></div>
       <button class="tchip" id="slots-nodoubles"><span class="ic">◇</span>NO DOUBLES</button>
+      <button class="tchip reset">↺</button>
     </div>
     <div class="results" id="slots-results"></div>
   </section>
@@ -51,8 +52,11 @@
   <section class="view" id="view-pattern">
     <div class="pat-row">
       <button class="anchor" id="anchor-start">START<br>WITH</button>
-      <input class="pat-input" id="pat-input" placeholder="B_TT*Y" autocomplete="off"
-             autocorrect="off" autocapitalize="characters" spellcheck="false" enterkeyhint="done">
+      <span class="input-wrap">
+        <input class="pat-input" id="pat-input" placeholder="B_TT*Y" autocomplete="off"
+               autocorrect="off" autocapitalize="characters" spellcheck="false" enterkeyhint="done">
+        <button class="input-clear" id="pat-clear">✕</button>
+      </span>
       <button class="anchor" id="anchor-end">END<br>WITH</button>
     </div>
     <div class="lenchips" id="lenchips"></div>
@@ -60,18 +64,23 @@
       <div class="hint"><b>_</b> ONE LETTER · <b>*</b> ANY RUN</div>
       <div class="grow"></div>
       <button class="tchip" id="pat-nodoubles"><span class="ic">◇</span>NO DOUBLES</button>
+      <button class="tchip reset">↺</button>
     </div>
     <div class="results" id="pattern-results"></div>
   </section>
 
   <!-- ±1 — words one letter away; tap a word to walk -->
   <section class="view" id="view-lab">
-    <input class="lab-input" id="lab-input" placeholder="TYPE A WORD" autocomplete="off"
-           autocorrect="off" autocapitalize="characters" spellcheck="false" enterkeyhint="done">
+    <span class="input-wrap block">
+      <input class="lab-input" id="lab-input" placeholder="TYPE A WORD" autocomplete="off"
+             autocorrect="off" autocapitalize="characters" spellcheck="false" enterkeyhint="done">
+      <button class="input-clear" id="lab-clear">✕</button>
+    </span>
     <div class="chips">
       <button class="tchip" id="lab-shuffle"><span class="ic">⇄</span>SHUFFLE</button>
       <button class="tchip" id="lab-nodoubles"><span class="ic">◇</span>NO DOUBLES</button>
       <button class="tchip" id="lab-nos"><span class="ic">S̶</span>HIDE +S</button>
+      <button class="tchip reset">↺</button>
     </div>
     <div class="trail" id="trail"></div>
     <div class="results" id="lab-results"></div>
@@ -89,13 +98,6 @@
     <div id="dict-radios"></div>
   </div>
   <div class="sheet" id="help-sheet">
-    <div class="help-sec" data-mode="any">
-      <div class="help-h">ANY WORD</div>
-      <div class="help-row">
-        <span class="help-demo"><span class="d-word">SHADE</span><span class="d-arrow">→</span><span class="d-input">“shelter…”</span></span>
-        <span class="help-t"><b>tap</b> a word: its meaning<br>in LADDER: <b>hold</b> (tap steps)</span>
-      </div>
-    </div>
     <div class="help-sec" data-mode="slots">
       <div class="help-h">SLOTS</div>
       <div class="help-row">
@@ -139,6 +141,13 @@
       <div class="help-row">
         <span class="help-demo"><span class="d-crumb">LOUR ›</span><span class="d-crumb">✕</span></span>
         <span class="help-t">your path so far: typing a<br>fresh word clears it</span>
+      </div>
+    </div>
+    <div class="help-sec" data-mode="any">
+      <div class="help-h">DICTIONARY</div>
+      <div class="help-row">
+        <span class="help-demo"><span class="d-word">SHADE</span><span class="d-arrow">→</span><span class="d-input">“shelter…”</span></span>
+        <span class="help-t"><b>tap</b> a word: its meaning<br>in LADDER: <b>hold</b> instead</span>
       </div>
     </div>
   </div>

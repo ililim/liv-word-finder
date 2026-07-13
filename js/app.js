@@ -213,6 +213,7 @@ function walkTo(word) {
   if (lab.word && lab.word !== word) lab.trail.push(lab.word);
   lab.word = word;
   $("lab-input").value = word.toUpperCase();
+  syncClears();
   paintTrail();
   render();
 }
@@ -275,7 +276,7 @@ function paintSlotsResults() {
   const filters = { include: s.must, only, noDoubles: s.noDoubles, rack: state.rack };
   const words = querySlots(state.dict, slots, filters);
   const wrap = $("slots-results");
-  paintGroups(wrap, touched ? words : [], touched ? null : "fill a slot or tap a letter below");
+  paintGroups(wrap, touched ? words : [], touched ? null : "fill a slot or tap a letter");
   if (touched) appendOtherLengths(wrap, querySlotsLoose(state.dict, slots, filters));
 }
 
@@ -295,7 +296,7 @@ function paintLabResults() {
   const lab = state.lab;
   const wrap = $("lab-results");
   if (lab.word.length < 2) {
-    wrap.innerHTML = `<div class="idle">type a word, then walk one letter at a time</div>`;
+    wrap.innerHTML = `<div class="idle">type a word</div>`;
     return;
   }
   const { plus, minus } = queryPlusMinus(state.dict, lab.word, { ...lab, rack: state.rack });
@@ -416,7 +417,7 @@ function buildDictRadios() {
   const wrap = $("dict-radios");
   wrap.innerHTML = "";
   for (const [key, { label }] of Object.entries(DICTS)) {
-    const sub = { nwl: "NA Scrabble", csw: "international Scrabble", enable: "public domain", all: "union of all three" }[key];
+    const sub = { nwl: "North American Scrabble", csw: "international Scrabble", enable: "Words With Friends", all: "all three combined" }[key];
     const row = el(`<button class="radio-row ${key === state.dictKey ? "on" : ""}">
         <span>${label} <span class="sub">${sub}</span></span><span class="dot"></span></button>`);
     row.onclick = () => { closeSheets(); switchDict(key); };
@@ -447,16 +448,21 @@ function wireEvents() {
     const clean = normalizePattern(e.target.value);
     e.target.value = clean.toUpperCase();
     state.pattern.str = clean;
+    syncClears();
     render();
   });
   $("anchor-start").onclick = () => anchor("anchorStart", "anchor-start");
   $("anchor-end").onclick = () => anchor("anchorEnd", "anchor-end");
   toggle($("pat-nodoubles"), on => { state.pattern.noDoubles = on; });
 
-  $("lab-input").addEventListener("input", e => labTyped(e.target.value));
+  $("lab-input").addEventListener("input", e => { labTyped(e.target.value); syncClears(); });
   toggle($("lab-shuffle"), on => { state.lab.shuffle = on; }, state.lab.shuffle);
   toggle($("lab-nodoubles"), on => { state.lab.noDoubles = on; });
   toggle($("lab-nos"), on => { state.lab.hideSPlurals = on; });
+
+  for (const btn of document.querySelectorAll(".tchip.reset")) btn.onclick = resetView;
+  $("pat-clear").onclick = () => { $("pat-input").value = ""; state.pattern.str = ""; syncClears(); render(); };
+  $("lab-clear").onclick = () => { $("lab-input").value = ""; labTyped(""); syncClears(); };
 
   window.addEventListener("resize", buildSlots);
 
@@ -466,6 +472,41 @@ function wireEvents() {
     resultsEl().scrollTo({ top: 0, behavior: "smooth" });
     $("scroll-top").classList.remove("show");
   };
+}
+
+function resetView() {
+  const app = state.app;
+  if (app === "slots") {
+    state.slots = { len: 5, letters: [], cursor: 0, may: new Set(), must: new Set(), noDoubles: false };
+    $("slots-nodoubles").classList.remove("on");
+    buildSlots();
+    paintBoard();
+  }
+  if (app === "pattern") {
+    state.pattern = { str: "", anchorStart: false, anchorEnd: false, lengths: new Set(), noDoubles: false };
+    $("pat-input").value = "";
+    $("anchor-start").classList.remove("on");
+    $("anchor-end").classList.remove("on");
+    $("pat-nodoubles").classList.remove("on");
+    paintLenChips();
+    syncClears();
+  }
+  if (app === "lab") {
+    state.lab = { word: "", shuffle: true, noDoubles: false, hideSPlurals: false, trail: [] };
+    $("lab-input").value = "";
+    $("lab-shuffle").classList.add("on");
+    $("lab-nodoubles").classList.remove("on");
+    $("lab-nos").classList.remove("on");
+    paintTrail();
+    syncClears();
+  }
+  render();
+}
+
+// the in-input clear buttons appear only when there is text to clear
+function syncClears() {
+  $("pat-clear").classList.toggle("show", !!$("pat-input").value);
+  $("lab-clear").classList.toggle("show", !!$("lab-input").value);
 }
 
 function anchor(prop, id) {
