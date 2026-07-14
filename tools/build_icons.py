@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
-"""App icons: a Scrabble-ivory tile with a heavy L and a slot index — the app's
-own visual language. Writes icons/icon-{180,192,512}.png."""
+"""App icon: LIV spelled in three ivory Scrabble tiles on the app's dark ground.
+Writes icons/icon-{180,192,512}.png."""
 from PIL import Image, ImageDraw, ImageFont
 import pathlib
 
@@ -8,30 +8,28 @@ ROOT = pathlib.Path(__file__).resolve().parent.parent
 OUT = ROOT / "icons"
 OUT.mkdir(exist_ok=True)
 
-IVORY, INK = (240, 229, 201), (51, 41, 26)
+IVORY, INK, DARK = (240, 229, 201), (51, 41, 26), (14, 14, 12)
 
 def font(size):
-    for path in ["/System/Library/Fonts/Supplemental/Arial Bold.ttf",
-                 "/System/Library/Fonts/Helvetica.ttc"]:
-        try:
-            return ImageFont.truetype(path, size)
-        except OSError:
-            continue
-    raise SystemExit("no bold font found")
+    return ImageFont.truetype("/System/Library/Fonts/Supplemental/Arial Bold.ttf", size)
+
+def text_center(d, xy, s, f, fill):
+    box = d.textbbox((0, 0), s, font=f)
+    d.text((xy[0] - (box[2] - box[0]) / 2 - box[0], xy[1] - (box[3] - box[1]) / 2 - box[1]), s, font=f, fill=fill)
 
 for size in (180, 192, 512):
-    img = Image.new("RGB", (size, size), IVORY)
+    img = Image.new("RGB", (size, size), DARK)
     d = ImageDraw.Draw(img)
 
-    # heavy centered L
-    f = font(int(size * 0.62))
-    box = d.textbbox((0, 0), "L", font=f)
-    w, h = box[2] - box[0], box[3] - box[1]
-    d.text(((size - w) / 2 - box[0], (size - h) / 2 - box[1]), "L", font=f, fill=INK)
+    w = size * 0.25            # tile width; height is the classic 1.15 ratio
+    gap = size * 0.035
+    x0 = (size - (3 * w + 2 * gap)) / 2
+    y0 = (size - w * 1.15) / 2
 
-    # slot index in the corner, like the app's slots
-    fi = font(int(size * 0.14))
-    d.text((size * 0.08, size * 0.055), "1", font=fi, fill=INK)
+    for i, ch in enumerate("LIV"):
+        x = x0 + i * (w + gap)
+        d.rectangle([x, y0, x + w, y0 + w * 1.15], fill=IVORY)
+        text_center(d, (x + w / 2, y0 + w * 1.15 / 2), ch, font(int(w * 0.62)), INK)
 
     img.save(OUT / f"icon-{size}.png")
     print(f"icon-{size}.png")
