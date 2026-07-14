@@ -163,9 +163,9 @@ button { font: inherit; color: inherit; background: none; border: none; cursor: 
 .seg-pill {
   position: absolute; top: 4px; bottom: 4px; left: 0; width: 0;
   background: var(--accent); border-radius: var(--r-pill);
-  /* the pill glides, but wears the destination color almost immediately */
-  transition: left 0.24s cubic-bezier(0.2, 0.8, 0.2, 1),
-              width 0.24s cubic-bezier(0.2, 0.8, 0.2, 1),
+  /* translateX rides the compositor: heavy queries can't stutter the glide.
+     Color still lands almost immediately */
+  transition: transform 0.24s cubic-bezier(0.2, 0.8, 0.2, 1),
               background-color 0.07s;
 }
 

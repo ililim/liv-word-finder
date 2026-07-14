@@ -136,18 +136,19 @@ function switchApp(app) {
     $("ghost").focus({ preventScroll: true });
   }
   if (app === "lab") paintTrail(); // scroll-into-view only sticks once the view is visible
-  render();
+  render(300); // let the pill land before heavy queries take the thread
 }
 
 const resultsEl = () => $(`${state.app}-results`);
 
-// the pill glides under the active segment and recolors en route
+// the pill glides under the active segment and recolors en route.
+// Segments are equal width, so only translateX ever changes — compositor turf.
 function placeSegPill() {
   const btn = $("seg").querySelector("button.active");
   const pill = $("seg-pill");
   if (!btn.offsetWidth) return; // seg hidden in compact mode
-  pill.style.left = `${btn.offsetLeft}px`;
   pill.style.width = `${btn.offsetWidth}px`;
+  pill.style.transform = `translateX(${btn.offsetLeft}px)`;
 }
 
 // — Compact mode ——————————————————————————————————————————————————————————————
@@ -406,9 +407,9 @@ function paintTrail() {
 // — Rendering —————————————————————————————————————————————————————————————————
 
 let renderTimer;
-function render() {
+function render(delay = 60) {
   clearTimeout(renderTimer);
-  renderTimer = setTimeout(paint, 60);
+  renderTimer = setTimeout(paint, delay);
 }
 
 function paint() {
