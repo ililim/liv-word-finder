@@ -125,13 +125,13 @@ function buildBoard() {
       key.onclick = () => cycleConstraint(ch);
       div.append(key);
     }
-    if (row[0] === "z") div.append(fnKey("✕", clearBoard));
+    if (row[0] === "z") div.append(fnKey("✕", clearBoard, "clear"));
     $("board").append(div);
   }
 }
 
-function fnKey(label, fn) {
-  const key = el(`<button class="bkey fn">${label}</button>`);
+function fnKey(label, fn, cls = "") {
+  const key = el(`<button class="bkey fn ${cls}">${label}</button>`);
   key.onclick = fn;
   return key;
 }
