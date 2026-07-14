@@ -90,12 +90,15 @@ button { font: inherit; color: inherit; background: none; border: none; cursor: 
 .seg button.active { background: var(--accent); color: var(--accent-ink); }
 
 /* rack — the strip IS the input: tiles render live, a caret tile blinks while editing */
-/* always laid out at full size — the rack appearing must never shift the nav */
+/* collapsed when idle; while present, the tiles area is always full-width and
+   the ✕ is pinned outside the centering, so editing never wobbles the row */
 .rack-strip {
-  display: flex; gap: 2px; align-items: center; justify-content: center;
+  display: none; gap: 2px; align-items: center;
   margin-top: 10px; min-height: 32px; position: relative;
 }
-.rack-dismiss { display: none; }
+.rack-strip.show { display: flex; }
+.rack-tiles { flex: 1; }
+.rack-dismiss { display: none; position: absolute; right: 0; top: 50%; transform: translateY(-50%); }
 .rack-strip.filled .rack-dismiss { display: block; }
 .rack-tiles { display: inline-flex; gap: 5px; flex-wrap: wrap; justify-content: center; align-items: center; }
 .rack-tiles .hint-tile {
