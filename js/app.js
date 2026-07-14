@@ -277,7 +277,7 @@ function clearBoard(view) {
   render();
 }
 
-// With a rack: tap = require ✱, tap again = clear (the rack is the alphabet).
+// With a rack: tap = require, tap again = clear (the rack is the alphabet).
 // Without: blank → may → must → blank, and untapped letters are out.
 function cycleConstraint(view, ch) {
   const { may, must } = state[view];
