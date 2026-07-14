@@ -1,0 +1,346 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Liv Word Finder — mode dropdown variants</title>
+<style>
+  /* ------------------------------------------------------------------
+     Review document: 6 resolutions of the dropdown double-radius clash.
+     Mockups use the app's real tokens (css/app.css). Page chrome is dark.
+     ------------------------------------------------------------------ */
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html { -webkit-text-size-adjust: 100%; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    background: #0e0e0c;
+    color: #f4f2ec;
+    padding: 28px 20px 60px;
+  }
+  .wrap { max-width: 1120px; margin: 0 auto; }
+
+  /* ---- doc chrome ---- */
+  h1 {
+    font-size: 17px; font-weight: 850; letter-spacing: 0.16em; text-transform: uppercase;
+  }
+  h1 em { font-style: normal; color: #ffb000; }
+  .intro {
+    margin-top: 10px; max-width: 68ch;
+    font-size: 13px; line-height: 1.55; font-weight: 650; color: #8f8d84;
+  }
+  .intro b { color: #f4f2ec; font-weight: 850; }
+  .sec-h {
+    margin: 34px 0 14px;
+    font-size: 11px; font-weight: 850; letter-spacing: 0.16em; text-transform: uppercase;
+    color: #8f8d84;
+    border-top: 2.5px solid #f4f2ec; padding-top: 8px;
+  }
+  .grid {
+    display: grid; gap: 18px;
+    grid-template-columns: repeat(auto-fill, minmax(310px, 1fr));
+  }
+  .card { border: 2px solid rgba(244, 242, 236, 0.16); }
+  .chead {
+    display: flex; align-items: center; gap: 10px;
+    padding: 10px 12px;
+    border-bottom: 2px solid rgba(244, 242, 236, 0.16);
+  }
+  .vtag {
+    width: 30px; height: 24px; display: grid; place-items: center;
+    background: #f4f2ec; color: #0e0e0c;
+    font-size: 12px; font-weight: 850;
+  }
+  .chead h2 { font-size: 12px; font-weight: 850; letter-spacing: 0.12em; text-transform: uppercase; }
+  .why {
+    padding: 10px 12px 12px;
+    font-size: 12px; line-height: 1.5; font-weight: 650; color: #8f8d84;
+    border-top: 2px solid rgba(244, 242, 236, 0.16);
+  }
+
+  /* ------------------------------------------------------------------
+     App tokens — per theme scope
+     ------------------------------------------------------------------ */
+  .theme-dark {
+    --bg: #0e0e0c; --surface: #1b1b19; --ink: #f4f2ec; --muted: #8f8d84;
+    --line: rgba(244, 242, 236, 0.16);
+    --slots: #e5484d; --slots-ink: #ffffff; --slots-tx: #e5484d;
+    --pat:   #ffb000; --pat-ink:   #101010; --pat-tx:   #ffb000;
+    --lab:   #51cf66; --lab-ink:   #101010; --lab-tx:   #51cf66;
+  }
+  .theme-light {
+    --bg: #f4f4f0; --surface: #ffffff; --ink: #101010; --muted: #6f6d66;
+    --line: rgba(16, 16, 16, 0.16);
+    --slots: #d93334; --slots-ink: #ffffff; --slots-tx: #c22a2b;
+    --pat:   #ffb000; --pat-ink:   #101010; --pat-tx:   #9a6b00;
+    --lab:   #37b24d; --lab-ink:   #101010; --lab-tx:   #2b8a3e;
+  }
+
+  /* ---- stage: a slice of the compact header, real size ---- */
+  .stage {
+    position: relative;
+    height: 226px;
+    background: var(--bg); color: var(--ink);
+    padding: 14px 16px 0;
+    overflow: hidden;
+  }
+  .hdr {
+    position: relative;
+    display: flex; justify-content: space-between; align-items: center;
+    height: 36px;
+  }
+  .brand { font-size: 13px; font-weight: 850; letter-spacing: 0.18em; }
+  .brand em { font-style: normal; color: var(--pat); }
+  .hbtns { display: flex; gap: 8px; }
+  .ibtn {
+    width: 28px; height: 28px; display: grid; place-items: center;
+    font-size: 13px; font-weight: 850; line-height: 1;
+    border: 2px solid var(--ink); border-radius: 999px;
+  }
+
+  /* the dropdown, centered like .mode-dd */
+  .dd { position: absolute; left: 50%; top: 4px; transform: translateX(-50%); }
+  .ddbtn {
+    display: block;
+    height: 28px; padding: 0 12px;
+    background: var(--pat); color: var(--pat-ink);
+    font: inherit; font-size: 11px; font-weight: 850; letter-spacing: 0.08em;
+    border: none; border-radius: 999px;
+    white-space: nowrap;
+  }
+
+  /* ---- menu base (open state, static) ---- */
+  .menu {
+    position: absolute; top: 34px; left: 50%; transform: translateX(-50%);
+    min-width: 150px;
+  }
+  .mi {
+    display: flex; width: 100%; align-items: center; justify-content: center;
+    height: 40px; padding: 0 14px;
+    font: inherit; font-size: 12px; font-weight: 850; letter-spacing: 0.08em;
+    background: none; border: none; color: var(--ink);
+    white-space: nowrap;
+  }
+  .mi.slots   { color: var(--slots-tx); }
+  .mi.pattern { color: var(--pat-tx); }
+  .mi.lab     { color: var(--lab-tx); }
+  /* filled active rows (variants that fill) */
+  .v1 .mi.active.slots,   .v2 .mi.active.slots,   .v3 .mi.active.slots,   .v4 .mi.active.slots   { background: var(--slots); color: var(--slots-ink); }
+  .v1 .mi.active.pattern, .v2 .mi.active.pattern, .v3 .mi.active.pattern, .v4 .mi.active.pattern { background: var(--pat); color: var(--pat-ink); }
+  .v1 .mi.active.lab,     .v2 .mi.active.lab,     .v3 .mi.active.lab,     .v4 .mi.active.lab     { background: var(--lab); color: var(--lab-ink); }
+
+  /* V1 — concentric radii: outer = inner + padding (24 = 20 + 4) */
+  .menu.v1 {
+    background: var(--bg); border: 2px solid var(--ink);
+    border-radius: 24px; padding: 4px;
+  }
+  .v1 .mi { border-radius: 20px; }
+
+  /* V2 — hard-corner panel: menu leaves the nav family */
+  .menu.v2 { background: var(--bg); border: 2px solid var(--ink); }
+  .v2 .mi + .mi { border-top: 2px solid var(--line); }
+  .v2 .mi.active, .v2 .mi.active + .mi { border-top-color: transparent; }
+
+  /* V3 — no panel: three floating pills, gaps do the separating */
+  .menu.v3 { display: flex; flex-direction: column; gap: 6px; }
+  .v3 .mi { border-radius: 999px; background: var(--bg); border: 2px solid; }
+  .v3 .mi.slots   { border-color: var(--slots); }
+  .v3 .mi.pattern { border-color: var(--pat); }
+  .v3 .mi.lab     { border-color: var(--lab); }
+
+  /* V4 — segmented pill: one shape, ink dividers, fill clipped by the ends.
+     Cap radius = half a row (22px), so the end rows wear true pill caps —
+     the horizontal seg switcher rotated, not a lens */
+  .menu.v4 {
+    background: var(--bg); border: 2px solid var(--ink);
+    border-radius: 22px; overflow: hidden;
+  }
+  .v4 .mi + .mi { border-top: 2px solid var(--ink); }
+
+  /* V5 — ink list: no fills, active underlined in its own color */
+  .menu.v5 { background: var(--bg); border: 2px solid var(--line); padding: 6px 0; }
+  .v5 .mi { height: 38px; }
+  .v5 .mi.active { text-decoration: underline 3px currentColor; text-underline-offset: 6px; }
+
+  /* V6 — color bars: every row a solid mode fill, active stamped with an inset ring */
+  .menu.v6 { display: flex; flex-direction: column; gap: 2px; }
+  .v6 .mi.slots   { background: var(--slots); color: var(--slots-ink); }
+  .v6 .mi.pattern { background: var(--pat);   color: var(--pat-ink); }
+  .v6 .mi.lab     { background: var(--lab);   color: var(--lab-ink); }
+  .v6 .mi.active  { outline: 2px solid currentColor; outline-offset: -6px; }
+
+  /* ---- light strip ---- */
+  .lgrid {
+    display: grid; gap: 18px;
+    grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
+  }
+  .lcell { border: 2px solid rgba(244, 242, 236, 0.16); }
+  .lcell .ltag {
+    display: block; padding: 6px 10px;
+    font-size: 10px; font-weight: 850; letter-spacing: 0.12em; text-transform: uppercase;
+    color: #8f8d84; border-bottom: 2px solid rgba(244, 242, 236, 0.16);
+  }
+  .lcell .stage { height: 214px; padding: 10px 12px 0; }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <h1>Mode dropdown — <em>6 resolutions</em></h1>
+  <p class="intro">
+    The current compact-mode menu nests fully-rounded pill rows inside a 16px-radius panel:
+    <b>two unrelated curvatures fighting in a 150px box</b>. Each variant below resolves the clash a
+    different way. Same trigger button everywhere (28px amber pill, PATTERN active) so only the
+    menu changes. All dimensions at real compact scale: 40px rows, 2px borders, 850-weight uppercase.
+  </p>
+
+  <div class="sec-h">Dark theme (primary)</div>
+  <div class="grid" id="grid">
+
+    <!-- V1 -->
+    <section class="card">
+      <header class="chead"><span class="vtag">V1</span><h2>Concentric radii</h2></header>
+      <div class="stage theme-dark" data-v="V1 · Concentric radii">
+        <div class="hdr">
+          <span class="brand">LIV<em>·</em>WF</span>
+          <span class="hbtns"><span class="ibtn">?</span><span class="ibtn">≡</span></span>
+          <div class="dd">
+            <button class="ddbtn">PATTERN ▾</button>
+            <div class="menu v1">
+              <button class="mi slots">SLOTS</button>
+              <button class="mi pattern active">PATTERN</button>
+              <button class="mi lab">LADDER</button>
+            </div>
+          </div>
+        </div>
+      </div>
+      <p class="why">The classic fix: panel radius = pill radius + padding (24 = 20 + 4), so the curves nest as one geometry instead of fighting. Smallest possible change.</p>
+    </section>
+
+    <!-- V2 -->
+    <section class="card">
+      <header class="chead"><span class="vtag">V2</span><h2>Hard-corner panel</h2></header>
+      <div class="stage theme-dark" data-v="V2 · Hard-corner panel">
+        <div class="hdr">
+          <span class="brand">LIV<em>·</em>WF</span>
+          <span class="hbtns"><span class="ibtn">?</span><span class="ibtn">≡</span></span>
+          <div class="dd">
+            <button class="ddbtn">PATTERN ▾</button>
+            <div class="menu v2">
+              <button class="mi slots">SLOTS</button>
+              <button class="mi pattern active">PATTERN</button>
+              <button class="mi lab">LADDER</button>
+            </div>
+          </div>
+        </div>
+      </div>
+      <p class="why">The menu defects to the app's rectangle family: square panel, square active fill, hairline dividers. Only the trigger stays a pill — no radii inside to clash.</p>
+    </section>
+
+    <!-- V3 -->
+    <section class="card">
+      <header class="chead"><span class="vtag">V3</span><h2>Floating pills</h2></header>
+      <div class="stage theme-dark" data-v="V3 · Floating pills">
+        <div class="hdr">
+          <span class="brand">LIV<em>·</em>WF</span>
+          <span class="hbtns"><span class="ibtn">?</span><span class="ibtn">≡</span></span>
+          <div class="dd">
+            <button class="ddbtn">PATTERN ▾</button>
+            <div class="menu v3">
+              <button class="mi slots">SLOTS</button>
+              <button class="mi pattern active">PATTERN</button>
+              <button class="mi lab">LADDER</button>
+            </div>
+          </div>
+        </div>
+      </div>
+      <p class="why">Delete the panel: three free-standing pills bordered in their mode colors, 6px gaps doing the separating. No container, so no container radius to argue with.</p>
+    </section>
+
+    <!-- V4 -->
+    <section class="card">
+      <header class="chead"><span class="vtag">V4</span><h2>Segmented pill</h2></header>
+      <div class="stage theme-dark" data-v="V4 · Segmented pill">
+        <div class="hdr">
+          <span class="brand">LIV<em>·</em>WF</span>
+          <span class="hbtns"><span class="ibtn">?</span><span class="ibtn">≡</span></span>
+          <div class="dd">
+            <button class="ddbtn">PATTERN ▾</button>
+            <div class="menu v4">
+              <button class="mi slots">SLOTS</button>
+              <button class="mi pattern active">PATTERN</button>
+              <button class="mi lab">LADDER</button>
+            </div>
+          </div>
+        </div>
+      </div>
+      <p class="why">One continuous shape split by ink hairlines — the seg switcher rotated. End rows wear the pill caps; the active fill is a clipped segment, never a nested shape.</p>
+    </section>
+
+    <!-- V5 -->
+    <section class="card">
+      <header class="chead"><span class="vtag">V5</span><h2>Ink list</h2></header>
+      <div class="stage theme-dark" data-v="V5 · Ink list">
+        <div class="hdr">
+          <span class="brand">LIV<em>·</em>WF</span>
+          <span class="hbtns"><span class="ibtn">?</span><span class="ibtn">≡</span></span>
+          <div class="dd">
+            <button class="ddbtn">PATTERN ▾</button>
+            <div class="menu v5">
+              <button class="mi slots">SLOTS</button>
+              <button class="mi pattern active">PATTERN</button>
+              <button class="mi lab">LADDER</button>
+            </div>
+          </div>
+        </div>
+      </div>
+      <p class="why">No fills at all: three mode names in their colors on a quiet hairline panel, active underlined — the same underline idiom result words already use. Quietest option.</p>
+    </section>
+
+    <!-- V6 -->
+    <section class="card">
+      <header class="chead"><span class="vtag">V6</span><h2>Color bars</h2></header>
+      <div class="stage theme-dark" data-v="V6 · Color bars">
+        <div class="hdr">
+          <span class="brand">LIV<em>·</em>WF</span>
+          <span class="hbtns"><span class="ibtn">?</span><span class="ibtn">≡</span></span>
+          <div class="dd">
+            <button class="ddbtn">PATTERN ▾</button>
+            <div class="menu v6">
+              <button class="mi slots">SLOTS</button>
+              <button class="mi pattern active">PATTERN</button>
+              <button class="mi lab">LADDER</button>
+            </div>
+          </div>
+        </div>
+      </div>
+      <p class="why">Loudest option: each row is a solid bar of its mode color, active stamped with an inset ring. One flat shape per row — geometry can't clash because there's nothing nested.</p>
+    </section>
+
+  </div>
+
+  <div class="sec-h">Light theme (same six, tokens flipped)</div>
+  <div class="lgrid" id="lightrow"></div>
+
+</div>
+
+<script>
+  /* clone each dark stage into the light strip; only the theme scope flips */
+  (function () {
+    var row = document.getElementById("lightrow");
+    document.querySelectorAll("#grid .stage").forEach(function (st) {
+      var cell = document.createElement("div");
+      cell.className = "lcell";
+      var tag = document.createElement("span");
+      tag.className = "ltag";
+      tag.textContent = st.getAttribute("data-v");
+      var copy = st.cloneNode(true);
+      copy.classList.remove("theme-dark");
+      copy.classList.add("theme-light");
+      cell.appendChild(tag);
+      cell.appendChild(copy);
+      row.appendChild(cell);
+    });
+  })();
+</script>
+</body>
+</html>
