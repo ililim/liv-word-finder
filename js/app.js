@@ -181,7 +181,7 @@ function paintBoard() {
 function buildLenChips() {
   const wrap = $("lenchips");
   wrap.innerHTML = "";
-  for (const len of ["ALL", 3, 4, 5, 6, 7, 8, "9+"]) {
+  for (const len of ["ALL", 3, 4, 5, 6, 7, 8, 9, "10+"]) {
     const chip = document.createElement("button");
     chip.className = "lchip";
     chip.textContent = len;
@@ -202,7 +202,7 @@ function buildLenChips() {
 function paintLenChips() {
   const { lengths } = state.pattern;
   for (const chip of document.querySelectorAll(".lchip")) {
-    const len = chip.dataset.len === "ALL" ? "ALL" : (chip.dataset.len === "9+" ? "9+" : Number(chip.dataset.len));
+    const len = chip.dataset.len === "ALL" ? "ALL" : (chip.dataset.len === "10+" ? "10+" : Number(chip.dataset.len));
     chip.classList.toggle("on", len === "ALL" ? lengths.size === 0 : lengths.has(len));
   }
 }

@@ -228,14 +228,13 @@ button { font: inherit; color: inherit; background: none; border: none; cursor: 
 
 
 /* length filter chips */
-.lenchips { display: flex; gap: 6px; flex-wrap: wrap; justify-content: center; }
+.lenchips { display: flex; gap: 4px; flex-wrap: wrap; justify-content: center; }
 .lchip {
-  height: 32px; min-width: 34px; padding: 0 8px;
+  height: 32px; min-width: 32px; padding: 0 6px;
   font-size: 11px; font-weight: 850;
   border: 2px solid var(--line); border-radius: var(--r);
   color: var(--muted); font-variant-numeric: tabular-nums;
 }
-.lenchips { gap: 5px; }
 .lchip.on { background: var(--ink); color: var(--bg); border-color: var(--ink); }
 
 /* ---- ±1 LAB ---- */

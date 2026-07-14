@@ -89,7 +89,7 @@ export function compilePattern(str, anchorStart, anchorEnd) {
   return new RegExp((anchorStart ? "^" : "^[a-z]*") + core + (anchorEnd ? "$" : "[a-z]*$"));
 }
 
-const matchesLength = (len, lengths) => lengths.has(len) || (lengths.has("9+") && len >= 9);
+const matchesLength = (len, lengths) => lengths.has(len) || (lengths.has("10+") && len >= 10);
 
 // Words one letter more / less than `word`. "In place" keeps letter order
 // (hooks & insertions); "shuffled" allows rearranging (steals & anagram walks).
