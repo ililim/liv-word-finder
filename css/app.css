@@ -72,7 +72,7 @@ button { font: inherit; color: inherit; background: none; border: none; cursor: 
 }
 .icon-btn.on { background: var(--ink); color: var(--bg); }
 .icon-btn svg { display: block; } /* SVG icons center geometrically, no font metrics */
-#help-btn svg { transform: translateY(-2px); }
+#help-btn svg { transform: translateY(-1px); }
 
 /* app switcher — bordered pill, white active segment (mockup 14) */
 .seg {
