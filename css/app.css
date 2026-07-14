@@ -231,7 +231,8 @@ button { font: inherit; color: inherit; background: none; border: none; cursor: 
 .board-head b { color: var(--accent-text); letter-spacing: 0.04em; }
 .board-head .chev { display: inline-block; }
 .bkey.fn.fold { font-size: 13px; }
-.bkey.fn.clear { font-size: 14px; }
+.bkey.fn.clear { font-size: 17px; }
+.bkey.fn.fold svg { display: block; }
 
 /* toggle chips */
 .chips { display: flex; gap: 6px; flex-wrap: wrap; align-items: center; }
