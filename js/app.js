@@ -202,6 +202,7 @@ function paintBoards() {
   for (const [id, view] of Object.entries(BOARDS)) {
     const { may, must } = state[view];
     $(id).classList.toggle("active", !rack && may.size + must.size > 0);
+    $(id).classList.toggle("racked", !!rack); // ALL means nothing with a rack
     for (const key of $(id).querySelectorAll(".bkey")) {
       if (!key.dataset.ch) continue;
       key.classList.toggle("may", !rack && may.has(key.dataset.ch));
