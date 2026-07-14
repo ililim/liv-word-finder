@@ -475,9 +475,9 @@ function setRack(str) {
   render();
 }
 
-function paintRackStrip() {
+// blur passes editing=false explicitly: activeElement can lag during the event
+function paintRackStrip(editing = document.activeElement === $("rack-input")) {
   const raw = $("rack-input").value.toLowerCase().replace(/[^a-z?]/g, "");
-  const editing = document.activeElement === $("rack-input");
   $("rack-strip").classList.toggle("show", !!raw || editing);
   $("rack-strip").classList.toggle("filled", !!raw);
   const tiles = [...raw]
@@ -509,7 +509,7 @@ function wireRack() {
   $("rack-input").addEventListener("keydown", e => {
     if (e.key === "Enter") $("rack-input").blur();
   });
-  $("rack-input").addEventListener("blur", paintRackStrip);
+  $("rack-input").addEventListener("blur", () => paintRackStrip(false));
 }
 
 
