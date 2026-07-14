@@ -384,8 +384,8 @@ button { font: inherit; color: inherit; background: none; border: none; cursor: 
 .res-h.other > span:first-child { display: inline-flex; align-items: center; gap: 6px; }
 /* optical centering, tuned per context (caps carry their mass high) */
 .board-head .chev { transform: translateY(0); }
-.res-h.other .chev { transform: translateY(-1px); transition: transform 0.15s; }
-.res-h.other.open .chev { transform: translateY(-1px) rotate(90deg); }
+.res-h.other .chev { transform: translateY(0); transition: transform 0.15s; }
+.res-h.other.open .chev { transform: rotate(90deg); }
 .other-box { display: flex; flex-direction: column; gap: 12px; }
 /* ±1 sections: +1 wears the mode green, −1 borrows red — the diff convention */
 .lab-h { border-top: 4px solid var(--accent); align-items: center; }
