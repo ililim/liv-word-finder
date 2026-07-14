@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""App icon: LIV spelled in three ivory Scrabble tiles on the app's dark ground.
+"""App icon: LIV spelled in three ivory Scrabble tiles on a tile-rack tan ground.
 Writes icons/icon-{180,192,512}.png."""
 from PIL import Image, ImageDraw, ImageFont
 import pathlib
@@ -8,7 +8,7 @@ ROOT = pathlib.Path(__file__).resolve().parent.parent
 OUT = ROOT / "icons"
 OUT.mkdir(exist_ok=True)
 
-IVORY, INK, DARK = (240, 229, 201), (51, 41, 26), (14, 14, 12)
+IVORY, INK, TAN = (240, 229, 201), (51, 41, 26), (196, 178, 138)
 
 def font(size):
     return ImageFont.truetype("/System/Library/Fonts/Supplemental/Arial Bold.ttf", size)
@@ -18,7 +18,7 @@ def text_center(d, xy, s, f, fill):
     d.text((xy[0] - (box[2] - box[0]) / 2 - box[0], xy[1] - (box[3] - box[1]) / 2 - box[1]), s, font=f, fill=fill)
 
 for size in (180, 192, 512):
-    img = Image.new("RGB", (size, size), DARK)
+    img = Image.new("RGB", (size, size), TAN)
     d = ImageDraw.Draw(img)
 
     w = size * 0.25            # tile width; height is the classic 1.15 ratio
