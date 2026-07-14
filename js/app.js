@@ -240,6 +240,9 @@ function slotKey(key) {
 // One board per view that wants letter constraints: slots and pattern.
 const BOARDS = { board: "slots", "pat-board": "pattern" };
 
+// expander chevron — drawn, not typed: text triangles vanish at label sizes
+const CHEV_ICON = `<svg class="chev" viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 5l7 7-7 7"/></svg>`;
+
 // dismiss-keyboard glyph — the chevron rides on top: this board folds upward
 const FOLD_ICON = `<svg viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="1.8">
   <path d="M9 6.5l3-3 3 3" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
@@ -310,7 +313,7 @@ function paintBoards() {
       ...[...must].map(ch => `<b>${ch}</b>`),
       ...(!rack ? [...may].map(ch => `<i>${ch}</i>`) : []), // optional letters, rackless mode
     ].join(" ");
-    $(`${id}-head`).innerHTML = `<span class="chev">▸</span> LETTERS ${marks}`;
+    $(`${id}-head`).innerHTML = `${CHEV_ICON} LETTERS ${marks}`;
     $(id).classList.toggle("active", !rack && may.size + must.size > 0);
     for (const key of $(id).querySelectorAll(".bkey")) {
       if (!key.dataset.ch) continue;
@@ -560,7 +563,7 @@ function appendGroups(wrap, words) {
 // collapsed by default: she's usually narrowing, not browsing
 function appendOtherLengths(wrap, words) {
   if (!words.length) return;
-  const head = el(`<button class="res-h other"><span><span class="chev">▸</span> OTHER LENGTHS</span><span><b>${words.length}</b> ${plural(words.length)}</span></button>`);
+  const head = el(`<button class="res-h other"><span>${CHEV_ICON} OTHER LENGTHS</span><span><b>${words.length}</b> ${plural(words.length)}</span></button>`);
   const box = el(`<div class="other-box" hidden></div>`);
   appendGroups(box, words);
   head.onclick = () => {

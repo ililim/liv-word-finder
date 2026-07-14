@@ -293,7 +293,6 @@ button { font: inherit; color: inherit; background: none; border: none; cursor: 
 }
 .board-head b { color: var(--accent-text); letter-spacing: 0.04em; }
 .board-head i { color: var(--ink); font-style: normal; font-weight: 850; letter-spacing: 0.04em; }
-.board-head .chev { display: inline-block; }
 .bkey.fn.fold { font-size: 13px; }
 .bkey.fn.clear { font-size: 17px; }
 .bkey.fn.fold svg { display: block; }
@@ -381,7 +380,8 @@ button { font: inherit; color: inherit; background: none; border: none; cursor: 
 }
 .res-h.other { border-top-color: var(--line); margin-top: 10px; width: 100%; cursor: pointer; }
 .res-h.other b { color: var(--muted); }
-.res-h.other .chev { display: inline-block; transition: transform 0.15s; }
+.res-h.other > span:first-child { display: inline-flex; align-items: center; gap: 6px; }
+.res-h.other .chev { transition: transform 0.15s; }
 .res-h.other.open .chev { transform: rotate(90deg); }
 .other-box { display: flex; flex-direction: column; gap: 12px; }
 /* ±1 sections: +1 wears the mode green, −1 borrows red — the diff convention */
