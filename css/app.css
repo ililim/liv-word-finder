@@ -142,7 +142,7 @@ button { font: inherit; color: inherit; background: none; border: none; cursor: 
   border: 1.5px solid rgba(51, 41, 26, 0.3);
 }
 .rack-strip .rt.blank { color: #8a7a58; font-size: 14px; }
-.word.all-rack::after { content: "✱"; font-size: 10px; margin-left: 5px; color: var(--accent-text); }
+.word.all-rack::after { content: "✱"; font-size: 13px; margin-left: 3px; color: var(--accent-text); }
 /* inside result words: required letters inked, the +1-borrowed letter underlined */
 .word b { color: var(--accent-text); font-weight: 850; }
 .word u { text-decoration: underline 2px var(--accent); text-underline-offset: 3px; }
