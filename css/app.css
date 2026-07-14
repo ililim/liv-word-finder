@@ -322,10 +322,12 @@ button { font: inherit; color: inherit; background: none; border: none; cursor: 
 /* help — rulebook style: every rule shows the real component it talks about */
 .help-sec { display: flex; flex-direction: column; gap: 12px; padding-left: 12px; border-left: 4px solid var(--hc); }
 .help-sec[data-mode="any"]     { --hc: var(--ink); --hc-ink: var(--bg); --hc-text: var(--ink); }
+.help-sec[data-mode="rack"]    { --hc: #c4b28a; --hc-ink: #33291a; --hc-text: #8a7a58; }
 .help-sec[data-mode="slots"]   { --hc: #d93334; --hc-ink: #ffffff; --hc-text: #c22a2b; }
 .help-sec[data-mode="pattern"] { --hc: #ffb000; --hc-ink: #101010; --hc-text: #9a6b00; }
 .help-sec[data-mode="lab"]     { --hc: #37b24d; --hc-ink: #101010; --hc-text: #2b8a3e; }
 @media (prefers-color-scheme: dark) {
+  .help-sec[data-mode="rack"]    { --hc: #f0e5c9; --hc-text: #f0e5c9; }
   .help-sec[data-mode="slots"]   { --hc: #e5484d; --hc-text: #e5484d; }
   .help-sec[data-mode="pattern"] { --hc-text: #ffb000; }
   .help-sec[data-mode="lab"]     { --hc: #51cf66; --hc-text: #51cf66; }
