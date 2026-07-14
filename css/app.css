@@ -116,6 +116,8 @@ button { font: inherit; color: inherit; background: none; border: none; cursor: 
 /* dashed edges blur together at the letter gap — give ghosts a touch more air */
 .rack-strip .rt.ghost { background: transparent; border: 2px dashed var(--line); margin: 0 1.5px; }
 .rack-tiles { flex: 1; min-height: 32px; align-items: center; }
+/* symmetric padding: tiles stay centered and never run under the ✕ */
+.rack-strip.filled .rack-tiles { padding: 0 34px; }
 .rack-dismiss {
   display: none; position: absolute; right: 6px; top: 50%; transform: translateY(-50%);
   font-size: 17px; font-weight: 850; color: var(--muted); padding: 4px 8px;
