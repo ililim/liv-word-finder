@@ -352,6 +352,9 @@ button { font: inherit; color: inherit; background: none; border: none; cursor: 
 .d-chip.on { background: var(--hc); color: var(--hc-ink); border-color: var(--hc); }
 .d-crumb { height: 28px; padding: 0 8px; display: inline-flex; align-items: center; font-size: 11px; font-weight: 850; border: 2px solid var(--line); color: var(--muted); }
 .d-arrow { color: var(--muted); font-size: 13px; }
+/* mini rack tiles match the real strip: scrabble ivory in both themes */
+.d-rack { width: 24px; height: 28px; display: inline-grid; place-items: center; font-size: 11px; font-weight: 850; background: #f0e5c9; color: #33291a; border: 1.5px solid rgba(51, 41, 26, 0.3); }
+.d-rack.blank { color: #8a7a58; font-size: 13px; }
 
 /* settings */
 .set-h { font-size: 12px; font-weight: 850; letter-spacing: 0.14em; color: var(--muted); }
