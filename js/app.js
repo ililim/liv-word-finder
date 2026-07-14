@@ -501,14 +501,11 @@ function setRack(str) {
 }
 
 // blur passes editing=false explicitly: activeElement can lag during the event
-let rackLen = 0;
 function paintRackStrip(editing = document.activeElement === $("rack-input")) {
   const raw = $("rack-input").value.toLowerCase().replace(/[^a-z?]/g, "");
-  const grew = raw.length > rackLen;
-  rackLen = raw.length;
   $("rack-strip").classList.toggle("filled", !!raw);
   const tiles = [...raw]
-    .map((ch, i) => `<span class="rt${ch === "?" ? " blank" : ""}${grew && i === raw.length - 1 ? " drop" : ""}">${ch === "?" ? "?" : ch}</span>`)
+    .map(ch => `<span class="rt${ch === "?" ? " blank" : ""}">${ch === "?" ? "?" : ch}</span>`)
     .join("");
   $("rack-tiles").innerHTML =
     tiles +

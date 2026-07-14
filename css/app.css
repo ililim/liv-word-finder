@@ -142,10 +142,6 @@ button { font: inherit; color: inherit; background: none; border: none; cursor: 
   border: 1.5px solid rgba(51, 41, 26, 0.3);
 }
 .rack-strip .rt.blank { color: #8a7a58; font-size: 14px; }
-.rack-strip .rt.drop { animation: tile-drop 0.14s ease-out; }
-@keyframes tile-drop {
-  from { opacity: 0; transform: translateY(-4px); }
-}
 .word.all-rack::after { content: "✱"; font-size: 10px; margin-left: 5px; color: var(--accent-text); }
 .bkey.norack { opacity: 0.35; }
 
@@ -431,6 +427,6 @@ button { font: inherit; color: inherit; background: none; border: none; cursor: 
 
 /* motion is decoration here — anyone who asked for calm gets calm */
 @media (prefers-reduced-motion: reduce) {
-  .word, .slot.pop, .rack-strip .rt.drop, .crumb.new { animation: none; }
+  .word, .slot.pop, .crumb.new { animation: none; }
   .seg-pill { transition: none; }
 }
