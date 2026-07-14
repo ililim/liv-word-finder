@@ -382,8 +382,10 @@ button { font: inherit; color: inherit; background: none; border: none; cursor: 
 .res-h.other { border-top-color: var(--line); margin-top: 10px; width: 100%; cursor: pointer; }
 .res-h.other b { color: var(--muted); }
 .res-h.other > span:first-child { display: inline-flex; align-items: center; gap: 6px; }
+/* caps have no descenders: their mass sits high, so the icon dips 1px to match */
+.chev { transform: translateY(1px); }
 .res-h.other .chev { transition: transform 0.15s; }
-.res-h.other.open .chev { transform: rotate(90deg); }
+.res-h.other.open .chev { transform: translateY(1px) rotate(90deg); }
 .other-box { display: flex; flex-direction: column; gap: 12px; }
 /* ±1 sections: +1 wears the mode green, −1 borrows red — the diff convention */
 .lab-h { border-top: 4px solid var(--accent); align-items: center; }
