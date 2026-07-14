@@ -131,6 +131,7 @@ function switchApp(app) {
     buildSlots(); // boot measures a hidden view as width 0 — size against the real one
     $("ghost").focus({ preventScroll: true });
   }
+  if (app === "lab") paintTrail(); // scroll-into-view only sticks once the view is visible
   render();
 }
 
