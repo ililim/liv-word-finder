@@ -187,7 +187,8 @@ all future visual work on this project:**
 - [x] Round 3b: skins 11–15, hand-designed to the anti-slop principles (Gridline/Swiss,
   Departures/split-flap, Riso/zine, Marker/highlighter, Ledger/readable-brutalism)
 - [x] v0.1 app built and browser-verified (2026-07-13); local git repo initialized
-- [ ] Publish: create `ililim/liv-word-finder` on GitHub + Pages (gh CLI is authed as
-  ililim) — **approved in principle, but owner said "don't push yet"; wait for go-ahead**
-- [ ] Milestone 2: global rack drawer (engine already wired via `state.rack`/`fitsRack`)
+- [x] Published: `ililim/liv-word-finder`, GitHub Pages at
+  **https://ililim.github.io/liv-word-finder/** (main branch, root). Push to main = deploy.
+- [x] Milestone 2: global rack (▦ inline tile-strip editor; fitsRack with blanks +
+  query-credit rule; empty-query rack solve; ✱ uses-all marker)
 - [ ] PWA/offline (service worker) + Add-to-Home-Screen polish (icons, manifest)
