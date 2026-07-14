@@ -143,6 +143,7 @@ button { font: inherit; color: inherit; background: none; border: none; cursor: 
 #app.compact .tchip { height: 26px; font-size: 9px; }
 #app.compact .lchip { height: 24px; min-width: 26px; font-size: 10px; }
 #app.compact .res-h { font-size: 10px; }
+#app.compact .chev { width: 11px; height: 11px; }
 #app.compact .res-h b, #app.compact .lab-h b { font-size: 12px; }
 
 /* app switcher — bordered pill; the active pill SLIDES between modes and
