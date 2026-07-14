@@ -158,7 +158,7 @@ button { font: inherit; color: inherit; background: none; border: none; cursor: 
 .bkey.norack { opacity: 0.35; }
 
 /* views — the incoming mode settles in with a small rise */
-.view { flex: 1; display: none; flex-direction: column; gap: 14px; margin-top: 16px; min-height: 0; }
+.view { flex: 1; display: none; flex-direction: column; gap: 10px; margin-top: 14px; min-height: 0; }
 .view.active { display: flex; } /* view swaps are instant; the pill carries the motion */
 .hint { font-size: 11px; letter-spacing: 0.07em; color: var(--muted); font-weight: 700; }
 .hint b { color: var(--ink); font-weight: 850; }
@@ -166,9 +166,9 @@ button { font: inherit; color: inherit; background: none; border: none; cursor: 
 /* ---- SLOTS ---- */
 .slots { display: flex; flex-wrap: wrap; gap: 7px; justify-content: center; }
 .slot {
-  height: 56px; flex: 0 0 auto;
+  height: 50px; flex: 0 0 auto;
   display: grid; place-items: center;
-  font-size: 24px; font-weight: 850; text-transform: uppercase;
+  font-size: 20px; font-weight: 850; text-transform: uppercase;
   background: var(--surface);
   border: 2px solid var(--line); border-radius: var(--r);
   position: relative;
@@ -203,7 +203,7 @@ button { font: inherit; color: inherit; background: none; border: none; cursor: 
 .board { display: flex; flex-direction: column; gap: 6px; }
 .board-row { display: flex; gap: 6px; justify-content: center; }
 .bkey {
-  flex: 0 0 33px; height: 42px;
+  flex: 0 0 33px; height: 38px;
   display: flex; align-items: center; justify-content: center;
   font-size: 15px; font-weight: 800; text-transform: uppercase;
   background: var(--surface);
@@ -240,7 +240,7 @@ button { font: inherit; color: inherit; background: none; border: none; cursor: 
 .chips { display: flex; gap: 6px; flex-wrap: wrap; align-items: center; }
 .chips .grow { flex: 1; }
 .tchip {
-  height: 34px; padding: 0 8px;
+  height: 30px; padding: 0 8px;
   display: inline-flex; align-items: center; gap: 5px;
   font-size: 10px; font-weight: 850; letter-spacing: 0.06em;
   border: 2px solid var(--line); border-radius: var(--r);
@@ -266,8 +266,8 @@ button { font: inherit; color: inherit; background: none; border: none; cursor: 
 .anchor.on { background: var(--ink); color: var(--bg); border-color: var(--ink); }
 .pat-input, .lab-input {
   flex: 1; min-width: 0;
-  height: 56px; padding: 0 12px;
-  font-size: 24px; font-weight: 850; letter-spacing: 0.12em; text-transform: uppercase;
+  height: 46px; padding: 0 10px;
+  font-size: 20px; font-weight: 850; letter-spacing: 0.12em; text-transform: uppercase;
   background: var(--surface); color: var(--ink);
   border: 2px solid var(--line); border-radius: var(--r);
   outline: none; text-align: center;
@@ -280,7 +280,7 @@ button { font: inherit; color: inherit; background: none; border: none; cursor: 
 /* length filter chips */
 .lenchips { display: flex; gap: 4px; flex-wrap: wrap; justify-content: center; }
 .lchip {
-  height: 32px; min-width: 32px; padding: 0 6px;
+  height: 28px; min-width: 30px; padding: 0 6px;
   font-size: 11px; font-weight: 850;
   border: 2px solid var(--line); border-radius: var(--r);
   color: var(--muted); font-variant-numeric: tabular-nums;
@@ -310,11 +310,11 @@ button { font: inherit; color: inherit; background: none; border: none; cursor: 
 .sublabel { font-size: 10px; font-weight: 850; letter-spacing: 0.12em; color: var(--muted); margin-top: 2px; }
 
 /* ---- results — strong rule + big counter (mockup 14) ---- */
-.results { flex: 1; overflow-y: auto; min-height: 0; padding-bottom: max(14px, env(safe-area-inset-bottom)); display: flex; flex-direction: column; gap: 12px; }
+.results { flex: 1; overflow-y: auto; min-height: 0; padding-bottom: max(14px, env(safe-area-inset-bottom)); display: flex; flex-direction: column; gap: 10px; }
 .res-h, .lab-h {
   display: flex; justify-content: space-between; align-items: baseline;
-  font-size: 12px; font-weight: 800; letter-spacing: 0.1em; color: var(--muted);
-  border-top: 2.5px solid var(--ink); padding-top: 8px;
+  font-size: 11px; font-weight: 800; letter-spacing: 0.1em; color: var(--muted);
+  border-top: 2.5px solid var(--ink); padding-top: 6px;
   position: sticky; top: 0; background: var(--bg); z-index: 1;
 }
 .res-h.other { border-top-color: var(--line); margin-top: 10px; width: 100%; cursor: pointer; }
@@ -333,12 +333,12 @@ button { font: inherit; color: inherit; background: none; border: none; cursor: 
   background: var(--accent); color: var(--accent-ink);
   border-radius: var(--r); font-size: 13px; font-weight: 850;
 }
-.res-h b, .lab-h b { color: var(--accent-text); font-size: 16px; font-weight: 850; font-variant-numeric: tabular-nums; }
-.words { display: flex; flex-wrap: wrap; gap: 8px; }
+.res-h b, .lab-h b { color: var(--accent-text); font-size: 14px; font-weight: 850; font-variant-numeric: tabular-nums; }
+.words { display: flex; flex-wrap: wrap; gap: 6px; }
 .word {
-  height: 42px; padding: 0 15px;
+  height: 34px; padding: 0 10px;
   display: inline-flex; align-items: center;
-  font-size: 16px; font-weight: 800; letter-spacing: 0.06em; text-transform: uppercase;
+  font-size: 13px; font-weight: 800; letter-spacing: 0.05em; text-transform: uppercase;
   background: var(--surface);
   border: 2px solid var(--line); border-radius: var(--r);
   user-select: none; -webkit-user-select: none;
