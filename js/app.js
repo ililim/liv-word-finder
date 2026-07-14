@@ -509,7 +509,10 @@ function wireRack() {
     setRack("");
   };
   $("rack-input").addEventListener("input", e => {
-    e.target.value = e.target.value.toUpperCase().replace(/[^A-Z?]/g, "");
+    // letters stay; anything else is a blank tile
+    e.target.value = [...e.target.value]
+      .map(ch => (/[a-zA-Z]/.test(ch) ? ch.toUpperCase() : "?"))
+      .join("");
     setRack(e.target.value);
   });
   $("rack-input").addEventListener("keydown", e => {
