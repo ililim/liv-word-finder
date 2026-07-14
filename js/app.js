@@ -112,7 +112,10 @@ function switchApp(app) {
   for (const b of $("seg").querySelectorAll("button")) b.classList.toggle("active", b.dataset.app === app);
   for (const v of document.querySelectorAll(".view")) v.classList.toggle("active", v.id === `view-${app}`);
   placeSegPill();
-  if (app === "slots") $("ghost").focus({ preventScroll: true });
+  if (app === "slots") {
+    buildSlots(); // boot measures a hidden view as width 0 — size against the real one
+    $("ghost").focus({ preventScroll: true });
+  }
   render();
 }
 
