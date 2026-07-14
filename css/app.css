@@ -228,7 +228,7 @@ button { font: inherit; color: inherit; background: none; border: none; cursor: 
 
 
 /* length filter chips */
-.lenchips { display: flex; gap: 6px; flex-wrap: wrap; }
+.lenchips { display: flex; gap: 6px; flex-wrap: wrap; justify-content: center; }
 .lchip {
   height: 32px; min-width: 34px; padding: 0 8px;
   font-size: 11px; font-weight: 850;
