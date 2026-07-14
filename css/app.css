@@ -39,7 +39,7 @@
   #app { --minus: #e5484d; --minus-ink: #ffffff; --minus-text: #e5484d; }
 }
 
-* { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+* { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; touch-action: manipulation; }
 [hidden] { display: none !important; } /* the attribute must beat any display rule */
 html, body { height: 100%; }
 body {
