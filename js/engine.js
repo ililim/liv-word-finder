@@ -93,7 +93,7 @@ const matchesLength = (len, lengths) => lengths.has(len) || (lengths.has("10+") 
 
 // Words one letter more / less than `word`. "In place" keeps letter order
 // (hooks & insertions); "shuffled" allows rearranging (steals & anagram walks).
-export function queryPlusMinus(dict, word, { shuffle, noDoubles, hideSPlurals, rack } = {}) {
+export function queryPlusMinus(dict, word, { shuffle, noDoubles, rack } = {}) {
   const w = word.toLowerCase();
   const out = { plus: { inPlace: [], shuffled: [] }, minus: { inPlace: [], shuffled: [] } };
   if (!/^[a-z]{2,}$/.test(w)) return out;
@@ -125,11 +125,6 @@ export function queryPlusMinus(dict, word, { shuffle, noDoubles, hideSPlurals, r
       if (c.length >= 2 && !minusSeen.has(c) && offByOne(cw, counts(c)) && keep(c)) out.minus.shuffled.push(c);
   }
 
-  // Half of every +1 list is "…just add S" — she can opt out of the noise.
-  if (hideSPlurals) {
-    out.plus.inPlace = out.plus.inPlace.filter(c => c !== w + "s");
-    out.minus.inPlace = out.minus.inPlace.filter(c => w !== c + "s");
-  }
   return out;
 }
 
@@ -169,12 +164,9 @@ export function counts(word) {
   return c;
 }
 
+// doubled letters sit side by side: coFFee, blOOd
 export function hasDouble(word) {
-  const seen = new Set();
-  for (const ch of word) {
-    if (seen.has(ch)) return true;
-    seen.add(ch);
-  }
+  for (let i = 1; i < word.length; i++) if (word[i] === word[i - 1]) return true;
   return false;
 }
 
@@ -234,11 +226,12 @@ function applyFilters(list, { include, exclude, only, noDoubles, rack, given }) 
   );
 }
 
+// longest first: in a word game the big words are the prize
 export function groupByLength(list) {
   const groups = new Map();
   for (const w of list) {
     if (!groups.has(w.length)) groups.set(w.length, []);
     groups.get(w.length).push(w);
   }
-  return [...groups].sort((a, b) => a[0] - b[0]);
+  return [...groups].sort((a, b) => b[0] - a[0]);
 }

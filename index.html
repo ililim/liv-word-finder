@@ -61,9 +61,10 @@
     </div>
     <div class="board" id="board"></div>
     <div class="chips">
-      <button class="tchip reset">↺</button>
+      <button class="tchip" id="slots-nodoubles"><span class="ic">◇</span>NO DOUBLES</button>
+      <button class="tchip plus">+1</button>
       <div class="grow"></div>
-      <button class="tchip" id="slots-nodoubles"><span class="ic">◇</span>NO REPEATS</button>
+      <button class="tchip reset">↺</button>
     </div>
     <div class="results" id="slots-results"></div>
   </section>
@@ -77,10 +78,12 @@
       <button class="anchor" id="anchor-end">END<br>WITH</button>
     </div>
     <div class="lenchips" id="lenchips"></div>
+    <div class="board" id="pat-board"></div>
     <div class="chips">
-      <button class="tchip reset">↺</button>
+      <button class="tchip" id="pat-nodoubles"><span class="ic">◇</span>NO DOUBLES</button>
+      <button class="tchip plus">+1</button>
       <div class="grow"></div>
-      <button class="tchip" id="pat-nodoubles"><span class="ic">◇</span>NO REPEATS</button>
+      <button class="tchip reset">↺</button>
     </div>
     <div class="results" id="pattern-results"></div>
   </section>
@@ -90,11 +93,10 @@
     <input class="lab-input" id="lab-input" placeholder="TYPE A WORD" autocomplete="off"
            autocorrect="off" autocapitalize="characters" spellcheck="false" enterkeyhint="done">
     <div class="chips">
-      <button class="tchip reset">↺</button>
-      <div class="grow"></div>
       <button class="tchip" id="lab-shuffle"><svg class="ic-svg" viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h3c6 0 6 12 12 12h3"/><path d="M3 18h3c6 0 6-12 12-12h3"/><path d="M18 3l3 3-3 3"/><path d="M18 15l3 3-3 3"/></svg>ANAGRAM</button>
-      <button class="tchip" id="lab-nodoubles"><span class="ic">◇</span>NO REPEATS</button>
-      <button class="tchip" id="lab-nos"><span class="ic">S̶</span>NO +S</button>
+      <button class="tchip" id="lab-nodoubles"><span class="ic">◇</span>NO DOUBLES</button>
+      <div class="grow"></div>
+      <button class="tchip reset">↺</button>
     </div>
     <div class="trail" id="trail"></div>
     <div class="results" id="lab-results"></div>
@@ -127,8 +129,12 @@
     <div class="help-sec" data-mode="any">
       <div class="help-h">FILTERS</div>
       <div class="help-row">
-        <span class="help-demo"><span class="d-chip on">◇ NO REPEATS</span></span>
-        <span class="help-t">keep only words where no letter appears twice</span>
+        <span class="help-demo"><span class="d-chip on">◇ NO DOUBLES</span></span>
+        <span class="help-t">hide words with doubled letters, like coFFee or blOOd</span>
+      </div>
+      <div class="help-row">
+        <span class="help-demo"><span class="d-chip on">+1</span></span>
+        <span class="help-t">with a rack: also show words needing one letter you don't hold, <u>underlined</u></span>
       </div>
       <div class="help-row">
         <span class="help-demo"><span class="d-chip">↺</span></span>
@@ -143,7 +149,7 @@
       </div>
       <div class="help-row">
         <span class="help-demo"><span class="d-key dim">Q</span><span class="d-key may">A</span><span class="d-key must">R<i>✱</i></span></span>
-        <span class="help-t">tap once for <b>may</b>, twice for <b>must ✱</b>, untapped letters can't be used</span>
+        <span class="help-t">with a rack, tapping <b>requires ✱</b> a letter, without one: tap once for <b>may</b>, twice for <b>must ✱</b></span>
       </div>
     </div>
     <div class="help-sec" data-mode="pattern">

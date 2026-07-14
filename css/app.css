@@ -143,6 +143,9 @@ button { font: inherit; color: inherit; background: none; border: none; cursor: 
 }
 .rack-strip .rt.blank { color: #8a7a58; font-size: 14px; }
 .word.all-rack::after { content: "✱"; font-size: 10px; margin-left: 5px; color: var(--accent-text); }
+/* inside result words: required letters inked, the +1-borrowed letter underlined */
+.word b { color: var(--accent-text); font-weight: 850; }
+.word u { text-decoration: underline 2px var(--accent); text-underline-offset: 3px; }
 .bkey.norack { opacity: 0.35; }
 
 /* views — the incoming mode settles in with a small rise */
@@ -228,6 +231,8 @@ button { font: inherit; color: inherit; background: none; border: none; cursor: 
 .tchip .ic-svg { display: block; flex: 0 0 auto; }
 .tchip.on { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); }
 .tchip.reset { padding: 0 9px; font-size: 14px; }
+.tchip.plus { font-size: 12px; }
+.tchip.plus:disabled { opacity: 0.3; cursor: default; }
 
 
 /* ---- PATTERN ---- */
@@ -293,8 +298,11 @@ button { font: inherit; color: inherit; background: none; border: none; cursor: 
   border-top: 2.5px solid var(--ink); padding-top: 8px;
   position: sticky; top: 0; background: var(--bg); z-index: 1;
 }
-.res-h.other { border-top-color: var(--line); margin-top: 10px; }
+.res-h.other { border-top-color: var(--line); margin-top: 10px; width: 100%; cursor: pointer; }
 .res-h.other b { color: var(--muted); }
+.res-h.other .chev { display: inline-block; transition: transform 0.15s; }
+.res-h.other.open .chev { transform: rotate(90deg); }
+.other-box { display: flex; flex-direction: column; gap: 12px; }
 /* ±1 sections: +1 wears the mode green, −1 borrows red — the diff convention */
 .lab-h { border-top: 4px solid var(--accent); align-items: center; }
 .lab-h.minus { border-top-color: var(--minus); }

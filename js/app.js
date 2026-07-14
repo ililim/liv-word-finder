@@ -9,18 +9,28 @@ const ALPHA = "abcdefghijklmnopqrstuvwxyz";
 const PAGE = 150;         // words shown per group before "+n more"
 const WRAP_AT = 10;       // slots per row — beyond this they split into two even rows
 
-// set per paint: does this word spend the whole rack?
+// set per paint: does this word spend the whole rack? which letters are required?
+// and, with +1 on, which letter did the word borrow?
 let rackMark = () => false;
+let reqLetters = new Set();
+let borrowAt = () => -1;
 
 const state = {
   app: "slots",
   dictKey: localStorage.getItem("dict") ?? "nwl",
   dict: null,
-  rack: null, // { counts, blanks } — set from the rack strip, filters every mode
+  rack: null,     // { counts, blanks } — set from the rack strip, filters every mode
+  plusOne: false, // borrow one letter you don't hold
   slots:   { len: 5, letters: [], cursor: 0, may: new Set(), must: new Set(), noDoubles: false },
-  pattern: { str: "", anchorStart: false, anchorEnd: false, lengths: new Set(), noDoubles: false },
-  lab:     { word: "", shuffle: true, noDoubles: false, hideSPlurals: false, trail: [], pos: 0 },
+  pattern: { str: "", anchorStart: false, anchorEnd: false, lengths: new Set(), may: new Set(), must: new Set(), noDoubles: false },
+  lab:     { word: "", shuffle: true, noDoubles: false, trail: [], pos: 0 },
 };
+
+// the rack she's actually searching with — +1 adds a virtual blank
+const effRack = () =>
+  state.rack && state.plusOne
+    ? { counts: state.rack.counts, blanks: state.rack.blanks + 1 }
+    : state.rack;
 
 
 // — Boot ——————————————————————————————————————————————————————————————————————
@@ -31,7 +41,7 @@ async function boot() {
   requestAnimationFrame(placeSegPill); // after first layout
   paintRackStrip();
   buildSlots();
-  buildBoard();
+  buildBoards();
   buildLenChips();
   buildDictRadios();
   wireEvents();
@@ -124,22 +134,28 @@ function slotKey(key) {
   render();
 }
 
-function buildBoard() {
-  $("board").innerHTML = "";
-  for (const row of ["qwertyuiop", "asdfghjkl", "zxcvbnm"]) {
-    const div = document.createElement("div");
-    div.className = "board-row";
-    if (row[0] === "z") div.append(fnKey("ALL", toggleAll));
-    for (const ch of row) {
-      const key = document.createElement("button");
-      key.className = "bkey";
-      key.textContent = ch;
-      key.dataset.ch = ch;
-      key.onclick = () => cycleConstraint(ch);
-      div.append(key);
+// One board per view that wants letter constraints: slots and pattern.
+const BOARDS = { board: "slots", "pat-board": "pattern" };
+
+function buildBoards() {
+  for (const [id, view] of Object.entries(BOARDS)) {
+    const root = $(id);
+    root.innerHTML = "";
+    for (const row of ["qwertyuiop", "asdfghjkl", "zxcvbnm"]) {
+      const div = document.createElement("div");
+      div.className = "board-row";
+      if (row[0] === "z") div.append(fnKey("ALL", () => toggleAll(view)));
+      for (const ch of row) {
+        const key = document.createElement("button");
+        key.className = "bkey";
+        key.textContent = ch;
+        key.dataset.ch = ch;
+        key.onclick = () => cycleConstraint(view, ch);
+        div.append(key);
+      }
+      if (row[0] === "z") div.append(fnKey("✕", () => clearBoard(view), "clear"));
+      root.append(div);
     }
-    if (row[0] === "z") div.append(fnKey("✕", clearBoard, "clear"));
-    $("board").append(div);
   }
 }
 
@@ -150,41 +166,49 @@ function fnKey(label, fn, cls = "") {
 }
 
 // ALL is a toggle: everything to MAY (musts stay), or back to a clean board.
-function toggleAll() {
-  const { may, must } = state.slots;
-  if ([...ALPHA].every(ch => may.has(ch) || must.has(ch))) return clearBoard();
+// Meaningless with a rack — the rack already is the allowed set.
+function toggleAll(view) {
+  if (state.rack) return;
+  const { may, must } = state[view];
+  if ([...ALPHA].every(ch => may.has(ch) || must.has(ch))) return clearBoard(view);
   for (const ch of ALPHA) if (!must.has(ch)) may.add(ch);
-  paintBoard();
+  paintBoards();
   render();
 }
 
-function clearBoard() {
-  state.slots.may.clear();
-  state.slots.must.clear();
-  paintBoard();
+function clearBoard(view) {
+  state[view].may.clear();
+  state[view].must.clear();
+  paintBoards();
   render();
 }
 
-// blank → may → must → blank. Once anything is tapped, untapped letters are out.
-function cycleConstraint(ch) {
-  const { may, must } = state.slots;
-  if (may.has(ch)) { may.delete(ch); must.add(ch); }
+// With a rack: tap = require ✱, tap again = clear (the rack is the alphabet).
+// Without: blank → may → must → blank, and untapped letters are out.
+function cycleConstraint(view, ch) {
+  const { may, must } = state[view];
+  if (state.rack) {
+    must.has(ch) ? must.delete(ch) : must.add(ch);
+    may.delete(ch);
+  } else if (may.has(ch)) { may.delete(ch); must.add(ch); }
   else if (must.has(ch)) must.delete(ch);
   else may.add(ch);
-  paintBoard();
+  paintBoards();
   render();
 }
 
-function paintBoard() {
-  const { may, must } = state.slots;
+function paintBoards() {
   const rack = state.rack;
-  $("board").classList.toggle("active", may.size + must.size > 0);
-  for (const key of document.querySelectorAll(".bkey")) {
-    if (!key.dataset.ch) continue;
-    key.classList.toggle("may", may.has(key.dataset.ch));
-    key.classList.toggle("must", must.has(key.dataset.ch));
-    key.classList.toggle("norack",
-      !!rack && !rack.blanks && rack.counts[ALPHA.indexOf(key.dataset.ch)] === 0);
+  for (const [id, view] of Object.entries(BOARDS)) {
+    const { may, must } = state[view];
+    $(id).classList.toggle("active", !rack && may.size + must.size > 0);
+    for (const key of $(id).querySelectorAll(".bkey")) {
+      if (!key.dataset.ch) continue;
+      key.classList.toggle("may", !rack && may.has(key.dataset.ch));
+      key.classList.toggle("must", must.has(key.dataset.ch));
+      key.classList.toggle("norack",
+        !!rack && !rack.blanks && rack.counts[ALPHA.indexOf(key.dataset.ch)] === 0);
+    }
   }
 }
 
@@ -297,18 +321,21 @@ function paint() {
 
 function paintSlotsResults() {
   const s = state.slots;
+  const rack = effRack();
   const slots = Array.from({ length: s.len }, (_, i) => s.letters[i] ?? null);
-  const restricted = s.may.size + s.must.size > 0;
-  const touched = slots.some(Boolean) || restricted;
+  const restricted = !state.rack && s.may.size + s.must.size > 0;
+  const touched = slots.some(Boolean) || restricted || (state.rack && s.must.size > 0);
   const given = slots.filter(Boolean).join(""); // board letters: the rack doesn't pay for these
 
+  // without a rack, tapped letters are the whole allowed alphabet;
+  // with one, the rack is the alphabet and taps are pure requirements
   const only = restricted ? new Set([...s.may, ...s.must, ...slots.filter(Boolean)]) : null;
-  const filters = { include: s.must, only, noDoubles: s.noDoubles, rack: state.rack, given };
-  rackMark = w => usesAllRack(w, state.rack, given);
+  const filters = { include: s.must, only, noDoubles: s.noDoubles, rack, given };
+  setHighlights(s.must, rack, given);
   const wrap = $("slots-results");
 
-  if (!touched && state.rack) { // rack alone: everything she can build
-    paintGroups(wrap, queryRack(state.dict, state.rack, { noDoubles: s.noDoubles }), false);
+  if (!slots.some(Boolean) && state.rack) { // rack alone: everything she can build
+    paintGroups(wrap, queryRack(state.dict, rack, { include: s.must, noDoubles: s.noDoubles }), false);
     return;
   }
   const words = querySlots(state.dict, slots, filters);
@@ -316,21 +343,51 @@ function paintSlotsResults() {
   if (touched) appendOtherLengths(wrap, querySlotsLoose(state.dict, slots, filters));
 }
 
+// highlight context for the chips being painted: required letters get inked,
+// the +1-borrowed letter gets its own mark
+function setHighlights(must, rack, given) {
+  reqLetters = must ?? new Set();
+  rackMark = w => usesAllRack(w, state.rack, given);
+  borrowAt = state.rack && state.plusOne ? w => borrowedIndex(w, state.rack, given) : () => -1;
+}
+
+// which position of the word spends a letter the rack doesn't have?
+function borrowedIndex(word, rack, given = "") {
+  const avail = [...rack.counts];
+  for (const ch of given) avail[ALPHA.indexOf(ch)]++;
+  let blanks = rack.blanks;
+  for (let i = 0; i < word.length; i++) {
+    const k = ALPHA.indexOf(word[i]);
+    if (avail[k] > 0) avail[k]--;
+    else if (blanks > 0) blanks--;
+    else return i;
+  }
+  return -1;
+}
+
 function paintPatternResults() {
   const p = state.pattern;
+  const rack = effRack();
   const given = p.str.replace(/[^a-z]/g, ""); // typed literals sit on the board
-  rackMark = w => usesAllRack(w, state.rack, given);
+  const restricted = !state.rack && p.may.size + p.must.size > 0;
+  const only = restricted ? new Set([...p.may, ...p.must, ...given]) : null;
+  const filters = { ...p, include: p.must, only, rack, given };
+  setHighlights(p.must, rack, given);
   const wrap = $("pattern-results");
 
   if (!p.str && state.rack) {
-    paintGroups(wrap, queryRack(state.dict, state.rack, { noDoubles: p.noDoubles }), false);
+    paintGroups(wrap, queryRack(state.dict, rack, { include: p.must, noDoubles: p.noDoubles }), false);
     return;
   }
-  const words = p.str ? queryPattern(state.dict, p.str, { ...p, rack: state.rack, given }) : [];
+  if (!p.str && (restricted || p.must.size)) { // board alone works without a pattern too
+    paintGroups(wrap, queryPattern(state.dict, "*", filters), false);
+    return;
+  }
+  const words = p.str ? queryPattern(state.dict, p.str, filters) : [];
   paintGroups(wrap, words, !p.str);
   if (p.str && p.lengths.size) {
     const seen = new Set(words);
-    const loose = queryPattern(state.dict, p.str, { ...p, lengths: null, rack: state.rack, given }).filter(w => !seen.has(w));
+    const loose = queryPattern(state.dict, p.str, { ...filters, lengths: null }).filter(w => !seen.has(w));
     appendOtherLengths(wrap, loose);
   }
 }
@@ -342,7 +399,7 @@ function paintLabResults() {
     wrap.innerHTML = "";
     return;
   }
-  rackMark = w => usesAllRack(w, state.rack, lab.word);
+  setHighlights(new Set(), state.rack, lab.word);
   const { plus, minus } = queryPlusMinus(state.dict, lab.word, { ...lab, rack: state.rack });
 
   wrap.innerHTML = "";
@@ -383,10 +440,17 @@ function appendGroups(wrap, words) {
   }
 }
 
+// collapsed by default: she's usually narrowing, not browsing
 function appendOtherLengths(wrap, words) {
   if (!words.length) return;
-  wrap.append(el(`<div class="res-h other"><span>OTHER LENGTHS</span><span><b>${words.length}</b> ${plural(words.length)}</span></div>`));
-  appendGroups(wrap, words);
+  const head = el(`<button class="res-h other"><span><span class="chev">▸</span> OTHER LENGTHS</span><span><b>${words.length}</b> ${plural(words.length)}</span></button>`);
+  const box = el(`<div class="other-box" hidden></div>`);
+  appendGroups(box, words);
+  head.onclick = () => {
+    box.hidden = !box.hidden;
+    head.classList.toggle("open", !box.hidden);
+  };
+  wrap.append(head, box);
 }
 
 function wordRow(words, walkable) {
@@ -411,9 +475,18 @@ function wordRow(words, walkable) {
   return row;
 }
 
+// Required letters get inked, the +1-borrowed letter gets its own mark.
+function chipHTML(word) {
+  const bIdx = borrowAt(word);
+  return [...word]
+    .map((ch, i) => (i === bIdx ? `<u>${ch}</u>` : reqLetters.has(ch) ? `<b>${ch}</b>` : ch))
+    .join("");
+}
+
 // Tap: definition — except in ±1 where tap walks and hold gives the meaning.
 function wordChip(word, walkable) {
-  const chip = el(`<button class="word${rackMark(word) ? " all-rack" : ""}">${word}</button>`);
+  const chip = el(`<button class="word${rackMark(word) ? " all-rack" : ""}">${chipHTML(word)}</button>`);
+  chip.dataset.word = word;
   if (walkable) {
     chip.onclick = () => { if (!chip.dataset.held) walkTo(word); delete chip.dataset.held; };
     onHold(chip, () => { chip.dataset.held = 1; openDef(word); });
@@ -495,9 +568,18 @@ function buildDictRadios() {
 
 function setRack(str) {
   state.rack = parseRack(str);
+  syncPlusChips();
   paintRackStrip();
-  paintBoard();
+  paintBoards();
   render();
+}
+
+// +1 chips exist in slots and pattern; they mirror one shared switch
+function syncPlusChips() {
+  for (const b of document.querySelectorAll(".tchip.plus")) {
+    b.classList.toggle("on", state.plusOne);
+    b.disabled = !state.rack;
+  }
 }
 
 // blur passes editing=false explicitly: activeElement can lag during the event
@@ -572,7 +654,10 @@ function wireEvents() {
   $("lab-input").addEventListener("input", e => labTyped(e.target.value));
   toggle($("lab-shuffle"), on => { state.lab.shuffle = on; }, state.lab.shuffle);
   toggle($("lab-nodoubles"), on => { state.lab.noDoubles = on; });
-  toggle($("lab-nos"), on => { state.lab.hideSPlurals = on; });
+
+  for (const b of document.querySelectorAll(".tchip.plus"))
+    b.onclick = () => { state.plusOne = !state.plusOne; syncPlusChips(); render(); };
+  syncPlusChips();
 
   for (const btn of document.querySelectorAll(".tchip.reset")) btn.onclick = resetView;
   window.addEventListener("resize", () => { buildSlots(); placeSegPill(); });
@@ -591,22 +676,22 @@ function resetView() {
     state.slots = { len: 5, letters: [], cursor: 0, may: new Set(), must: new Set(), noDoubles: false };
     $("slots-nodoubles").classList.remove("on");
     buildSlots();
-    paintBoard();
+    paintBoards();
   }
   if (app === "pattern") {
-    state.pattern = { str: "", anchorStart: false, anchorEnd: false, lengths: new Set(), noDoubles: false };
+    state.pattern = { str: "", anchorStart: false, anchorEnd: false, lengths: new Set(), may: new Set(), must: new Set(), noDoubles: false };
     $("pat-input").value = "";
     $("anchor-start").classList.remove("on");
     $("anchor-end").classList.remove("on");
     $("pat-nodoubles").classList.remove("on");
     paintLenChips();
+    paintBoards();
   }
   if (app === "lab") {
-    state.lab = { word: "", shuffle: true, noDoubles: false, hideSPlurals: false, trail: [], pos: 0 };
+    state.lab = { word: "", shuffle: true, noDoubles: false, trail: [], pos: 0 };
     $("lab-input").value = "";
     $("lab-shuffle").classList.add("on");
     $("lab-nodoubles").classList.remove("on");
-    $("lab-nos").classList.remove("on");
     paintTrail();
   }
   render();

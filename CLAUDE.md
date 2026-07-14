@@ -138,8 +138,16 @@ shapes survive only in the nav (seg pill + header ?/⚙ buttons). Header: brand 
   UNIQUE (no repeated letters), +S (hide S-plurals). +1/−1 sections split on a thick accent rule with signed badges. No "word not
   in dictionary" notices (owner cut it).
 - Constraint board MUST keys show an inline ✱ superscript (required-field convention).
-- Filter rows: ↺ reset sits LEFT, terse filter chips RIGHT, one line, no inline hint text
-  (the ? help sheet teaches instead). No inline ✕ in inputs (owner dislikes).
+  Boards exist in SLOTS **and PATTERN**. **Rack-aware semantics** (Liv feedback): with a
+  rack set, tap = REQUIRE (the rack is already the allowed alphabet); without one, tap
+  cycles may → must. Required letters render inked inside result words.
+- **NO DOUBLES = adjacent doubled letters** (coFFee, blOOd) — Liv's lifelong meaning from
+  her own app, NOT "no letter twice anywhere".
+- **+1 chip** (slots/pattern, needs a rack): adds a virtual blank — words needing one
+  letter she doesn't hold appear with that letter underlined ("what should I hope to draw").
+- Result groups sort LONGEST FIRST. OTHER LENGTHS is collapsed behind its header.
+- Filter rows: filters LEFT, ↺ reset RIGHT (Liv is right-handed). No inline ✕ in inputs.
+- Ladder has no +S toggle (confused Liv); −1 kept for hooks/steals.
 - Everywhere else: tap a word → definition sheet (word, NWL/CSW/ENABLE flags, definition).
 - Dictionary picker in header: NWL2023 (default) / CSW21 / ENABLE / ALL (union).
 - Global rack drawer is milestone 2 — `state.rack` + engine `fitsRack` already wired.
