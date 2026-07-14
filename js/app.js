@@ -67,8 +67,8 @@ function buildSlots() {
   wrap.innerHTML = "";
   $("len-label").textContent = s.len;
 
-  // Shrink to fit one row up to WRAP_AT slots, then wrap — never overflow.
-  const cols = Math.min(s.len, WRAP_AT);
+  // Shrink to fit one row up to WRAP_AT slots; beyond, split into two even rows.
+  const cols = s.len <= WRAP_AT ? s.len : Math.ceil(s.len / 2);
   const avail = wrap.clientWidth || wrap.parentElement.clientWidth;
   const width = Math.max(26, Math.min(52, Math.floor((avail - (cols - 1) * 7) / cols)));
 
