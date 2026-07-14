@@ -91,8 +91,15 @@ async function boot() {
   paintRackStrip();
   paintTrail();
   syncPlusChips();
+
+  // the pill materializes in place on load — gliding is for gestures, not boots
+  const pill = $("seg-pill");
+  pill.style.transition = "none";
   switchApp(state.app);
-  requestAnimationFrame(placeSegPill); // again after first real layout
+  requestAnimationFrame(() => {
+    placeSegPill(); // once more after real layout
+    requestAnimationFrame(() => { pill.style.transition = ""; });
+  });
 
   await switchDict(state.dictKey);
 }
