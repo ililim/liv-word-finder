@@ -28,6 +28,7 @@ const state = {
 async function boot() {
   navigator.serviceWorker?.register("./sw.js");
   $("app").dataset.app = state.app;
+  paintRackStrip();
   buildSlots();
   buildBoard();
   buildLenChips();

@@ -98,7 +98,7 @@ button { font: inherit; color: inherit; background: none; border: none; cursor: 
   background: rgba(127, 120, 106, 0.14);
 }
 .rack-strip .rt.ghost { background: transparent; border: 2px dashed var(--line); }
-.rack-tiles { flex: 1; }
+.rack-tiles { flex: 1; min-height: 32px; align-items: center; }
 .rack-dismiss {
   display: none; position: absolute; right: 6px; top: 50%; transform: translateY(-50%);
   font-size: 17px; font-weight: 850; color: var(--muted); padding: 4px 10px;
