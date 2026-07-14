@@ -142,7 +142,13 @@ button { font: inherit; color: inherit; background: none; border: none; cursor: 
   border: 1.5px solid rgba(51, 41, 26, 0.3);
 }
 .rack-strip .rt.blank { color: #8a7a58; font-size: 14px; }
-.word.all-rack::after { content: "✱"; font-size: 13px; margin-left: 3px; color: var(--accent-text); }
+/* a word that spends the whole rack IS the rack: it wears the tile ivory */
+.word.all-rack {
+  background: #f0e5c9; color: #33291a;
+  border-color: rgba(51, 41, 26, 0.3);
+}
+.word.all-rack b { color: #8a2820; } /* required letters stay readable on ivory */
+.word.all-rack u { text-decoration-color: #8a2820; }
 /* inside result words: required letters inked, the +1-borrowed letter underlined */
 .word b { color: var(--accent-text); font-weight: 850; }
 .word u { text-decoration: underline 2px var(--accent); text-underline-offset: 3px; }
@@ -209,9 +215,9 @@ button { font: inherit; color: inherit; background: none; border: none; cursor: 
 /* the required star sits at the letter's shoulder without moving it:
    anchored to the key's center, where the letter always is */
 .bkey.must::after {
-  content: "✱"; font-size: 10px; line-height: 1;
+  content: "✱"; font-size: 13px; font-weight: 900; line-height: 1;
   position: absolute; left: 50%; top: 50%;
-  transform: translate(5px, -14px);
+  transform: translate(5px, -16px);
 }
 .board.active .bkey:not(.may):not(.must):not(.fn) { opacity: 0.3; }
 .bkey.fn { flex: 0 0 48px; font-size: 11px; font-weight: 850; color: var(--muted); }
@@ -406,6 +412,7 @@ button { font: inherit; color: inherit; background: none; border: none; cursor: 
 /* mini rack tiles match the real strip: scrabble ivory in both themes */
 .d-rack { width: 24px; height: 28px; display: inline-grid; place-items: center; font-size: 11px; font-weight: 850; background: #f0e5c9; color: #33291a; border: 1.5px solid rgba(51, 41, 26, 0.3); }
 .d-rack.blank { color: #8a7a58; font-size: 13px; }
+.d-word.tiles { background: #f0e5c9; color: #33291a; border-color: rgba(51, 41, 26, 0.3); }
 
 /* settings */
 .set-h { font-size: 12px; font-weight: 850; letter-spacing: 0.14em; color: var(--muted); }
