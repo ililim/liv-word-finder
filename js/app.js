@@ -26,6 +26,7 @@ const state = {
 // — Boot ——————————————————————————————————————————————————————————————————————
 
 async function boot() {
+  navigator.serviceWorker?.register("./sw.js");
   $("app").dataset.app = state.app;
   buildSlots();
   buildBoard();
