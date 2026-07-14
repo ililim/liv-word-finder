@@ -478,7 +478,7 @@ function setRack(str) {
 function paintRackStrip() {
   const raw = $("rack-input").value.toLowerCase().replace(/[^a-z?]/g, "");
   const editing = document.activeElement === $("rack-input");
-  $("rack-strip").classList.toggle("on", !!state.rack || editing);
+  $("rack-strip").classList.toggle("filled", !!raw);
   const tiles = [...raw]
     .map(ch => `<span class="rt${ch === "?" ? " blank" : ""}">${ch === "?" ? "?" : ch}</span>`)
     .join("");
