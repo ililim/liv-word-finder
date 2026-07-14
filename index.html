@@ -44,13 +44,13 @@
 
   <nav class="seg" id="seg">
     <span class="seg-pill" id="seg-pill"></span>
-    <button data-app="slots" class="active">SLOTS</button>
-    <button data-app="pattern">PATTERN</button>
+    <button data-app="slots">SLOTS</button>
+    <button data-app="pattern" class="active">PATTERN</button>
     <button data-app="lab">LADDER</button>
   </nav>
 
   <!-- SLOTS — exact-length positional search -->
-  <section class="view active" id="view-slots">
+  <section class="view" id="view-slots">
     <div class="slots-wrap"><div class="slots" id="slots"></div></div>
     <div class="slots-tools">
       <div class="stepper">
@@ -70,7 +70,7 @@
   </section>
 
   <!-- PATTERN — free-typed, open or anchored ends -->
-  <section class="view" id="view-pattern">
+  <section class="view active" id="view-pattern">
     <div class="pat-row">
       <button class="anchor" id="anchor-start">START<br>WITH</button>
       <input class="pat-input" id="pat-input" placeholder="B_TT*Y" autocomplete="off" inputmode="email"

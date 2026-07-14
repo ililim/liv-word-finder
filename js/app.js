@@ -16,7 +16,7 @@ let reqLetters = new Set();
 let borrowAt = () => -1;
 
 const state = {
-  app: "slots",
+  app: "pattern",
   dictKey: localStorage.getItem("dict") ?? "nwl",
   dict: null,
   rack: null,     // { counts, blanks } — set from the rack strip, filters every mode
