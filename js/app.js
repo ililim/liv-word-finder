@@ -325,7 +325,9 @@ function paintSlotsResults() {
   const slots = Array.from({ length: s.len }, (_, i) => s.letters[i] ?? null);
   const restricted = !state.rack && s.may.size + s.must.size > 0;
   const touched = slots.some(Boolean) || restricted || (state.rack && s.must.size > 0);
-  const given = slots.filter(Boolean).join(""); // board letters: the rack doesn't pay for these
+  // slot letters spend rack tiles like any other — a board letter you're playing
+  // through belongs in the rack itself (it's a letter you get to use)
+  const given = "";
 
   // without a rack, tapped letters are the whole allowed alphabet;
   // with one, the rack is the alphabet and taps are pure requirements
@@ -368,9 +370,10 @@ function borrowedIndex(word, rack, given = "") {
 function paintPatternResults() {
   const p = state.pattern;
   const rack = effRack();
-  const given = p.str.replace(/[^a-z]/g, ""); // typed literals sit on the board
+  const given = ""; // pattern literals spend rack tiles too — one rule everywhere
+  const literals = p.str.replace(/[^a-z]/g, "");
   const restricted = !state.rack && p.may.size + p.must.size > 0;
-  const only = restricted ? new Set([...p.may, ...p.must, ...given]) : null;
+  const only = restricted ? new Set([...p.may, ...p.must, ...literals]) : null;
   const filters = { ...p, include: p.must, only, rack, given };
   setHighlights(p.must, rack, given);
   const wrap = $("pattern-results");

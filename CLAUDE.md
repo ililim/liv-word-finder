@@ -202,5 +202,7 @@ all future visual work on this project:**
   cache-first — **if those files ever change, bump `CACHE` in sw.js** or phones keep the
   old data forever. Icon/name changes require remove + re-add on the home screen.
 - [x] Milestone 2: global rack (▦ inline tile-strip editor; fitsRack with blanks +
-  query-credit rule; empty-query rack solve; ✱ uses-all marker)
+  empty-query rack solve; ✱ uses-all marker). One rule since Liv's feedback: every
+  result is spellable from the rack — slot letters and pattern literals consume rack
+  tiles (play-through = add the board letter to the rack); only the LADDER seed is free.
 - [ ] PWA/offline (service worker) + Add-to-Home-Screen polish (icons, manifest)
