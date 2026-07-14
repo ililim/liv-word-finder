@@ -470,7 +470,6 @@ function buildDictRadios() {
 
 function setRack(str) {
   state.rack = parseRack(str);
-  $("rack-btn").classList.toggle("on", !!state.rack);
   paintRackStrip();
   paintBoard();
   render();
@@ -479,7 +478,6 @@ function setRack(str) {
 // blur passes editing=false explicitly: activeElement can lag during the event
 function paintRackStrip(editing = document.activeElement === $("rack-input")) {
   const raw = $("rack-input").value.toLowerCase().replace(/[^a-z?]/g, "");
-  $("rack-strip").classList.toggle("show", !!raw || editing);
   $("rack-strip").classList.toggle("filled", !!raw);
   const tiles = [...raw]
     .map(ch => `<span class="rt${ch === "?" ? " blank" : ""}">${ch === "?" ? "?" : ch}</span>`)
@@ -487,7 +485,8 @@ function paintRackStrip(editing = document.activeElement === $("rack-input")) {
   $("rack-tiles").innerHTML =
     tiles +
     (editing ? `<span class="caret"></span>` : "") +
-    (editing && !raw ? `<span class="hint-tile">LETTERS YOU HOLD · ? = BLANK</span>` : "");
+    (editing && !raw ? `<span class="hint-tile">LETTERS YOU HOLD · ? = BLANK</span>` : "") +
+    (!editing && !raw ? `<span class="rt ghost"></span><span class="hint-tile">RACK</span>` : "");
 }
 
 function wireRack() {
@@ -497,12 +496,6 @@ function wireRack() {
     input.setSelectionRange(input.value.length, input.value.length);
     paintRackStrip();
   };
-  // ▦ toggles: sample focus at pointerdown, before the tap itself blurs the input
-  let wasEditing = false;
-  $("rack-btn").addEventListener("pointerdown", () => {
-    wasEditing = document.activeElement === $("rack-input");
-  });
-  $("rack-btn").onclick = () => (wasEditing ? $("rack-input").blur() : focus());
   $("rack-tiles").onclick = focus;
   $("rack-dismiss").onclick = () => {
     $("rack-input").value = "";

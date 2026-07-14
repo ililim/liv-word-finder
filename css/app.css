@@ -88,16 +88,19 @@ button { font: inherit; color: inherit; background: none; border: none; cursor: 
 .seg button.active { background: var(--accent); color: var(--accent-ink); }
 
 /* rack — the strip IS the input: tiles render live, a caret tile blinks while editing */
-/* collapsed when idle; while present, the tiles area is always full-width and
-   the ✕ is pinned outside the centering, so editing never wobbles the row */
+/* always present — an empty rack is a tap target, not a hidden feature.
+   Tiles area is full-width and the ✕ pinned outside it: editing never wobbles.
+   The strip itself is the tray the tiles sit in. */
 .rack-strip {
-  display: none; gap: 2px; align-items: center;
-  margin-top: 10px; min-height: 32px; position: relative;
+  display: flex; gap: 2px; align-items: center;
+  margin-top: 10px; min-height: 40px; position: relative;
+  padding: 4px 8px;
+  background: rgba(127, 120, 106, 0.14);
 }
-.rack-strip.show { display: flex; }
+.rack-strip .rt.ghost { background: transparent; border: 2px dashed var(--line); }
 .rack-tiles { flex: 1; }
 .rack-dismiss {
-  display: none; position: absolute; right: 0; top: 50%; transform: translateY(-50%);
+  display: none; position: absolute; right: 6px; top: 50%; transform: translateY(-50%);
   font-size: 17px; font-weight: 850; color: var(--muted); padding: 4px 10px;
 }
 .rack-strip.filled .rack-dismiss { display: block; }
