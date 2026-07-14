@@ -86,7 +86,7 @@ function buildSlots() {
 
 function setLen(len) {
   const s = state.slots;
-  s.len = Math.max(2, Math.min(15, len));
+  s.len = Math.max(2, Math.min(20, len));
   s.letters.length = Math.min(s.letters.length, s.len);
   s.cursor = Math.min(s.cursor, s.len - 1);
   buildSlots();
