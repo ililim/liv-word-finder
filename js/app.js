@@ -21,6 +21,7 @@ const state = {
   dict: null,
   rack: null,     // { counts, blanks } — set from the rack strip, filters every mode
   plusOne: false, // borrow one letter you don't hold
+  boardOpen: { board: true, "pat-board": false }, // letter boards collapse; slots' is primary
   slots:   { len: 5, letters: [], cursor: 0, may: new Set(), must: new Set(), noDoubles: false },
   pattern: { str: "", anchorStart: false, anchorEnd: false, lengths: new Set(), may: new Set(), must: new Set(), noDoubles: false },
   lab:     { word: "", shuffle: true, noDoubles: false, trail: [], pos: 0 },
@@ -44,6 +45,7 @@ function saveState() {
     app: s.app,
     rack: $("rack-input").value,
     plusOne: s.plusOne,
+    boardOpen: s.boardOpen,
     slots: { ...s.slots, may: [...s.slots.may], must: [...s.slots.must] },
     pattern: { ...s.pattern, lengths: [...s.pattern.lengths], may: [...s.pattern.may], must: [...s.pattern.must] },
     lab: s.lab,
@@ -56,6 +58,7 @@ function restoreState() {
     if (!v) return;
     if (["slots", "pattern", "lab"].includes(v.app)) state.app = v.app;
     state.plusOne = !!v.plusOne;
+    Object.assign(state.boardOpen, v.boardOpen);
     $("rack-input").value = v.rack ?? "";
     state.rack = parseRack(v.rack ?? "");
     Object.assign(state.slots, v.slots, { may: new Set(v.slots?.may), must: new Set(v.slots?.must) });
@@ -193,7 +196,6 @@ function buildBoards() {
     for (const row of ["qwertyuiop", "asdfghjkl", "zxcvbnm"]) {
       const div = document.createElement("div");
       div.className = "board-row";
-      if (row[0] === "z") div.append(fnKey("ALL", () => toggleAll(view)));
       for (const ch of row) {
         const key = document.createElement("button");
         key.className = "bkey";
@@ -205,6 +207,11 @@ function buildBoards() {
       if (row[0] === "z") div.append(fnKey("✕", () => clearBoard(view), "clear"));
       root.append(div);
     }
+    $(`${id}-head`).onclick = () => {
+      state.boardOpen[id] = !state.boardOpen[id];
+      paintBoards();
+      render(); // persists the preference
+    };
   }
 }
 
@@ -212,17 +219,6 @@ function fnKey(label, fn, cls = "") {
   const key = el(`<button class="bkey fn ${cls}">${label}</button>`);
   key.onclick = fn;
   return key;
-}
-
-// ALL is a toggle: everything to MAY (musts stay), or back to a clean board.
-// Meaningless with a rack — the rack already is the allowed set.
-function toggleAll(view) {
-  if (state.rack) return;
-  const { may, must } = state[view];
-  if ([...ALPHA].every(ch => may.has(ch) || must.has(ch))) return clearBoard(view);
-  for (const ch of ALPHA) if (!must.has(ch)) may.add(ch);
-  paintBoards();
-  render();
 }
 
 function clearBoard(view) {
@@ -250,8 +246,12 @@ function paintBoards() {
   const rack = state.rack;
   for (const [id, view] of Object.entries(BOARDS)) {
     const { may, must } = state[view];
+    const open = state.boardOpen[id];
+    $(id).hidden = !open;
+    const marks = [...must].map(ch => `<b>${ch}✱</b>`).join(" ");
+    $(`${id}-head`).innerHTML =
+      `<span class="chev${open ? " open" : ""}">▸</span> LETTERS ${marks}`;
     $(id).classList.toggle("active", !rack && may.size + must.size > 0);
-    $(id).classList.toggle("racked", !!rack); // ALL means nothing with a rack
     for (const key of $(id).querySelectorAll(".bkey")) {
       if (!key.dataset.ch) continue;
       key.classList.toggle("may", !rack && may.has(key.dataset.ch));

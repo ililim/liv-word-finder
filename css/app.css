@@ -221,7 +221,15 @@ button { font: inherit; color: inherit; background: none; border: none; cursor: 
 }
 .board.active .bkey:not(.may):not(.must):not(.fn) { opacity: 0.3; }
 .bkey.fn { flex: 0 0 48px; font-size: 11px; font-weight: 850; color: var(--muted); }
-.board.racked .fn:not(.clear) { visibility: hidden; } /* ALL is moot with a rack; keep its space */
+/* the board folds behind a slim header; active requirements stay visible on it */
+.board-head {
+  display: flex; align-items: center; gap: 6px;
+  font-size: 11px; font-weight: 800; letter-spacing: 0.1em; color: var(--muted);
+  text-align: left;
+}
+.board-head b { color: var(--accent-text); letter-spacing: 0.04em; }
+.board-head .chev { display: inline-block; transition: transform 0.15s; }
+.board-head .chev.open { transform: rotate(90deg); }
 .bkey.fn.clear { font-size: 14px; }
 
 /* toggle chips */
