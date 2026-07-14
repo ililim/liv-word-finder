@@ -225,11 +225,11 @@ function toggleBoard(id) {
   render(); // persists the preference
 }
 
-// dismiss-keyboard glyph — chevron points up because this board folds upward
+// dismiss-keyboard glyph — the chevron rides on top: this board folds upward
 const FOLD_ICON = `<svg viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="1.8">
-  <rect x="3" y="3.5" width="18" height="10"/>
-  <path d="M6.5 7h.01M10 7h.01M13.5 7h.01M17 7h.01M8 10.5h8" stroke-linecap="round"/>
-  <path d="M9 20.5l3-3 3 3" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M9 6.5l3-3 3 3" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+  <rect x="3" y="10" width="18" height="10"/>
+  <path d="M6.5 13.5h.01M10 13.5h.01M13.5 13.5h.01M17 13.5h.01M8 17h8" stroke-linecap="round"/>
 </svg>`;
 
 function fnKey(label, fn, cls = "") {
