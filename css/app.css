@@ -377,7 +377,7 @@ button { font: inherit; color: inherit; background: none; border: none; cursor: 
 }
 .radio-row .sub { font-size: 12px; color: var(--muted); font-weight: 650; }
 .radio-row .dot { width: 22px; height: 22px; border-radius: var(--r); border: 2px solid var(--line); flex: 0 0 auto; }
-.radio-row.on .dot { border-color: var(--accent); background: var(--accent); }
+.radio-row.on .dot { border-color: var(--ink); background: var(--ink); }
 
 /* discreet return-to-top for deep result lists */
 .scroll-top {
