@@ -297,7 +297,10 @@ function paintBoards() {
     const open = state.boardOpen[id];
     $(id).hidden = !open;
     $(`${id}-head`).hidden = open; // the header exists only as the way back in
-    const marks = [...must].map(ch => `<b>${ch}</b>`).join(" ");
+    const marks = [
+      ...[...must].map(ch => `<b>${ch}</b>`),
+      ...(!rack ? [...may].map(ch => `<i>${ch}</i>`) : []), // optional letters, rackless mode
+    ].join(" ");
     $(`${id}-head`).innerHTML = `<span class="chev">▸</span> LETTERS ${marks}`;
     $(id).classList.toggle("active", !rack && may.size + must.size > 0);
     for (const key of $(id).querySelectorAll(".bkey")) {
