@@ -496,7 +496,12 @@ function wireRack() {
     input.setSelectionRange(input.value.length, input.value.length);
     paintRackStrip();
   };
-  $("rack-btn").onclick = focus;
+  // ▦ toggles: sample focus at pointerdown, before the tap itself blurs the input
+  let wasEditing = false;
+  $("rack-btn").addEventListener("pointerdown", () => {
+    wasEditing = document.activeElement === $("rack-input");
+  });
+  $("rack-btn").onclick = () => (wasEditing ? $("rack-input").blur() : focus());
   $("rack-tiles").onclick = focus;
   $("rack-dismiss").onclick = () => {
     $("rack-input").value = "";

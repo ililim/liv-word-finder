@@ -71,10 +71,7 @@ button { font: inherit; color: inherit; background: none; border: none; cursor: 
   border: 2px solid var(--ink); border-radius: var(--r-pill);
 }
 .icon-btn.on { background: var(--ink); color: var(--bg); }
-/* each glyph has its own metrics — size and nudge individually to true center */
-#help-btn span { transform: translateY(0.5px); }
-#settings-btn span { font-size: 17px; }
-#rack-btn span { font-size: 12px; transform: translateY(1px); }
+.icon-btn svg { display: block; } /* SVG icons center geometrically, no font metrics */
 
 /* app switcher — bordered pill, white active segment (mockup 14) */
 .seg {
