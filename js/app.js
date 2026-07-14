@@ -486,7 +486,7 @@ function paintRackStrip(editing = document.activeElement === $("rack-input")) {
   $("rack-tiles").innerHTML =
     tiles +
     (editing ? `<span class="caret"></span>` : "") +
-    (editing && !raw ? `<span class="hint-tile">LETTERS YOU HOLD · ? = BLANK</span>` : "") +
+    (editing && !raw ? `<span class="hint-tile">LETTERS YOU HOLD · SPACE = BLANK</span>` : "") +
     (!editing && !raw ? `<span class="rt ghost"></span><span class="rt ghost"></span><span class="rt ghost"></span>` : "");
 }
 
@@ -541,6 +541,16 @@ function wireEvents() {
     state.pattern.str = clean;
     render();
   });
+  // one on-screen * key: iOS hides specials behind the 123 layer
+  $("ins-run").addEventListener("pointerdown", e => e.preventDefault()); // keep input focus
+  $("ins-run").onclick = () => {
+    const input = $("pat-input");
+    const at = input.selectionStart ?? input.value.length;
+    input.value = input.value.slice(0, at) + "*" + input.value.slice(input.selectionEnd ?? at);
+    input.setSelectionRange(at + 1, at + 1);
+    input.dispatchEvent(new Event("input"));
+    input.focus({ preventScroll: true });
+  };
   $("anchor-start").onclick = () => anchor("anchorStart", "anchor-start");
   $("anchor-end").onclick = () => anchor("anchorEnd", "anchor-end");
   toggle($("pat-nodoubles"), on => { state.pattern.noDoubles = on; });
