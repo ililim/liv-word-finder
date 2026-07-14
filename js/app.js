@@ -487,7 +487,7 @@ function paintRackStrip(editing = document.activeElement === $("rack-input")) {
     tiles +
     (editing ? `<span class="caret"></span>` : "") +
     (editing && !raw ? `<span class="hint-tile">LETTERS YOU HOLD · ? = BLANK</span>` : "") +
-    (!editing && !raw ? `<span class="rt ghost"></span><span class="hint-tile">RACK</span>` : "");
+    (!editing && !raw ? `<span class="rt ghost"></span>` : "");
 }
 
 function wireRack() {
