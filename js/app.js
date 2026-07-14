@@ -17,7 +17,7 @@ let borrowAt = () => -1;
 
 const state = {
   app: "pattern",
-  dictKey: localStorage.getItem("dict") ?? "nwl",
+  dictKey: "nwl",
   dict: null,
   rack: null,     // { counts, blanks } — set from the rack strip, filters every mode
   plusOne: false, // borrow one letter you don't hold
@@ -44,6 +44,7 @@ function saveState() {
   const s = state;
   localStorage.setItem(STORE, JSON.stringify({
     app: s.app,
+    dictKey: s.dictKey,
     rack: $("rack-input").value,
     plusOne: s.plusOne,
     compact: s.compact,
@@ -57,8 +58,12 @@ function saveState() {
 function restoreState() {
   try {
     const v = JSON.parse(localStorage.getItem(STORE));
-    if (!v) return;
+    if (!v) {
+      state.dictKey = localStorage.getItem("dict") ?? state.dictKey; // pre-store installs
+      return;
+    }
     if (["slots", "pattern", "lab"].includes(v.app)) state.app = v.app;
+    if (v.dictKey in DICTS) state.dictKey = v.dictKey;
     state.plusOne = !!v.plusOne;
     state.compact = !!v.compact;
     Object.assign(state.boardOpen, v.boardOpen);
@@ -110,7 +115,6 @@ async function boot() {
 
 async function switchDict(key) {
   state.dictKey = key;
-  localStorage.setItem("dict", key);
   state.dict = await loadDict(key);
   buildDictRadios();
   render();
@@ -134,6 +138,8 @@ function switchApp(app) {
   if (app === "lab") paintTrail(); // scroll-into-view only sticks once the view is visible
   render();
 }
+
+const resultsEl = () => $(`${state.app}-results`);
 
 // the pill glides under the active segment and recolors en route
 function placeSegPill() {
@@ -168,8 +174,6 @@ function paintModeDD() {
     $("mode-dd-menu").append(item);
   }
 }
-
-const resultsEl = () => $(`${state.app}-results`);
 
 
 // — Slots —————————————————————————————————————————————————————————————————————
@@ -228,19 +232,22 @@ function slotKey(key) {
 // One board per view that wants letter constraints: slots and pattern.
 const BOARDS = { board: "slots", "pat-board": "pattern" };
 
+// dismiss-keyboard glyph — the chevron rides on top: this board folds upward
+const FOLD_ICON = `<svg viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="1.8">
+  <path d="M9 6.5l3-3 3 3" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+  <rect x="3" y="10" width="18" height="10"/>
+  <path d="M6.5 13.5h.01M10 13.5h.01M13.5 13.5h.01M17 13.5h.01M8 17h8" stroke-linecap="round"/>
+</svg>`;
+
 function buildBoards() {
   for (const [id, view] of Object.entries(BOARDS)) {
     const root = $(id);
     root.innerHTML = "";
     for (const row of ["qwertyuiop", "asdfghjkl", "zxcvbnm"]) {
-      const div = document.createElement("div");
-      div.className = "board-row";
+      const div = el(`<div class="board-row"></div>`);
       if (row[0] === "z") div.append(fnKey(FOLD_ICON, () => toggleBoard(id), "fold"));
       for (const ch of row) {
-        const key = document.createElement("button");
-        key.className = "bkey";
-        key.textContent = ch;
-        key.dataset.ch = ch;
+        const key = el(`<button class="bkey" data-ch="${ch}">${ch}</button>`);
         key.onclick = () => cycleConstraint(view, ch);
         div.append(key);
       }
@@ -256,13 +263,6 @@ function toggleBoard(id) {
   paintBoards();
   render(); // persists the preference
 }
-
-// dismiss-keyboard glyph — the chevron rides on top: this board folds upward
-const FOLD_ICON = `<svg viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="1.8">
-  <path d="M9 6.5l3-3 3 3" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
-  <rect x="3" y="10" width="18" height="10"/>
-  <path d="M6.5 13.5h.01M10 13.5h.01M13.5 13.5h.01M17 13.5h.01M8 17h8" stroke-linecap="round"/>
-</svg>`;
 
 function fnKey(label, fn, cls = "") {
   const key = el(`<button class="bkey fn ${cls}">${label}</button>`);
@@ -321,10 +321,7 @@ function buildLenChips() {
   const wrap = $("lenchips");
   wrap.innerHTML = "";
   for (const len of ["ALL", 3, 4, 5, 6, 7, 8, 9, "10+"]) {
-    const chip = document.createElement("button");
-    chip.className = "lchip";
-    chip.textContent = len;
-    chip.dataset.len = len;
+    const chip = el(`<button class="lchip" data-len="${len}">${len}</button>`);
     chip.onclick = () => {
       const { lengths } = state.pattern;
       if (len === "ALL") lengths.clear();
@@ -354,7 +351,7 @@ function normalizePattern(raw) {
 }
 
 
-// — ±1 Lab ————————————————————————————————————————————————————————————————————
+// — Ladder ————————————————————————————————————————————————————————————————————
 
 // Stepping from mid-trail forks: the abandoned future is dropped only then.
 function walkTo(word) {
@@ -428,15 +425,14 @@ function paintSlotsResults() {
   const slots = Array.from({ length: s.len }, (_, i) => s.letters[i] ?? null);
   const restricted = !state.rack && s.may.size + s.must.size > 0;
   const touched = slots.some(Boolean) || restricted || (state.rack && s.must.size > 0);
-  // slot letters spend rack tiles like any other — a board letter you're playing
-  // through belongs in the rack itself (it's a letter you get to use)
-  const given = "";
 
   // without a rack, tapped letters are the whole allowed alphabet;
-  // with one, the rack is the alphabet and taps are pure requirements
+  // with one, the rack is the alphabet and taps are pure requirements.
+  // Slot letters spend rack tiles like any other: play-through means
+  // putting the board letter into the rack (it's a letter you get to use).
   const only = restricted ? new Set([...s.may, ...s.must, ...slots.filter(Boolean)]) : null;
-  const filters = { include: s.must, only, noDoubles: s.noDoubles, rack, given };
-  setHighlights(s.must, rack, given);
+  const filters = { include: s.must, only, noDoubles: s.noDoubles, rack };
+  setHighlights(s.must);
   const wrap = $("slots-results");
 
   if (!slots.some(Boolean) && state.rack) { // rack alone: everything she can build
@@ -449,8 +445,9 @@ function paintSlotsResults() {
 }
 
 // highlight context for the chips being painted: required letters get inked,
-// the +1-borrowed letter gets its own mark
-function setHighlights(must, rack, given) {
+// the +1-borrowed letter gets its own mark. `given` letters are free — only
+// the Ladder passes any (its seed word sits on the board).
+function setHighlights(must, given = "") {
   reqLetters = must ?? new Set();
   rackMark = w => usesAllRack(w, state.rack, given);
   borrowAt = state.rack && state.plusOne ? w => borrowedIndex(w, state.rack, given) : () => -1;
@@ -473,12 +470,11 @@ function borrowedIndex(word, rack, given = "") {
 function paintPatternResults() {
   const p = state.pattern;
   const rack = effRack();
-  const given = ""; // pattern literals spend rack tiles too — one rule everywhere
-  const literals = p.str.replace(/[^a-z]/g, "");
+  const literals = p.str.replace(/[^a-z]/g, ""); // these spend rack tiles too — one rule everywhere
   const restricted = !state.rack && p.may.size + p.must.size > 0;
   const only = restricted ? new Set([...p.may, ...p.must, ...literals]) : null;
-  const filters = { ...p, include: p.must, only, rack, given };
-  setHighlights(p.must, rack, given);
+  const filters = { ...p, include: p.must, only, rack };
+  setHighlights(p.must);
   const wrap = $("pattern-results");
 
   if (!p.str && state.rack) {
@@ -505,7 +501,7 @@ function paintLabResults() {
     wrap.innerHTML = "";
     return;
   }
-  setHighlights(new Set(), state.rack, lab.word);
+  setHighlights(new Set(), lab.word);
   const { plus, minus } = queryPlusMinus(state.dict, lab.word, { ...lab, rack: state.rack });
 
   wrap.innerHTML = "";
