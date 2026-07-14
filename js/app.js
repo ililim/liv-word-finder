@@ -116,6 +116,7 @@ async function boot() {
 async function switchDict(key) {
   state.dictKey = key;
   state.dict = await loadDict(key);
+  dirtyAll(); // every mode answers from the new lexicon
   buildDictRadios();
   render();
 }
@@ -136,7 +137,13 @@ function switchApp(app) {
     $("ghost").focus({ preventScroll: true });
   }
   if (app === "lab") paintTrail(); // scroll-into-view only sticks once the view is visible
-  render(state.compact ? 60 : 300); // the glide gets right-of-way; compact has no pill
+
+  if (dirty[app]) {
+    resultsEl().innerHTML = ""; // stale results never flash
+    render();
+  } else {
+    saveState(); // nothing to repaint, but the switch itself is worth resuming into
+  }
 }
 
 const resultsEl = () => $(`${state.app}-results`);
@@ -406,10 +413,16 @@ function paintTrail() {
 
 // — Rendering —————————————————————————————————————————————————————————————————
 
+// Each view knows whether its results still match its state. Clean views
+// repaint never (no flicker on return); global changes dirty everyone.
+const dirty = { slots: true, pattern: true, lab: true };
+const dirtyAll = () => { dirty.slots = dirty.pattern = dirty.lab = true; };
+
 let renderTimer;
-function render(delay = 60) {
+function render() {
+  dirty[state.app] = true;
   clearTimeout(renderTimer);
-  renderTimer = setTimeout(paint, delay);
+  renderTimer = setTimeout(paint, 60);
 }
 
 function paint() {
@@ -418,6 +431,7 @@ function paint() {
   if (state.app === "slots") paintSlotsResults();
   if (state.app === "pattern") paintPatternResults();
   if (state.app === "lab") paintLabResults();
+  dirty[state.app] = false;
 }
 
 function paintSlotsResults() {
@@ -671,6 +685,7 @@ function buildDictRadios() {
 
 function setRack(str) {
   state.rack = parseRack(str);
+  dirtyAll(); // the rack filters every mode
   syncPlusChips();
   paintRackStrip();
   paintBoards();
@@ -769,7 +784,7 @@ function wireEvents() {
   toggle($("lab-nodoubles"), on => { state.lab.noDoubles = on; }, state.lab.noDoubles);
 
   for (const b of document.querySelectorAll(".tchip.plus"))
-    b.onclick = () => { state.plusOne = !state.plusOne; syncPlusChips(); render(); };
+    b.onclick = () => { state.plusOne = !state.plusOne; dirtyAll(); syncPlusChips(); render(); };
   syncPlusChips();
 
   for (const btn of document.querySelectorAll(".tchip.reset")) btn.onclick = resetView;
