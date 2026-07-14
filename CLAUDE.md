@@ -137,8 +137,8 @@ shapes survive only in the nav (seg pill + header ?/⚙ buttons). Header: brand 
   hold a word for its definition. Toggles: ANAGRAM (rearranged letters, on by default),
   UNIQUE (no repeated letters), +S (hide S-plurals). +1/−1 sections split on a thick accent rule with signed badges. No "word not
   in dictionary" notices (owner cut it).
-- Constraint board MUST keys show an inline ✱ superscript (required-field convention).
-  Boards exist in SLOTS **and PATTERN**. **Rack-aware semantics** (Liv feedback): with a
+- Constraint board MUST keys are marked by their accent fill alone (the ✱ was retired:
+  color is enough). Boards exist in SLOTS **and PATTERN**. **Rack-aware semantics** (Liv feedback): with a
   rack set, tap = REQUIRE (the rack is already the allowed alphabet); without one, tap
   cycles may → must. Required letters render inked inside result words.
 - **NO DOUBLES = adjacent doubled letters** (coFFee, blOOd) — Liv's lifelong meaning from

@@ -275,11 +275,6 @@ button { font: inherit; color: inherit; background: none; border: none; cursor: 
 .bkey.must { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); font-weight: 850; }
 /* the required star sits at the letter's shoulder without moving it:
    anchored to the key's center, where the letter always is */
-.bkey.must::after {
-  content: "✱"; font-size: 13px; font-weight: 900; line-height: 1;
-  position: absolute; left: 50%; top: 50%;
-  transform: translate(5px, -16px);
-}
 .board.active .bkey:not(.may):not(.must):not(.fn) { opacity: 0.3; }
 .bkey.fn { flex: 0 0 48px; font-size: 11px; font-weight: 850; color: var(--muted); }
 /* the board folds behind a slim header; active requirements stay visible on it */
@@ -469,7 +464,6 @@ button { font: inherit; color: inherit; background: none; border: none; cursor: 
 .d-key.dim { opacity: 0.3; }
 .d-key.may { background: var(--ink); color: var(--bg); border-color: var(--ink); }
 .d-key.must { background: var(--hc); color: var(--hc-ink); border-color: var(--hc); }
-.d-key.must i { font-size: 8px; font-style: normal; margin-left: 1px; transform: translateY(-3px); }
 .d-input { height: 28px; padding: 0 7px; display: inline-flex; align-items: center; font-size: 11px; font-weight: 850; letter-spacing: 0.08em; background: var(--surface); border: 2px solid var(--line); }
 .d-word { height: 28px; padding: 0 7px; display: inline-flex; align-items: center; font-size: 11px; font-weight: 800; background: var(--surface); border: 2px solid var(--line); white-space: nowrap; }
 .d-word.hot { background: var(--hc); color: var(--hc-ink); border-color: var(--hc); }
