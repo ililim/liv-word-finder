@@ -40,6 +40,7 @@
 }
 
 * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+[hidden] { display: none !important; } /* the attribute must beat any display rule */
 html, body { height: 100%; }
 body {
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
@@ -228,8 +229,8 @@ button { font: inherit; color: inherit; background: none; border: none; cursor: 
   text-align: left;
 }
 .board-head b { color: var(--accent-text); letter-spacing: 0.04em; }
-.board-head .chev { display: inline-block; transition: transform 0.15s; }
-.board-head .chev.open { transform: rotate(90deg); }
+.board-head .chev { display: inline-block; }
+.bkey.fn.fold { font-size: 13px; }
 .bkey.fn.clear { font-size: 14px; }
 
 /* toggle chips */

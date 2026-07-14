@@ -196,6 +196,7 @@ function buildBoards() {
     for (const row of ["qwertyuiop", "asdfghjkl", "zxcvbnm"]) {
       const div = document.createElement("div");
       div.className = "board-row";
+      if (row[0] === "z") div.append(fnKey("▾", () => toggleBoard(id), "fold"));
       for (const ch of row) {
         const key = document.createElement("button");
         key.className = "bkey";
@@ -207,12 +208,14 @@ function buildBoards() {
       if (row[0] === "z") div.append(fnKey("✕", () => clearBoard(view), "clear"));
       root.append(div);
     }
-    $(`${id}-head`).onclick = () => {
-      state.boardOpen[id] = !state.boardOpen[id];
-      paintBoards();
-      render(); // persists the preference
-    };
+    $(`${id}-head`).onclick = () => toggleBoard(id);
   }
+}
+
+function toggleBoard(id) {
+  state.boardOpen[id] = !state.boardOpen[id];
+  paintBoards();
+  render(); // persists the preference
 }
 
 function fnKey(label, fn, cls = "") {
@@ -248,9 +251,9 @@ function paintBoards() {
     const { may, must } = state[view];
     const open = state.boardOpen[id];
     $(id).hidden = !open;
+    $(`${id}-head`).hidden = open; // the header exists only as the way back in
     const marks = [...must].map(ch => `<b>${ch}✱</b>`).join(" ");
-    $(`${id}-head`).innerHTML =
-      `<span class="chev${open ? " open" : ""}">▸</span> LETTERS ${marks}`;
+    $(`${id}-head`).innerHTML = `<span class="chev">▸</span> LETTERS ${marks}`;
     $(id).classList.toggle("active", !rack && may.size + must.size > 0);
     for (const key of $(id).querySelectorAll(".bkey")) {
       if (!key.dataset.ch) continue;
