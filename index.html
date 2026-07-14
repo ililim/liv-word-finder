@@ -19,6 +19,10 @@
   <main class="main" id="main">
   <header class="brand-row">
     <div class="brand">LIV<em>·</em>WORDS</div>
+    <div class="mode-dd" id="mode-dd">
+      <button class="mode-dd-btn" id="mode-dd-btn"></button>
+      <div class="mode-dd-menu" id="mode-dd-menu" hidden></div>
+    </div>
     <div class="head-btns">
       <button class="icon-btn" id="help-btn" aria-label="help">
         <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="3.4" stroke-linecap="round">
@@ -73,10 +77,10 @@
   <!-- PATTERN — free-typed, open or anchored ends -->
   <section class="view active" id="view-pattern">
     <div class="pat-row">
-      <button class="anchor" id="anchor-start">START<br>WITH</button>
+      <button class="anchor" id="anchor-start">START</button>
       <input class="pat-input" id="pat-input" placeholder="B_TT*Y" autocomplete="off" inputmode="email"
              autocorrect="off" autocapitalize="characters" spellcheck="false" enterkeyhint="done">
-      <button class="anchor" id="anchor-end">END<br>WITH</button>
+      <button class="anchor" id="anchor-end">END</button>
     </div>
     <div class="lenchips" id="lenchips"></div>
     <button class="board-head" id="pat-board-head"></button>
@@ -113,8 +117,17 @@
     <div class="sheet-def" id="def-text"></div>
   </div>
   <div class="sheet" id="set-sheet">
-    <div class="set-h">DICTIONARY</div>
-    <div id="dict-radios"></div>
+    <div class="set-sec">
+      <div class="set-h">INTERFACE</div>
+      <button class="radio-row" id="compact-row">
+        <span>COMPACT <span class="sub">smaller everything, dropdown nav</span></span>
+        <span class="dot"></span>
+      </button>
+    </div>
+    <div class="set-sec">
+      <div class="set-h">DICTIONARY</div>
+      <div id="dict-radios"></div>
+    </div>
   </div>
   <div class="sheet" id="help-sheet">
     <div class="help-sec" data-mode="rack">
@@ -169,7 +182,7 @@
         <span class="help-t">when unpinned, the pattern can appear anywhere in the word</span>
       </div>
       <div class="help-row">
-        <span class="help-demo"><span class="d-anchor on">START<br>WITH</span><span class="d-word"><b>CAT</b>NIP</span></span>
+        <span class="help-demo"><span class="d-anchor on">START</span><span class="d-word"><b>CAT</b>NIP</span></span>
         <span class="help-t">when pinned, the word must begin or end with your pattern</span>
       </div>
       <div class="help-row">

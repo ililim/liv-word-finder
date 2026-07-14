@@ -21,6 +21,7 @@ const state = {
   dict: null,
   rack: null,     // { counts, blanks } — set from the rack strip, filters every mode
   plusOne: false, // borrow one letter you don't hold
+  compact: false, // smaller everything; nav becomes a header dropdown
   boardOpen: { board: true, "pat-board": false }, // letter boards collapse; slots' is primary
   slots:   { len: 5, letters: [], cursor: 0, may: new Set(), must: new Set(), noDoubles: false },
   pattern: { str: "", anchorStart: false, anchorEnd: false, lengths: new Set(), may: new Set(), must: new Set(), noDoubles: false },
@@ -45,6 +46,7 @@ function saveState() {
     app: s.app,
     rack: $("rack-input").value,
     plusOne: s.plusOne,
+    compact: s.compact,
     boardOpen: s.boardOpen,
     slots: { ...s.slots, may: [...s.slots.may], must: [...s.slots.must] },
     pattern: { ...s.pattern, lengths: [...s.pattern.lengths], may: [...s.pattern.may], must: [...s.pattern.must] },
@@ -58,6 +60,7 @@ function restoreState() {
     if (!v) return;
     if (["slots", "pattern", "lab"].includes(v.app)) state.app = v.app;
     state.plusOne = !!v.plusOne;
+    state.compact = !!v.compact;
     Object.assign(state.boardOpen, v.boardOpen);
     $("rack-input").value = v.rack ?? "";
     state.rack = parseRack(v.rack ?? "");
@@ -91,6 +94,7 @@ async function boot() {
   paintRackStrip();
   paintTrail();
   syncPlusChips();
+  applyCompact();
 
   // the pill materializes in place on load — gliding is for gestures, not boots
   const pill = $("seg-pill");
@@ -122,6 +126,7 @@ function switchApp(app) {
   for (const b of $("seg").querySelectorAll("button")) b.classList.toggle("active", b.dataset.app === app);
   for (const v of document.querySelectorAll(".view")) v.classList.toggle("active", v.id === `view-${app}`);
   placeSegPill();
+  paintModeDD();
   if (app === "slots") {
     buildSlots(); // boot measures a hidden view as width 0 — size against the real one
     $("ghost").focus({ preventScroll: true });
@@ -133,8 +138,34 @@ function switchApp(app) {
 function placeSegPill() {
   const btn = $("seg").querySelector("button.active");
   const pill = $("seg-pill");
+  if (!btn.offsetWidth) return; // seg hidden in compact mode
   pill.style.left = `${btn.offsetLeft}px`;
   pill.style.width = `${btn.offsetWidth}px`;
+}
+
+// — Compact mode ——————————————————————————————————————————————————————————————
+// Everything shrinks and the nav folds into a header dropdown.
+
+const MODES = [["slots", "SLOTS"], ["pattern", "PATTERN"], ["lab", "LADDER"]];
+
+function applyCompact() {
+  $("app").classList.toggle("compact", state.compact);
+  $("compact-row").classList.toggle("on", state.compact);
+  paintModeDD();
+  requestAnimationFrame(() => { buildSlots(); placeSegPill(); }); // sizes changed
+}
+
+function paintModeDD() {
+  $("mode-dd-btn").textContent = MODES.find(([k]) => k === state.app)[1];
+  $("mode-dd-menu").innerHTML = "";
+  for (const [key, label] of MODES) {
+    const item = el(`<button data-mode="${key}" class="${key === state.app ? "active" : ""}">${label}</button>`);
+    item.onclick = () => {
+      $("mode-dd-menu").hidden = true;
+      switchApp(key);
+    };
+    $("mode-dd-menu").append(item);
+  }
 }
 
 const resultsEl = () => $(`${state.app}-results`);
@@ -266,7 +297,7 @@ function paintBoards() {
     const open = state.boardOpen[id];
     $(id).hidden = !open;
     $(`${id}-head`).hidden = open; // the header exists only as the way back in
-    const marks = [...must].map(ch => `<b>${ch}✱</b>`).join(" ");
+    const marks = [...must].map(ch => `<b>${ch}</b>`).join(" ");
     $(`${id}-head`).innerHTML = `<span class="chev">▸</span> LETTERS ${marks}`;
     $(id).classList.toggle("active", !rack && may.size + must.size > 0);
     for (const key of $(id).querySelectorAll(".bkey")) {
@@ -701,6 +732,16 @@ function wireEvents() {
   $("help-btn").onclick = () => openSheet("help-sheet");
   $("settings-btn").onclick = () => openSheet("set-sheet");
   $("scrim").onclick = closeSheets;
+
+  $("compact-row").onclick = () => {
+    state.compact = !state.compact;
+    applyCompact();
+    render(); // persists
+  };
+  $("mode-dd-btn").onclick = () => { $("mode-dd-menu").hidden = !$("mode-dd-menu").hidden; };
+  document.addEventListener("click", e => {
+    if (!$("mode-dd").contains(e.target)) $("mode-dd-menu").hidden = true;
+  });
 
   // Slots type through an invisible input so the native keyboard does the work.
   $("ghost").addEventListener("keydown", e => {

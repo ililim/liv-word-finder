@@ -79,6 +79,64 @@ button { font: inherit; color: inherit; background: none; border: none; cursor: 
 .icon-btn svg { display: block; } /* SVG icons center geometrically, no font metrics */
 #help-btn svg { transform: translateY(-1px); }
 
+/* mode dropdown — compact mode's nav, centered in the header */
+.brand-row { position: relative; }
+.mode-dd { position: absolute; left: 50%; transform: translateX(-50%); display: none; z-index: 30; }
+#app.compact .mode-dd { display: block; }
+#app.compact .seg { display: none; }
+.mode-dd-btn {
+  height: 28px; padding: 0 12px;
+  background: var(--accent); color: var(--accent-ink);
+  font-size: 11px; font-weight: 850; letter-spacing: 0.08em;
+  border-radius: var(--r-pill);
+}
+.mode-dd-btn::after { content: " ▾"; }
+/* the menu belongs to the nav family: it keeps the rounded language */
+.mode-dd-menu {
+  position: absolute; top: 34px; left: 50%; transform: translateX(-50%);
+  min-width: 150px;
+  background: var(--bg); border: 2px solid var(--ink);
+  border-radius: 16px; overflow: hidden;
+  padding: 4px;
+}
+.mode-dd-menu button {
+  display: flex; width: 100%; align-items: center; justify-content: center;
+  height: 40px; padding: 0 14px;
+  font-size: 12px; font-weight: 850; letter-spacing: 0.08em;
+  border-radius: var(--r-pill);
+}
+.mode-dd-menu button[data-mode="slots"]   { color: #c22a2b; }
+.mode-dd-menu button[data-mode="pattern"] { color: #9a6b00; }
+.mode-dd-menu button[data-mode="lab"]     { color: #2b8a3e; }
+.mode-dd-menu button.active[data-mode="slots"]   { background: #d93334; color: #ffffff; }
+.mode-dd-menu button.active[data-mode="pattern"] { background: #ffb000; color: #101010; }
+.mode-dd-menu button.active[data-mode="lab"]     { background: #37b24d; color: #101010; }
+@media (prefers-color-scheme: dark) {
+  .mode-dd-menu button[data-mode="slots"]   { color: #e5484d; }
+  .mode-dd-menu button[data-mode="pattern"] { color: #ffb000; }
+  .mode-dd-menu button[data-mode="lab"]     { color: #51cf66; }
+  .mode-dd-menu button.active[data-mode="slots"] { background: #e5484d; }
+  .mode-dd-menu button.active[data-mode="lab"]   { background: #51cf66; }
+}
+
+/* compact: everything a notch smaller */
+#app.compact .brand { font-size: 13px; }
+#app.compact .icon-btn { width: 28px; height: 28px; }
+#app.compact .rack-strip { min-height: 34px; margin-top: 8px; }
+#app.compact .rack-strip .rt { width: 20px; height: 24px; font-size: 11px; }
+#app.compact .view { margin-top: 10px; gap: 8px; }
+#app.compact .pat-input, #app.compact .lab-input { height: 36px; font-size: 14px; }
+#app.compact .anchor { font-size: 9px; }
+#app.compact .slot { height: 42px; font-size: 17px; }
+#app.compact .bkey { flex-basis: 30px; height: 32px; font-size: 13px; }
+#app.compact .bkey.fn { flex-basis: 42px; }
+#app.compact .stepper button, #app.compact .stepper .len { width: 36px; height: 28px; }
+#app.compact .word { height: 28px; padding: 0 8px; font-size: 12px; }
+#app.compact .tchip { height: 26px; font-size: 9px; }
+#app.compact .lchip { height: 24px; min-width: 26px; font-size: 10px; }
+#app.compact .res-h { font-size: 10px; }
+#app.compact .res-h b, #app.compact .lab-h b { font-size: 12px; }
+
 /* app switcher — bordered pill; the active pill SLIDES between modes and
    recolors to the destination mode on the way */
 .seg {
@@ -228,7 +286,7 @@ button { font: inherit; color: inherit; background: none; border: none; cursor: 
 .board-head {
   display: flex; align-items: center; gap: 6px;
   font-size: 11px; font-weight: 800; letter-spacing: 0.1em; color: var(--muted);
-  text-align: left;
+  text-align: left; text-transform: uppercase;
 }
 .board-head b { color: var(--accent-text); letter-spacing: 0.04em; }
 .board-head .chev { display: inline-block; }
@@ -428,6 +486,7 @@ button { font: inherit; color: inherit; background: none; border: none; cursor: 
 
 /* settings */
 .set-h { font-size: 12px; font-weight: 850; letter-spacing: 0.14em; color: var(--muted); }
+.set-sec { display: flex; flex-direction: column; gap: 4px; } /* headers hug their rows */
 .radio-row {
   display: flex; width: 100%;
   justify-content: space-between; align-items: center;
