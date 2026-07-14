@@ -486,7 +486,7 @@ function paintRackStrip(editing = document.activeElement === $("rack-input")) {
   $("rack-tiles").innerHTML =
     tiles +
     (editing ? `<span class="caret"></span>` : "") +
-    (editing && !raw ? `<span class="hint-tile">LETTERS YOU HOLD · SPACE = BLANK</span>` : "") +
+    (editing && !raw ? `<span class="hint-tile">RACK · SPACE = BLANK</span>` : "") +
     (!editing && !raw ? `<span class="rt ghost"></span><span class="rt ghost"></span><span class="rt ghost"></span>` : "");
 }
 
