@@ -185,15 +185,15 @@ button { font: inherit; color: inherit; background: none; border: none; cursor: 
 .chips { display: flex; gap: 6px; flex-wrap: wrap; align-items: center; }
 .chips .grow { flex: 1; }
 .tchip {
-  height: 34px; padding: 0 10px;
-  display: inline-flex; align-items: center; gap: 6px;
-  font-size: 11px; font-weight: 850; letter-spacing: 0.07em;
+  height: 34px; padding: 0 8px;
+  display: inline-flex; align-items: center; gap: 5px;
+  font-size: 10px; font-weight: 850; letter-spacing: 0.06em;
   border: 2px solid var(--line); border-radius: var(--r);
   color: var(--muted);
 }
-.tchip .ic { font-size: 13px; }
+.tchip .ic { font-size: 12px; }
 .tchip.on { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); }
-.tchip.reset { padding: 0 10px; font-size: 15px; }
+.tchip.reset { padding: 0 9px; font-size: 14px; }
 
 
 /* ---- PATTERN ---- */
@@ -222,11 +222,12 @@ button { font: inherit; color: inherit; background: none; border: none; cursor: 
 /* length filter chips */
 .lenchips { display: flex; gap: 6px; flex-wrap: wrap; }
 .lchip {
-  height: 32px; min-width: 40px; padding: 0 11px;
+  height: 32px; min-width: 34px; padding: 0 8px;
   font-size: 11px; font-weight: 850;
   border: 2px solid var(--line); border-radius: var(--r);
   color: var(--muted); font-variant-numeric: tabular-nums;
 }
+.lenchips { gap: 5px; }
 .lchip.on { background: var(--ink); color: var(--bg); border-color: var(--ink); }
 
 /* ---- ±1 LAB ---- */
