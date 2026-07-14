@@ -201,7 +201,6 @@ button { font: inherit; color: inherit; background: none; border: none; cursor: 
 .tchip .ic { font-size: 12px; }
 .tchip.on { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); }
 .tchip.reset { padding: 0 9px; font-size: 14px; }
-.tchip.star { padding: 0 11px; font-size: 15px; color: var(--ink); }
 
 
 /* ---- PATTERN ---- */
