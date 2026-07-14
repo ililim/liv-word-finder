@@ -70,11 +70,11 @@ button { font: inherit; color: inherit; background: none; border: none; cursor: 
   font-size: 15px; font-weight: 850; line-height: 1;
   border: 2px solid var(--ink); border-radius: var(--r-pill);
 }
-.icon-btn span { transform: translateY(-0.5px); }
 .icon-btn.on { background: var(--ink); color: var(--bg); }
-/* glyphs have different intrinsic sizes — tune each to the same optical weight */
+/* each glyph has its own metrics — size and nudge individually to true center */
+#help-btn span { transform: translateY(0.5px); }
 #settings-btn span { font-size: 17px; }
-#rack-btn span { font-size: 12px; }
+#rack-btn span { font-size: 12px; transform: translateY(1px); }
 
 /* app switcher — bordered pill, white active segment (mockup 14) */
 .seg {
