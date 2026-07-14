@@ -16,6 +16,7 @@
 </head>
 <body>
 <div id="app">
+  <main class="main" id="main">
   <header class="brand-row">
     <div class="brand">LIV<em>·</em>WORDS</div>
     <div class="head-btns">
@@ -42,6 +43,7 @@
          autocapitalize="characters" spellcheck="false" enterkeyhint="done">
 
   <nav class="seg" id="seg">
+    <span class="seg-pill" id="seg-pill"></span>
     <button data-app="slots" class="active">SLOTS</button>
     <button data-app="pattern">PATTERN</button>
     <button data-app="lab">LADDER</button>
@@ -90,13 +92,14 @@
     <div class="chips">
       <button class="tchip reset">↺</button>
       <div class="grow"></div>
-      <button class="tchip" id="lab-shuffle"><span class="ic">⇄</span>ANAGRAM</button>
+      <button class="tchip" id="lab-shuffle"><svg class="ic-svg" viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h3c6 0 6 12 12 12h3"/><path d="M3 18h3c6 0 6-12 12-12h3"/><path d="M18 3l3 3-3 3"/><path d="M18 15l3 3-3 3"/></svg>ANAGRAM</button>
       <button class="tchip" id="lab-nodoubles"><span class="ic">◇</span>NO REPEATS</button>
       <button class="tchip" id="lab-nos"><span class="ic">S̶</span>NO +S</button>
     </div>
     <div class="trail" id="trail"></div>
     <div class="results" id="lab-results"></div>
   </section>
+  </main>
 
   <!-- sheets -->
   <div class="scrim" id="scrim"></div>
@@ -169,7 +172,7 @@
         <span class="help-t"><b>tap</b> a word to step to it, +1 adds a letter, −1 removes one</span>
       </div>
       <div class="help-row">
-        <span class="help-demo"><span class="d-chip on">⇄ ANAGRAM</span></span>
+        <span class="help-demo"><span class="d-chip on">ANAGRAM</span></span>
         <span class="help-t">also allow rearranged letters, FLUOR as well as FLOUR</span>
       </div>
       <div class="help-row">

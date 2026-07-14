@@ -57,6 +57,10 @@ button { font: inherit; color: inherit; background: none; border: none; cursor: 
   padding: calc(max(12px, env(safe-area-inset-top)) + 10px) 16px 0;
   position: relative;
 }
+.main {
+  flex: 1; min-height: 0;
+  display: flex; flex-direction: column;
+}
 
 /* header */
 .brand-row { display: flex; justify-content: space-between; align-items: center; height: 36px; }
@@ -74,18 +78,29 @@ button { font: inherit; color: inherit; background: none; border: none; cursor: 
 .icon-btn svg { display: block; } /* SVG icons center geometrically, no font metrics */
 #help-btn svg { transform: translateY(-1px); }
 
-/* app switcher — bordered pill, white active segment (mockup 14) */
+/* app switcher — bordered pill; the active pill SLIDES between modes and
+   recolors to the destination mode on the way */
 .seg {
   display: grid; grid-template-columns: 1fr 1fr 1fr;
   height: 46px; padding: 4px; gap: 2px; margin-top: 16px;
   border: 2px solid var(--ink); border-radius: var(--r-pill);
   background: var(--bg);
+  position: relative;
 }
 .seg button {
   font-size: 13px; font-weight: 850; letter-spacing: 0.08em;
   color: var(--muted); border-radius: var(--r-pill);
+  position: relative; z-index: 1;
 }
-.seg button.active { background: var(--accent); color: var(--accent-ink); }
+.seg button.active { color: var(--accent-ink); }
+.seg-pill {
+  position: absolute; top: 4px; bottom: 4px; left: 0; width: 0;
+  background: var(--accent); border-radius: var(--r-pill);
+  /* the pill glides, but wears the destination color almost immediately */
+  transition: left 0.24s cubic-bezier(0.2, 0.8, 0.2, 1),
+              width 0.24s cubic-bezier(0.2, 0.8, 0.2, 1),
+              background-color 0.07s;
+}
 
 /* rack — the strip IS the input: tiles render live, a caret tile blinks while editing */
 /* always present — an empty rack is a tap target, not a hidden feature.
@@ -102,7 +117,11 @@ button { font: inherit; color: inherit; background: none; border: none; cursor: 
 .rack-tiles { flex: 1; min-height: 32px; align-items: center; }
 .rack-dismiss {
   display: none; position: absolute; right: 6px; top: 50%; transform: translateY(-50%);
-  font-size: 17px; font-weight: 850; color: var(--muted); padding: 4px 10px;
+  font-size: 17px; font-weight: 850; color: var(--muted); padding: 4px 8px;
+  background: rgba(228, 227, 221, 0.85); /* tray-toned veil: tiles dim behind the ✕ */
+}
+@media (prefers-color-scheme: dark) {
+  .rack-dismiss { background: rgba(30, 29, 26, 0.85); }
 }
 .rack-strip.filled .rack-dismiss { display: block; }
 .rack-tiles { display: inline-flex; gap: 5px; flex-wrap: wrap; justify-content: center; align-items: center; }
@@ -123,12 +142,16 @@ button { font: inherit; color: inherit; background: none; border: none; cursor: 
   border: 1.5px solid rgba(51, 41, 26, 0.3);
 }
 .rack-strip .rt.blank { color: #8a7a58; font-size: 14px; }
+.rack-strip .rt.drop { animation: tile-drop 0.14s ease-out; }
+@keyframes tile-drop {
+  from { opacity: 0; transform: translateY(-4px); }
+}
 .word.all-rack::after { content: "✱"; font-size: 10px; margin-left: 5px; color: var(--accent-text); }
 .bkey.norack { opacity: 0.35; }
 
-/* views */
+/* views — the incoming mode settles in with a small rise */
 .view { flex: 1; display: none; flex-direction: column; gap: 14px; margin-top: 16px; min-height: 0; }
-.view.active { display: flex; }
+.view.active { display: flex; } /* view swaps are instant; the pill carries the motion */
 .hint { font-size: 11px; letter-spacing: 0.07em; color: var(--muted); font-weight: 700; }
 .hint b { color: var(--ink); font-weight: 850; }
 
@@ -151,6 +174,11 @@ button { font: inherit; color: inherit; background: none; border: none; cursor: 
 .slot.cursor { border-color: var(--accent); }
 .slot.small { height: 50px; font-size: 18px; }
 .slot.small .idx { display: none; }
+/* NYT-style: the letter settles into place — no overshoot, no bounce */
+.slot.pop { animation: tile-pop 0.1s ease-out; }
+@keyframes tile-pop {
+  from { transform: scale(0.92); }
+}
 
 .slots-tools { display: flex; align-items: center; justify-content: center; }
 /* joined stepper — one bordered group, internal dividers (mockup 08 edges) */
@@ -175,6 +203,8 @@ button { font: inherit; color: inherit; background: none; border: none; cursor: 
   position: relative;
   transition: opacity 0.1s, background 0.1s;
 }
+.bkey:active { transform: scale(0.92); }
+.bkey { transition: opacity 0.1s, background 0.1s, transform 0.08s; }
 .bkey.may { background: var(--ink); color: var(--bg); border-color: var(--ink); }
 .bkey.must { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); font-weight: 850; }
 /* the required star sits at the letter's shoulder without moving it:
@@ -199,6 +229,7 @@ button { font: inherit; color: inherit; background: none; border: none; cursor: 
   color: var(--muted);
 }
 .tchip .ic { font-size: 12px; }
+.tchip .ic-svg { display: block; flex: 0 0 auto; }
 .tchip.on { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); }
 .tchip.reset { padding: 0 9px; font-size: 14px; }
 
@@ -245,8 +276,10 @@ button { font: inherit; color: inherit; background: none; border: none; cursor: 
   height: 28px; padding: 0 11px;
   font-size: 11px; font-weight: 850; letter-spacing: 0.05em; text-transform: uppercase;
   border: 2px solid var(--line); border-radius: var(--r); color: var(--muted);
+  transition: background-color 0.15s, color 0.15s, border-color 0.15s; /* the cursor glides */
 }
 .crumb.current { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); }
+.crumb.new { animation: chip-in 0.16s ease-out; }
 .t-arrow {
   flex: 0 0 auto; height: 28px;
   display: inline-flex; align-items: center;
@@ -287,7 +320,12 @@ button { font: inherit; color: inherit; background: none; border: none; cursor: 
   border: 2px solid var(--line); border-radius: var(--r);
   user-select: none; -webkit-user-select: none;
 }
-.word:active { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); }
+.word:active { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); transform: scale(0.95); }
+/* results arrive with a quick staggered rise (first handful only) */
+.word { animation: chip-in 0.16s ease-out backwards; }
+@keyframes chip-in {
+  from { opacity: 0; transform: translateY(4px); }
+}
 .more-btn {
   height: 34px; padding: 0 15px;
   font-size: 11px; font-weight: 850; letter-spacing: 0.07em;
@@ -390,3 +428,9 @@ button { font: inherit; color: inherit; background: none; border: none; cursor: 
 .scroll-top.show { opacity: 0.9; pointer-events: auto; }
 
 .ghost-input { position: absolute; opacity: 0; height: 1px; width: 1px; top: -100px; }
+
+/* motion is decoration here — anyone who asked for calm gets calm */
+@media (prefers-reduced-motion: reduce) {
+  .word, .slot.pop, .rack-strip .rt.drop, .crumb.new { animation: none; }
+  .seg-pill { transition: none; }
+}

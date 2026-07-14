@@ -28,6 +28,7 @@ const state = {
 async function boot() {
   navigator.serviceWorker?.register("./sw.js");
   $("app").dataset.app = state.app;
+  requestAnimationFrame(placeSegPill); // after first layout
   paintRackStrip();
   buildSlots();
   buildBoard();
@@ -52,10 +53,19 @@ function switchApp(app) {
   state.app = app;
   $("app").dataset.app = app;
   $("scroll-top").classList.remove("show"); // the new view starts at its top
-  for (const b of $("seg").children) b.classList.toggle("active", b.dataset.app === app);
+  for (const b of $("seg").querySelectorAll("button")) b.classList.toggle("active", b.dataset.app === app);
   for (const v of document.querySelectorAll(".view")) v.classList.toggle("active", v.id === `view-${app}`);
+  placeSegPill();
   if (app === "slots") $("ghost").focus({ preventScroll: true });
   render();
+}
+
+// the pill glides under the active segment and recolors en route
+function placeSegPill() {
+  const btn = $("seg").querySelector("button.active");
+  const pill = $("seg-pill");
+  pill.style.left = `${btn.offsetLeft}px`;
+  pill.style.width = `${btn.offsetWidth}px`;
 }
 
 const resultsEl = () => $(`${state.app}-results`);
@@ -81,9 +91,11 @@ function buildSlots() {
     cell.classList.toggle("small", width < 36);
     cell.classList.toggle("filled", !!ch);
     cell.classList.toggle("cursor", i === s.cursor);
+    cell.classList.toggle("pop", i === s.popIdx);
     cell.onclick = () => { s.cursor = i; $("ghost").focus({ preventScroll: true }); buildSlots(); };
     wrap.append(cell);
   }
+  s.popIdx = null; // one pop per keystroke
 }
 
 function setLen(len) {
@@ -102,6 +114,7 @@ function slotKey(key) {
     s.letters[s.cursor] = null;
   } else if (/^[a-zA-Z]$/.test(key)) {
     s.letters[s.cursor] = key.toLowerCase();
+    s.popIdx = s.cursor; // the tile that just landed gets the pop
     s.cursor = Math.min(s.cursor + 1, s.len - 1);
   } else if (key.length === 1) { // space or anything else = any
     s.letters[s.cursor] = null;
@@ -239,16 +252,19 @@ function labTyped(value) {
   render();
 }
 
+let trailLen = 0;
 function paintTrail() {
   const lab = state.lab;
   const wrap = $("trail");
+  const grew = lab.trail.length > trailLen;
+  trailLen = lab.trail.length;
   wrap.innerHTML = "";
   if (lab.trail.length < 2) return;
 
   let currentEl = null;
   for (const [i, word] of lab.trail.entries()) {
     if (i) wrap.append(el(`<span class="t-arrow">›</span>`));
-    const crumb = el(`<button class="crumb${i === lab.pos ? " current" : ""}">${word}</button>`);
+    const crumb = el(`<button class="crumb${i === lab.pos ? " current" : ""}${grew && i === lab.pos ? " new" : ""}">${word}</button>`);
     if (i === lab.pos) currentEl = crumb;
     crumb.onclick = () => {
       if (i === lab.pos) return;
@@ -375,12 +391,20 @@ function appendOtherLengths(wrap, words) {
 
 function wordRow(words, walkable) {
   const row = el(`<div class="words"></div>`);
-  for (const word of words.slice(0, PAGE)) row.append(wordChip(word, walkable));
+  for (const [i, word] of words.slice(0, PAGE).entries()) {
+    const chip = wordChip(word, walkable);
+    if (i < 14) chip.style.animationDelay = `${i * 14}ms`; // stagger the leaders, land the rest
+    row.append(chip);
+  }
   if (words.length > PAGE) {
     const more = el(`<button class="more-btn">+${words.length - PAGE} MORE</button>`);
     more.onclick = () => {
       more.remove();
-      for (const word of words.slice(PAGE)) row.append(wordChip(word, walkable));
+      for (const word of words.slice(PAGE)) {
+        const chip = wordChip(word, walkable);
+        chip.style.animation = "none"; // 150+ chips popping at once is noise
+        row.append(chip);
+      }
     };
     row.append(more);
   }
@@ -477,11 +501,14 @@ function setRack(str) {
 }
 
 // blur passes editing=false explicitly: activeElement can lag during the event
+let rackLen = 0;
 function paintRackStrip(editing = document.activeElement === $("rack-input")) {
   const raw = $("rack-input").value.toLowerCase().replace(/[^a-z?]/g, "");
+  const grew = raw.length > rackLen;
+  rackLen = raw.length;
   $("rack-strip").classList.toggle("filled", !!raw);
   const tiles = [...raw]
-    .map(ch => `<span class="rt${ch === "?" ? " blank" : ""}">${ch === "?" ? "?" : ch}</span>`)
+    .map((ch, i) => `<span class="rt${ch === "?" ? " blank" : ""}${grew && i === raw.length - 1 ? " drop" : ""}">${ch === "?" ? "?" : ch}</span>`)
     .join("");
   $("rack-tiles").innerHTML =
     tiles +
@@ -551,7 +578,7 @@ function wireEvents() {
   toggle($("lab-nos"), on => { state.lab.hideSPlurals = on; });
 
   for (const btn of document.querySelectorAll(".tchip.reset")) btn.onclick = resetView;
-  window.addEventListener("resize", buildSlots);
+  window.addEventListener("resize", () => { buildSlots(); placeSegPill(); });
 
   for (const list of document.querySelectorAll(".results"))
     list.addEventListener("scroll", () => $("scroll-top").classList.toggle("show", list.scrollTop > 400), { passive: true });
