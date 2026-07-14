@@ -664,7 +664,7 @@ function buildDictRadios() {
     const sub = { nwl: "North American Scrabble", csw: "international Scrabble", enable: "Words With Friends", all: "all three combined" }[key];
     const row = el(`<button class="radio-row ${key === state.dictKey ? "on" : ""}">
         <span>${label} <span class="sub">${sub}</span></span><span class="dot"></span></button>`);
-    row.onclick = () => { closeSheets(); switchDict(key); };
+    row.onclick = () => switchDict(key); // the sheet stays: she might not be done in here
     wrap.append(row);
   }
 }
