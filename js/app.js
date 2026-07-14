@@ -33,18 +33,64 @@ const effRack = () =>
     : state.rack;
 
 
+// — Persistence ———————————————————————————————————————————————————————————————
+// A refresh (or Safari evicting the tab) resumes exactly where she was.
+
+const STORE = "lwf-state";
+
+function saveState() {
+  const s = state;
+  localStorage.setItem(STORE, JSON.stringify({
+    app: s.app,
+    rack: $("rack-input").value,
+    plusOne: s.plusOne,
+    slots: { ...s.slots, may: [...s.slots.may], must: [...s.slots.must] },
+    pattern: { ...s.pattern, lengths: [...s.pattern.lengths], may: [...s.pattern.may], must: [...s.pattern.must] },
+    lab: s.lab,
+  }));
+}
+
+function restoreState() {
+  try {
+    const v = JSON.parse(localStorage.getItem(STORE));
+    if (!v) return;
+    if (["slots", "pattern", "lab"].includes(v.app)) state.app = v.app;
+    state.plusOne = !!v.plusOne;
+    $("rack-input").value = v.rack ?? "";
+    state.rack = parseRack(v.rack ?? "");
+    Object.assign(state.slots, v.slots, { may: new Set(v.slots?.may), must: new Set(v.slots?.must) });
+    Object.assign(state.pattern, v.pattern, { lengths: new Set(v.pattern?.lengths), may: new Set(v.pattern?.may), must: new Set(v.pattern?.must) });
+    Object.assign(state.lab, v.lab);
+  } catch {
+    // a fresh start beats a broken one
+  }
+}
+
+
 // — Boot ——————————————————————————————————————————————————————————————————————
 
 async function boot() {
   navigator.serviceWorker?.register("./sw.js");
-  $("app").dataset.app = state.app;
-  requestAnimationFrame(placeSegPill); // after first layout
-  paintRackStrip();
+  restoreState();
   buildSlots();
   buildBoards();
   buildLenChips();
   buildDictRadios();
   wireEvents();
+
+  // dress the UI in the restored state
+  $("pat-input").value = state.pattern.str.toUpperCase();
+  $("lab-input").value = state.lab.word.toUpperCase();
+  $("anchor-start").classList.toggle("on", state.pattern.anchorStart);
+  $("anchor-end").classList.toggle("on", state.pattern.anchorEnd);
+  paintLenChips();
+  paintBoards();
+  paintRackStrip();
+  paintTrail();
+  syncPlusChips();
+  switchApp(state.app);
+  requestAnimationFrame(placeSegPill); // again after first real layout
+
   await switchDict(state.dictKey);
 }
 
@@ -314,6 +360,7 @@ function render() {
 }
 
 function paint() {
+  saveState(); // every settled change is worth resuming into
   if (!state.dict) return;
   if (state.app === "slots") paintSlotsResults();
   if (state.app === "pattern") paintPatternResults();
@@ -643,7 +690,7 @@ function wireEvents() {
   });
   $("len-minus").onclick = () => setLen(state.slots.len - 1);
   $("len-plus").onclick = () => setLen(state.slots.len + 1);
-  toggle($("slots-nodoubles"), on => { state.slots.noDoubles = on; });
+  toggle($("slots-nodoubles"), on => { state.slots.noDoubles = on; }, state.slots.noDoubles);
 
   $("pat-input").addEventListener("input", e => {
     const clean = normalizePattern(e.target.value);
@@ -653,11 +700,11 @@ function wireEvents() {
   });
   $("anchor-start").onclick = () => anchor("anchorStart", "anchor-start");
   $("anchor-end").onclick = () => anchor("anchorEnd", "anchor-end");
-  toggle($("pat-nodoubles"), on => { state.pattern.noDoubles = on; });
+  toggle($("pat-nodoubles"), on => { state.pattern.noDoubles = on; }, state.pattern.noDoubles);
 
   $("lab-input").addEventListener("input", e => labTyped(e.target.value));
   toggle($("lab-shuffle"), on => { state.lab.shuffle = on; }, state.lab.shuffle);
-  toggle($("lab-nodoubles"), on => { state.lab.noDoubles = on; });
+  toggle($("lab-nodoubles"), on => { state.lab.noDoubles = on; }, state.lab.noDoubles);
 
   for (const b of document.querySelectorAll(".tchip.plus"))
     b.onclick = () => { state.plusOne = !state.plusOne; syncPlusChips(); render(); };
