@@ -141,7 +141,7 @@ function buildSlots() {
   // Shrink to fit one row up to WRAP_AT slots; beyond, split into two even rows.
   const cols = s.len <= WRAP_AT ? s.len : Math.ceil(s.len / 2);
   const avail = wrap.clientWidth || wrap.parentElement.clientWidth;
-  const width = Math.max(26, Math.min(52, Math.floor((avail - (cols - 1) * 7) / cols)));
+  const width = Math.max(26, Math.min(48, Math.floor((avail - (cols - 1) * 7) / cols)));
 
   for (let i = 0; i < s.len; i++) {
     const ch = s.letters[i];

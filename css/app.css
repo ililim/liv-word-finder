@@ -163,7 +163,7 @@ button { font: inherit; color: inherit; background: none; border: none; cursor: 
 /* ---- SLOTS ---- */
 .slots { display: flex; flex-wrap: wrap; gap: 7px; justify-content: center; }
 .slot {
-  height: 60px; flex: 0 0 auto;
+  height: 56px; flex: 0 0 auto;
   display: grid; place-items: center;
   font-size: 24px; font-weight: 850; text-transform: uppercase;
   background: var(--surface);
