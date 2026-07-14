@@ -136,7 +136,7 @@ function switchApp(app) {
     $("ghost").focus({ preventScroll: true });
   }
   if (app === "lab") paintTrail(); // scroll-into-view only sticks once the view is visible
-  render(300); // let the pill land before heavy queries take the thread
+  render(state.compact ? 60 : 300); // the glide gets right-of-way; compact has no pill
 }
 
 const resultsEl = () => $(`${state.app}-results`);
