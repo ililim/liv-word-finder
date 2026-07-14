@@ -7,7 +7,7 @@ const $ = id => document.getElementById(id);
 const plural = n => (n === 1 ? "WORD" : "WORDS");
 const ALPHA = "abcdefghijklmnopqrstuvwxyz";
 const PAGE = 150;         // words shown per group before "+n more"
-const WRAP_AT = 12;       // slots per row — beyond this they take a second line
+const WRAP_AT = 10;       // slots per row — beyond this they split into two even rows
 
 // set per paint: does this word spend the whole rack?
 let rackMark = () => false;
