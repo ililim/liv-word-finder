@@ -189,6 +189,10 @@ all future visual work on this project:**
 - [x] v0.1 app built and browser-verified (2026-07-13); local git repo initialized
 - [x] Published: `ililim/liv-word-finder`, GitHub Pages at
   **https://ililim.github.io/liv-word-finder/** (main branch, root). Push to main = deploy.
+- [x] PWA: manifest + LIV-tiles icon + service worker. Shell is network-first (updates
+  apply on next online open, nothing to do on the phone); `wordlists/` and `data/` are
+  cache-first — **if those files ever change, bump `CACHE` in sw.js** or phones keep the
+  old data forever. Icon/name changes require remove + re-add on the home screen.
 - [x] Milestone 2: global rack (▦ inline tile-strip editor; fitsRack with blanks +
   query-credit rule; empty-query rack solve; ✱ uses-all marker)
 - [ ] PWA/offline (service worker) + Add-to-Home-Screen polish (icons, manifest)
